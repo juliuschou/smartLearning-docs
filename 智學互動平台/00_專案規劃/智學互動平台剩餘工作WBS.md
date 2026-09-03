@@ -556,17 +556,19 @@
 
 ### FE-2.2 UI
 
-- [ ] FE-2.2.1 Course detail roster section
-- [ ] FE-2.2.2 Search/select student
-- [ ] FE-2.2.3 Enroll action
-- [ ] FE-2.2.4 Remove confirmation
-- [ ] FE-2.2.5 Duplicate/reactivation feedback
-- [ ] FE-2.2.6 Archived course error state
-- [ ] FE-2.2.7 Permission/not-found state
-- [ ] FE-2.2.8 Keyboard與 accessibility 驗證
+- [x] FE-2.2.1 Course detail roster section
+- [x] FE-2.2.2 Search/select student
+- [x] FE-2.2.3 Enroll action
+- [x] FE-2.2.4 Remove confirmation
+- [x] FE-2.2.5 Duplicate/reactivation feedback
+- [x] FE-2.2.6 Archived course error state
+- [x] FE-2.2.7 Permission/not-found state
+- [x] FE-2.2.8 Keyboard與 accessibility 驗證
 - [ ] FE-2.2.9 Real-browser acceptance
 
 **依賴：** BE-2 enrollment API。
+
+> **FE-2.2 closeout（2026-09-03，使用者授權）：** FE-2.2.1–FE-2.2.8 依 UI commit `7cbcc46`（`feat(teacher): complete FE-2.2 enrollment roster UI`）交付並關閉：`CourseRosterSection`（paginated roster table、student search 300ms debounce + 2–100 code points 校驗、enroll/remove、duplicate/reactivation 回饋、archived 409 `COURSE_NOT_EDITABLE`、404/403 stable-code 狀態）、`role="dialog"` 移除確認（Esc 關閉、focus trap、失敗留對話）。驗證：`npm test` 20 files / 154 tests PASS（含新 16 tests）、typegen/typecheck/lint/build/prettier/diff check 全綠。FE-2.2.8 鍵盤走查由單元測試涵蓋 Tab/Enter/Escape 與 aria 標記；screen-reader sanity 留 QA-2.2。**FE-2.2.9 real-browser acceptance 仍 BLOCKED**（需使用者提供隔離 real backend 與 `FE22_API_BASE / FE22_UI_ORIGIN / FE22_ADMIN_USERNAME / FE22_ADMIN_PASSWORD / FE22_COURSE_NAME_PREFIX`，可選 `FE22_TEACHER_USERNAME / FE22_TEACHER_PASSWORD`；執行 `node test/browser/run.mjs test/browser/fe-2-2-roster.spec.ts`，先 `npm run dev` 於同 host），未以 mock/placeholder 取代。
 
 ---
 
