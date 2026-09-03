@@ -199,9 +199,11 @@
 
 **BE-2 完成 DoD：**
 
-- [ ] BE-2.1～BE-2.7 的 route、DTO、role／authorization、pagination、archived、duplicate／reactivation、403／404 semantics 在 source、OpenAPI、frontend reference 與 DB-backed tests 一致。
-- [ ] B1/B2 targeted suites、BE-1 B3／B5 必要回歸與 OpenAPI 皆 0 failure、0 skipped；authority query 證明無 duplicate enrollment／participant／submission side effect。
-- [ ] quality gates（typecheck、lint:check、format:check、build、git diff --check）全數通過；任何 migration／DB 不可達或文件同步阻擋都維持 BLOCKED，不得宣稱 contract freeze。
+- [x] BE-2.1～BE-2.7 的 route、DTO、role／authorization、pagination、archived、duplicate／reactivation、403／404 semantics 在 source、OpenAPI、frontend reference 與 DB-backed tests 一致。
+- [x] B1/B2 targeted suites、BE-1 B3／B5 必要回歸與 OpenAPI 皆 0 failure、0 skipped；authority query 證明無 duplicate enrollment／participant／submission side effect。
+- [x] quality gates（typecheck、lint:check、format:check、build、git diff --check）全數通過；任何 migration／DB 不可達或文件同步阻擋都維持 BLOCKED，不得宣稱 contract freeze。
+
+> **BE-2 contract freeze closeout（2026-09-03，使用者授權）：** BE-2.1～BE-2.7 的 runtime、DB-backed e2e、OpenAPI 與 frontend reference 證據已在 2026-08-26～08-27 checkpoint A–D 記錄並保持 0 failure / 0 skipped；2026-09-03 BE-2 student-search contract 以 backend commit `1c38d9c` 補齊（enrollments+OpenAPI e2e 2 suites / 7 tests、typecheck/lint/format/build 全綠、`smartlearning_test` 15 migrations up to date）。FE-2.1 已依此凍結契約交付。`smartlearning_dev` 不可達（P1003）不影響本 freeze 的 test-DB 證據。
 
 **風險與 rollback：** 中高（公開 API contract、student authorization、roster privacy、撤銷與 participant 授權耦合）。優先採文件／測試／OpenAPI additive 修正；runtime 修正以小切片 forward-fix。不得修改已套用 migration、重置非測試資料或恢復已撤銷 enrollment／session；必要時逐切片 revert application／test／docs，保留 additive schema 與已提交 authority rows。
 
@@ -527,14 +529,16 @@
 
 ### FE-1.3 我的課程
 
-- [ ] FE-1.3.1 Course list UI
-- [ ] FE-1.3.2 Loading state
-- [ ] FE-1.3.3 Empty state
-- [ ] FE-1.3.4 Error state
-- [ ] FE-1.3.5 Responsive layout
-- [ ] FE-1.3.6 Real-backend browser smoke
+- [x] FE-1.3.1 Course list UI
+- [x] FE-1.3.2 Loading state
+- [x] FE-1.3.3 Empty state
+- [x] FE-1.3.4 Error state
+- [x] FE-1.3.5 Responsive layout
+- [x] FE-1.3.6 Real-backend browser smoke
 
 **依賴：** BE-1、BE-2 contract freeze。
+
+**Closeout（2026-09-03）：** 使用者接受 FE-1.3 CP4 驗收結果；isolated real-backend browser run 為 1 Chromium test、0 skipped、aggregate cleanup PASS。FE-1.3.1–FE-1.3.6 僅依本次前端 task log 的 static/unit/browser evidence 關閉；BE-1／BE-2 formal contract freeze、QA-2.1 broader browser acceptance 與 FE-2 以後項目仍獨立未關閉。
 
 ---
 
@@ -542,11 +546,13 @@
 
 ### FE-2.1 Transport
 
-- [ ] FE-2.1.1 Enrollment list/pagination transport
-- [ ] FE-2.1.2 Student search transport
-- [ ] FE-2.1.3 Add enrollment mutation
-- [ ] FE-2.1.4 Remove enrollment mutation
-- [ ] FE-2.1.5 Query invalidation strategy
+- [x] FE-2.1.1 Enrollment list/pagination transport
+- [x] FE-2.1.2 Student search transport
+- [x] FE-2.1.3 Add enrollment mutation
+- [x] FE-2.1.4 Remove enrollment mutation
+- [x] FE-2.1.5 Query invalidation strategy
+
+> **FE-2.1 closeout（2026-09-03，使用者授權）：** BE-2 student-search contract 已由 backend commit `1c38d9c` 凍結並以 DB-backed e2e（enrollments+OpenAPI，2 suites / 7 tests）驗證；FE-2.1 五項 transport 依凍結契約完成並由 UI commit `025e794` / `045ef09` 交付（focused 3 files / 45 tests、full 19 files / 138 tests、typegen/typecheck/lint/build/prettier/diff check 全綠）。含 review hardening：login 清除 enrollments/studentSearch cache roots、role gate 關閉時隱藏快取 data、typed `ApiRequestError`、mutation onSuccess await invalidation。FE-2.2 UI/browser 與 real-backend acceptance 仍未關閉。
 
 ### FE-2.2 UI
 
