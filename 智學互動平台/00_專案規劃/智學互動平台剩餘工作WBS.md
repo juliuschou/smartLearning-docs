@@ -11,7 +11,7 @@
 | --- | --------------- | -----:| ----:| --------:| ------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 1.0 | Phase B 封板      | 5–8   | 0–1  | 3–5      | 學生帳號與加選後端正式簽核                        | [Phase B 後端執行計畫](../50_實作與測試/Phase%20B%20學生帳號與加選名冊%20後端執行計畫.md)、[Web Auth 與安全設計](../30_系統設計/Web%20Auth%20與安全設計.md)、[API 與共用 Schema](../30_系統設計/API%20與共用%20Schema%20設計.md) |
 | 2.0 | Student 基礎 UI   | 0–1   | 3–5  | 1–2      | 登入、角色導向、我的課程                         | [Phase B 學員帳號實作計畫](../50_實作與測試/Phase%20B%20學員帳號%20實作計畫.md)、[API 與共用 Schema](../30_系統設計/API%20與共用%20Schema%20設計.md)                                                         |
-| 3.0 | Teacher 名冊與課堂控制 | 2–4   | 6–9  | 2–3      | 名冊、開關題、課堂狀態與結果                       | [P0 核心需求基線](../10_需求蒐集/P0%20核心需求基線.md)、[即時同步與結果治理設計](../30_系統設計/即時同步與結果治理設計.md)                                                                                            |
+| 3.0 | Teacher 名冊與課堂控制 | 2–4   | 6–9  | 2–3      | 名冊、開關題、課堂狀態與結果（FE-2 與 FE-3 已交付，real-browser acceptance 待補） | [P0 核心需求基線](../10_需求蒐集/P0%20核心需求基線.md)、[即時同步與結果治理設計](../30_系統設計/即時同步與結果治理設計.md)                                                                                            |
 | 4.0 | Student 完整課堂    | 2–4   | 8–14 | 3–5      | 四題型加入、作答、結果與匿名 fallback              | [題目領域契約](../10_需求蒐集/題目領域契約.md)、[API 與共用 Schema](../30_系統設計/API%20與共用%20Schema%20設計.md)、[即時同步與結果治理設計](../30_系統設計/即時同步與結果治理設計.md)                                            |
 | 5.0 | Archive 與資料治理   | 8–13  | 2–4  | 4–6      | Archive、90 日 retention、刪除與 tombstone | [結果資料治理](../10_需求蒐集/結果資料治理.md)、[資料模型與 ER 設計](../30_系統設計/資料模型與%20ER%20設計.md)、[即時同步與結果治理設計](../30_系統設計/即時同步與結果治理設計.md)                                                       |
 | 6.0 | 即時可靠性與容量        | 15–25 | 5–8  | 8–12     | Scheduler、outbox/replay、Redis、W1–W8  | [MVP 效能目標](MVP%20效能目標.md)、[架構、容量與可觀測性設計](../30_系統設計/架構、容量與可觀測性設計.md)、[即時同步與結果治理設計](../30_系統設計/即時同步與結果治理設計.md)                                                              |
@@ -576,33 +576,35 @@
 
 ### FE-3.1 Routes／transport
 
-- [ ] FE-3.1.1 Session list/detail transport
-- [ ] FE-3.1.2 Start/cancel/close mutations
-- [ ] FE-3.1.3 Open/close question mutations
-- [ ] FE-3.1.4 Teacher result transport
-- [ ] FE-3.1.5 Joined/voted count transport
+- [x] FE-3.1.1 Session list/detail transport（detail 完成；list 仍 BLOCKED，後端無 session-list endpoint）
+- [x] FE-3.1.2 Start/cancel/close mutations
+- [x] FE-3.1.3 Open/close question mutations
+- [x] FE-3.1.4 Teacher result transport
+- [x] FE-3.1.5 Joined/voted count transport
 
 ### FE-3.2 Realtime adapter（Lite）
 
-- [ ] FE-3.2.1 建立 Socket.IO client wrapper
-- [ ] FE-3.2.2 Web Session handshake
-- [ ] FE-3.2.3 Teacher room subscription
-- [ ] FE-3.2.4 Snapshot on connect/reconnect
-- [ ] FE-3.2.5 Stale-state refetch
-- [ ] FE-3.2.6 Error/disconnect state
+- [x] FE-3.2.1 建立 Socket.IO client wrapper
+- [x] FE-3.2.2 Web Session handshake
+- [x] FE-3.2.3 Teacher room subscription
+- [x] FE-3.2.4 Snapshot on connect/reconnect
+- [x] FE-3.2.5 Stale-state refetch
+- [x] FE-3.2.6 Error/disconnect state
 
 ### FE-3.3 Teacher UI
 
-- [ ] FE-3.3.1 Session control view
-- [ ] FE-3.3.2 Question queue/list
-- [ ] FE-3.3.3 Open/close controls
-- [ ] FE-3.3.4 Joined/voted indicators
-- [ ] FE-3.3.5 Teacher result dashboard
-- [ ] FE-3.3.6 Close/cancel confirmation
-- [ ] FE-3.3.7 Responsive與 keyboard walkthrough
+- [x] FE-3.3.1 Session control view
+- [x] FE-3.3.2 Question queue/list
+- [x] FE-3.3.3 Open/close controls
+- [x] FE-3.3.4 Joined/voted indicators
+- [x] FE-3.3.5 Teacher result dashboard
+- [x] FE-3.3.6 Close/cancel confirmation
+- [x] FE-3.3.7 Responsive與 keyboard walkthrough
 - [ ] FE-3.3.8 Real-backend browser acceptance
 
 **依賴：** BE-3。
+
+> **FE-3 closeout（2026-09-03，使用者授權）：** FE-3.1 transport（commit `b8b5b6b`）、FE-3.2 realtime adapter（Lite）與 FE-3.3 teacher UI（commit `9e4121a`）依凍結的 BE-3 contract 交付並關閉。FE-3.1 以 `lib/api/live-sessions.ts` 提供 detail/counts query、lifecycle 與 open/close question mutations、per-question results discriminated union（poll/quiz+correctness/open_text），全數 `mutate:true`（CSRF/Origin）並 await invalidation。FE-3.2 新增 `socket.io-client@4.8.3`（exact，對齊後端 `socket.io@4.8.3`）與 `lib/live/{realtime-types,socket-client,use-live-session-events}.ts`：`createLiveSocket`（`auth.liveSessionId` + websocket + `withCredentials`）、`useLiveConnection`（status/errorCode/snapshot fetch）、事件映射以 `(liveSessionId, eventSeq)` 去重、永不 optimistic。FE-3.3 新增受保護 deep-link route `app/(teacher)/live/[liveSessionId]/`（page/loading/error/not-found）與 `features/live-teacher/`（LiveClassroomView、QuestionQueue、ResultPanel、CloseCancelDialog），並抽取共用 `components/ui/ConfirmDialog`（roster removal 改為重用，行為不變）。驗證：`npm test` 27 files / 199 tests PASS（新 realtime-adapter 10、confirm-dialog 6、question-queue 5、result-panel 5、live-classroom-view 5、live-classroom-route 1）、typegen/typecheck/lint/build/prettier/diff check 全綠。**FE-3.1.1 session-list 與 FE-3.3.8 real-backend browser acceptance 仍 BLOCKED**（前者無後端 list endpoint；後者需隔離 real backend 且需 F9 question authoring 才能建立 live session），未以 mock/placeholder 取代。
 
 ---
 
@@ -788,7 +790,7 @@
 | -------------------------- | ---------------- | ------------------------------ |
 | FE-1 Student 我的課程          | BE-1、BE-2        | 可先設計，contract freeze 後實作       |
 | FE-2 Teacher roster        | BE-2             | 不應以 mock 實作                    |
-| FE-3 Teacher classroom     | BE-3             | 後端生命週期與 result contract 通過後    |
+| FE-3 Teacher classroom     | BE-3             | 已交付（FE-3.1/3.2/3.3）；僅 FE-3.3.8 real-browser acceptance 待補 |
 | FE-4 Poll-single classroom | BE-1、BE-3、BE-4.1 | 後端 E2E 通過後                     |
 | FE-5 其餘題型                  | BE-4.2～BE-4.4    | 各題型 lifecycle 通過後逐題型實作         |
 | FE-6 Archive/history       | BE-5             | 不可提前做 placeholder              |
