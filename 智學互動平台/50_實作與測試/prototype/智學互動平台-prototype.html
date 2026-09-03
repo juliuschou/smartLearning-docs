@@ -1,0 +1,2102 @@
+<!doctype html>
+<html lang="zh-Hant" data-theme="paper">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="智學互動平台的學員與老師雙角色 standalone prototype。">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHZpZXdCb3g9IjAgMCA2NCA2NCI+PHJlY3Qgd2lkdGg9IjY0IiBoZWlnaHQ9IjY0IiByeD0iMTYiIGZpbGw9IiMwMzY5YTEiLz48cGF0aCBkPSJNMTMgMjRoMzhNMTMgMzZoMjciIHN0cm9rZT0id2hpdGUiIHN0cm9rZS13aWR0aD0iNiIgc3Ryb2tlLWxpbmVjYXA9InJvdW5kIiB0cmFuc2Zvcm09InJvdGF0ZSgtMTQgMzIgMzIpIi8+PC9zdmc+">
+  <title>智學互動平台｜回聲標記 prototype</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --fog: #eaf1f4;
+      --surface: #fcfefd;
+      --surface-2: #f3f8fa;
+      --ink: #123041;
+      --ink-soft: #385462;
+      --muted: #6a808a;
+      --line: #c9d9df;
+      --line-strong: #9db7c2;
+      --blue: #0369a1;
+      --blue-soft: #d9edf7;
+      --red: #b91c1c;
+      --red-soft: #fee2e2;
+      --violet: #6d28d9;
+      --violet-soft: #eee6ff;
+      --gold: #a16207;
+      --gold-soft: #fef3c7;
+      --good: #0f766e;
+      --good-soft: #d7f3ed;
+      --shadow: 0 12px 32px rgba(18, 48, 65, .08);
+      --shadow-small: 0 4px 14px rgba(18, 48, 65, .08);
+      --chart-1: #0369a1;
+      --chart-2: #2b83ba;
+      --chart-3: #65a6c7;
+      --chart-4: #a7c9d7;
+      --chart-surface: #fcfcfb;
+      --focus: #7c3aed;
+      --radius: 12px;
+      --radius-small: 7px;
+      --mono: "Cascadia Mono", "IBM Plex Mono", Consolas, monospace;
+      --sans: "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", system-ui, sans-serif;
+      --display: "Noto Serif TC", "Songti TC", "PMingLiU", Georgia, serif;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="paper"]):not([data-theme="projector"]) {
+        color-scheme: dark;
+        --fog: #0e2029;
+        --surface: #122b36;
+        --surface-2: #173541;
+        --ink: #e9f5f7;
+        --ink-soft: #c3d9df;
+        --muted: #9ab2bc;
+        --line: #31515e;
+        --line-strong: #4b7180;
+        --blue: #0b86c7;
+        --blue-soft: #133f57;
+        --red: #d4485e;
+        --red-soft: #4b202b;
+        --violet: #8068c7;
+        --violet-soft: #332c52;
+        --gold: #b98117;
+        --gold-soft: #463918;
+        --good: #26a69a;
+        --good-soft: #153f3c;
+        --shadow: 0 12px 32px rgba(0, 0, 0, .24);
+        --shadow-small: 0 4px 14px rgba(0, 0, 0, .2);
+        --chart-1: #0b86c7;
+        --chart-2: #3a9dd1;
+        --chart-3: #6db8dc;
+        --chart-4: #a4d4e8;
+        --chart-surface: #1a1a19;
+        --focus: #bda9ff;
+      }
+    }
+
+    html[data-theme="projector"] {
+      color-scheme: dark;
+      --fog: #07151c;
+      --surface: #0e2935;
+      --surface-2: #123643;
+      --ink: #f1fbfc;
+      --ink-soft: #c8e1e7;
+      --muted: #9ab6c0;
+      --line: #315766;
+      --line-strong: #4b7a8b;
+      --blue: #0b86c7;
+      --blue-soft: #133f57;
+      --red: #d4485e;
+      --red-soft: #4b202b;
+      --violet: #8068c7;
+      --violet-soft: #332c52;
+      --gold: #b98117;
+      --gold-soft: #463918;
+      --good: #26a69a;
+      --good-soft: #153f3c;
+      --shadow: 0 16px 36px rgba(0, 0, 0, .32);
+      --shadow-small: 0 5px 15px rgba(0, 0, 0, .26);
+      --chart-1: #0b86c7;
+      --chart-2: #3a9dd1;
+      --chart-3: #6db8dc;
+      --chart-4: #a4d4e8;
+      --chart-surface: #1a1a19;
+      --focus: #bda9ff;
+    }
+
+    html[data-theme="paper"] {
+      color-scheme: light;
+    }
+
+    * { box-sizing: border-box; }
+    html { min-width: 320px; background: var(--fog); }
+    body {
+      min-width: 320px;
+      min-height: 100vh;
+      margin: 0;
+      background: var(--fog);
+      color: var(--ink);
+      font-family: var(--sans);
+      line-height: 1.55;
+      font-size: 15px;
+    }
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+    button:disabled { cursor: not-allowed; }
+    a { color: var(--blue); }
+    :focus-visible { outline: 3px solid var(--focus); outline-offset: 3px; }
+    ::selection { background: var(--violet-soft); color: var(--ink); }
+
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      display: flex;
+      align-items: center;
+      gap: 18px;
+      min-height: 74px;
+      padding: 12px clamp(16px, 4vw, 52px);
+      background: color-mix(in srgb, var(--surface) 94%, transparent);
+      border-bottom: 1px solid var(--line);
+      backdrop-filter: blur(16px);
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 11px;
+      min-width: max-content;
+    }
+    .brand-mark {
+      position: relative;
+      width: 35px;
+      height: 35px;
+      overflow: hidden;
+      border: 1px solid var(--blue);
+      background: var(--blue);
+      border-radius: 9px 2px 9px 2px;
+      box-shadow: 4px 4px 0 var(--violet);
+    }
+    .brand-mark::before,
+    .brand-mark::after {
+      content: "";
+      position: absolute;
+      left: 7px;
+      right: 7px;
+      height: 3px;
+      background: #fff;
+      border-radius: 4px;
+      transform: rotate(-18deg);
+    }
+    .brand-mark::before { top: 10px; }
+    .brand-mark::after { top: 19px; right: 12px; }
+    .brand-name { font-weight: 800; letter-spacing: .04em; }
+    .brand-sub { color: var(--muted); font-size: 12px; font-family: var(--mono); }
+    .topbar-spacer { flex: 1; }
+    .role-switch {
+      display: inline-flex;
+      padding: 3px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: var(--surface-2);
+    }
+    .role-switch button,
+    .theme-button {
+      border: 0;
+      color: var(--muted);
+      background: transparent;
+      border-radius: 999px;
+      padding: 7px 13px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .role-switch button[aria-pressed="true"] {
+      color: var(--surface);
+      background: var(--ink);
+    }
+    .theme-button { border: 1px solid var(--line); border-radius: var(--radius-small); }
+    .theme-button:hover, .role-switch button:hover { color: var(--ink); background: var(--surface); }
+    .fixture-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      color: var(--violet);
+      background: var(--violet-soft);
+      border: 1px solid color-mix(in srgb, var(--violet) 28%, transparent);
+      border-radius: 999px;
+      padding: 6px 10px;
+      font-family: var(--mono);
+      font-size: 11px;
+      white-space: nowrap;
+    }
+    .fixture-pill::before { content: "◈"; font-size: 12px; }
+
+    .state-ruler {
+      display: grid;
+      grid-template-columns: repeat(5, minmax(110px, 1fr));
+      gap: 1px;
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 16px clamp(16px, 4vw, 52px) 4px;
+      overflow-x: auto;
+    }
+    .ruler-segment {
+      position: relative;
+      min-width: 110px;
+      padding: 10px 14px 11px;
+      background: var(--surface);
+      border-top: 3px solid var(--line);
+    }
+    .ruler-segment:first-child { border-radius: 9px 0 0 9px; }
+    .ruler-segment:last-child { border-radius: 0 9px 9px 0; }
+    .ruler-segment::after {
+      content: "→";
+      position: absolute;
+      top: 17px;
+      right: -9px;
+      z-index: 2;
+      color: var(--muted);
+      font-family: var(--mono);
+    }
+    .ruler-segment:last-child::after { display: none; }
+    .ruler-segment[data-active="true"] { border-top-color: var(--blue); background: var(--blue-soft); }
+    .ruler-key { color: var(--muted); font-family: var(--mono); font-size: 10px; letter-spacing: .08em; }
+    .ruler-value { display: block; margin-top: 1px; font-weight: 800; }
+    .ruler-ref { color: var(--muted); font-family: var(--mono); font-size: 10px; }
+
+    .app-shell {
+      display: grid;
+      grid-template-columns: 214px minmax(0, 1fr) 286px;
+      gap: 18px;
+      max-width: 1600px;
+      margin: 0 auto;
+      padding: 18px clamp(16px, 4vw, 52px) 46px;
+    }
+    .rail, .ledger { align-self: start; }
+    .rail { position: sticky; top: 96px; }
+    .stage { min-width: 0; }
+    .ledger { position: sticky; top: 96px; }
+    .rail-heading, .ledger-heading {
+      margin: 0 0 8px;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+    }
+    .rail-nav { display: grid; gap: 5px; }
+    .rail-nav button {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 8px;
+      width: 100%;
+      padding: 10px 11px;
+      color: var(--ink-soft);
+      text-align: left;
+      border: 1px solid transparent;
+      border-radius: var(--radius-small);
+      background: transparent;
+    }
+    .rail-nav button:hover { color: var(--ink); background: var(--surface); border-color: var(--line); }
+    .rail-nav button[aria-current="page"] { color: var(--blue); background: var(--blue-soft); border-color: color-mix(in srgb, var(--blue) 30%, transparent); font-weight: 800; }
+    .rail-nav .rail-icon { width: 23px; color: var(--muted); font-family: var(--mono); font-size: 12px; }
+    .rail-nav .rail-label { flex: 1; }
+    .rail-note, .ledger-card {
+      margin-top: 17px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: var(--shadow-small);
+    }
+    .rail-note p, .ledger-card p { margin: 0; color: var(--ink-soft); font-size: 13px; }
+    .rail-note strong { display: block; margin-bottom: 5px; color: var(--ink); }
+    .stage-kicker {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      margin: 0 0 12px;
+      color: var(--muted);
+      font-family: var(--mono);
+      font-size: 11px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+    }
+    .stage-kicker .kicker-status { color: var(--blue); }
+    .hero {
+      position: relative;
+      overflow: hidden;
+      margin-bottom: 18px;
+      padding: clamp(22px, 4vw, 42px);
+      border: 1px solid var(--line);
+      border-radius: 16px 3px 16px 3px;
+      background: var(--surface);
+      box-shadow: var(--shadow);
+    }
+    .hero::after {
+      content: "";
+      position: absolute;
+      right: -44px;
+      bottom: -64px;
+      width: 190px;
+      height: 190px;
+      border: 1px solid color-mix(in srgb, var(--blue) 30%, transparent);
+      border-radius: 50%;
+      box-shadow: 0 0 0 18px color-mix(in srgb, var(--blue) 7%, transparent), 0 0 0 37px color-mix(in srgb, var(--violet) 7%, transparent);
+      pointer-events: none;
+    }
+    .eyebrow { color: var(--blue); font-family: var(--mono); font-size: 11px; letter-spacing: .12em; text-transform: uppercase; }
+    h1, h2, h3, h4 { line-height: 1.2; }
+    h1 { max-width: 13ch; margin: 10px 0 15px; font-family: var(--display); font-size: clamp(34px, 5vw, 65px); letter-spacing: -.035em; }
+    h2 { margin: 0 0 10px; font-family: var(--display); font-size: clamp(24px, 3vw, 36px); letter-spacing: -.02em; }
+    h3 { margin: 0 0 7px; font-size: 17px; }
+    h4 { margin: 0 0 6px; font-size: 14px; }
+    .hero p { max-width: 60ch; margin: 0; color: var(--ink-soft); font-size: 16px; }
+    .hero-actions { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 24px; }
+    .section-card {
+      margin-bottom: 16px;
+      padding: 18px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: var(--shadow-small);
+    }
+    .section-card[data-tone="blue"] { border-left: 4px solid var(--blue); }
+    .section-card[data-tone="violet"] { border-left: 4px solid var(--violet); }
+    .section-card[data-tone="red"] { border-left: 4px solid var(--red); }
+    .section-card[data-tone="gold"] { border-left: 4px solid var(--gold); }
+    .section-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; margin-bottom: 14px; }
+    .section-head p { margin: 3px 0 0; color: var(--muted); font-size: 13px; }
+    .section-head > .button-row { flex-shrink: 0; }
+    .button-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+    .button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 7px;
+      min-height: 38px;
+      padding: 8px 13px;
+      color: var(--ink);
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius-small);
+      background: var(--surface);
+      font-weight: 750;
+      transition: transform .16s ease, background .16s ease, border-color .16s ease;
+    }
+    .button:hover:not(:disabled) { transform: translateY(-1px); border-color: var(--blue); background: var(--blue-soft); }
+    .button.primary { color: #fff; border-color: var(--blue); background: var(--blue); }
+    .button.primary:hover:not(:disabled) { color: #fff; background: color-mix(in srgb, var(--blue) 84%, var(--ink)); }
+    .button.danger { color: var(--red); border-color: color-mix(in srgb, var(--red) 42%, var(--line)); background: transparent; }
+    .button.danger:hover:not(:disabled) { color: #fff; background: var(--red); }
+    .button.ghost { color: var(--blue); border-color: transparent; background: transparent; }
+    .button.small { min-height: 31px; padding: 5px 9px; font-size: 12px; }
+    .button:disabled { opacity: .45; transform: none; }
+    .button .icon { font-family: var(--mono); }
+    .status-badge, .type-badge, .privacy-badge, .mini-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      width: fit-content;
+      padding: 4px 8px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: var(--muted);
+      background: var(--surface-2);
+      font-family: var(--mono);
+      font-size: 10px;
+      line-height: 1.2;
+      white-space: nowrap;
+    }
+    .status-badge::before, .privacy-badge::before { content: "○"; }
+    .status-badge[data-status="active"], .status-badge[data-status="open"] { color: var(--blue); border-color: color-mix(in srgb, var(--blue) 35%, var(--line)); background: var(--blue-soft); }
+    .status-badge[data-status="active"]::before, .status-badge[data-status="open"]::before { content: "●"; }
+    .status-badge[data-status="closed"], .status-badge[data-status="cancelled"], .status-badge[data-status="error"] { color: var(--red); border-color: color-mix(in srgb, var(--red) 35%, var(--line)); background: var(--red-soft); }
+    .status-badge[data-status="closed"]::before, .status-badge[data-status="cancelled"]::before, .status-badge[data-status="error"]::before { content: "■"; }
+    .status-badge[data-status="draft"], .status-badge[data-status="waiting"], .status-badge[data-status="not_open"] { color: var(--gold); border-color: color-mix(in srgb, var(--gold) 35%, var(--line)); background: var(--gold-soft); }
+    .status-badge[data-status="draft"]::before, .status-badge[data-status="waiting"]::before, .status-badge[data-status="not_open"]::before { content: "◇"; }
+    .status-badge[data-status="archived"] { color: var(--violet); border-color: color-mix(in srgb, var(--violet) 30%, var(--line)); background: var(--violet-soft); }
+    .status-badge[data-status="archived"]::before { content: "▣"; }
+    .privacy-badge { color: var(--violet); border-color: color-mix(in srgb, var(--violet) 30%, var(--line)); background: var(--violet-soft); }
+    .privacy-badge::before { content: "◌"; }
+    .type-badge { color: var(--blue); border-color: color-mix(in srgb, var(--blue) 28%, var(--line)); background: transparent; }
+    .mono { font-family: var(--mono); font-variant-numeric: tabular-nums; }
+    .muted { color: var(--muted); }
+    .soft { color: var(--ink-soft); }
+    .small-copy { color: var(--muted); font-size: 12px; }
+    .rule-ref { color: var(--muted); font-family: var(--mono); font-size: 11px; }
+    .callout {
+      display: flex;
+      gap: 10px;
+      margin: 12px 0;
+      padding: 11px 12px;
+      color: var(--ink-soft);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-small);
+      background: var(--surface-2);
+      font-size: 13px;
+    }
+    .callout .callout-icon { flex: 0 0 auto; color: var(--blue); font-family: var(--mono); font-weight: 800; }
+    .callout.warning { border-color: color-mix(in srgb, var(--gold) 35%, var(--line)); background: var(--gold-soft); }
+    .callout.warning .callout-icon { color: var(--gold); }
+    .callout.danger { border-color: color-mix(in srgb, var(--red) 35%, var(--line)); background: var(--red-soft); }
+    .callout.danger .callout-icon { color: var(--red); }
+    .callout.success { border-color: color-mix(in srgb, var(--good) 35%, var(--line)); background: var(--good-soft); }
+    .callout.success .callout-icon { color: var(--good); }
+    .grid-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+    .grid-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 12px; }
+    .metric-strip { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 9px; margin: 14px 0; }
+    .metric { padding: 12px; border: 1px solid var(--line); border-radius: var(--radius-small); background: var(--surface-2); }
+    .metric-label { color: var(--muted); font-size: 11px; }
+    .metric-value { display: block; margin-top: 2px; color: var(--ink); font-size: 25px; font-weight: 800; letter-spacing: -.03em; }
+    .metric-note { color: var(--muted); font-size: 11px; }
+    .form-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 13px; }
+    .field { display: grid; gap: 5px; }
+    .field.full { grid-column: 1 / -1; }
+    .field label, .field legend { color: var(--ink-soft); font-size: 13px; font-weight: 750; }
+    .field legend { padding: 0; }
+    .field input, .field select, .field textarea {
+      width: 100%;
+      padding: 10px 11px;
+      color: var(--ink);
+      border: 1px solid var(--line-strong);
+      border-radius: var(--radius-small);
+      outline: 0;
+      background: var(--surface);
+    }
+    .field input:focus, .field select:focus, .field textarea:focus { border-color: var(--blue); box-shadow: 0 0 0 3px color-mix(in srgb, var(--blue) 18%, transparent); }
+    .field textarea { min-height: 104px; resize: vertical; }
+    .field input.code-input { font-family: var(--mono); font-size: 20px; letter-spacing: .15em; text-transform: uppercase; }
+    .field-help { color: var(--muted); font-size: 11px; }
+    .counter { color: var(--muted); font-family: var(--mono); font-size: 11px; text-align: right; }
+    .choice-list { display: grid; gap: 8px; }
+    .answer-option {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 13px 14px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-small);
+      background: var(--surface);
+      transition: background .16s ease, border-color .16s ease;
+    }
+    .answer-option:hover { border-color: var(--blue); background: var(--blue-soft); }
+    .answer-option:has(input:checked) { border-color: var(--blue); background: var(--blue-soft); box-shadow: inset 3px 0 0 var(--blue); }
+    .answer-option input { margin-top: 4px; accent-color: var(--blue); }
+    .answer-option span { flex: 1; }
+    .answer-option small { color: var(--muted); font-family: var(--mono); }
+    .question-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 12px; }
+    .question-prompt { max-width: 65ch; margin: 10px 0 16px; font-family: var(--display); font-size: clamp(23px, 3vw, 34px); letter-spacing: -.02em; }
+    .question-meta { display: flex; flex-wrap: wrap; gap: 7px; }
+    .question-card { padding: 15px; border: 1px solid var(--line); border-radius: var(--radius-small); background: var(--surface-2); }
+    .question-card + .question-card { margin-top: 9px; }
+    .question-card .question-card-top { display: flex; justify-content: space-between; gap: 10px; }
+    .question-card .position { color: var(--muted); font-family: var(--mono); font-size: 12px; }
+    .question-card .prompt { margin: 8px 0; color: var(--ink); font-weight: 750; }
+    .question-card .option-list { display: grid; gap: 3px; margin: 0; padding: 0; list-style: none; color: var(--ink-soft); font-size: 12px; }
+    .question-card .option-list li::before { content: "—"; display: inline-block; width: 19px; color: var(--muted); }
+    .question-card .card-footer { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; margin-top: 11px; }
+    .course-card { position: relative; padding: 17px; border: 1px solid var(--line); border-radius: var(--radius); background: var(--surface); }
+    .course-card[data-selected="true"] { border-color: var(--blue); box-shadow: inset 3px 0 0 var(--blue), var(--shadow-small); }
+    .course-card h3 { margin-top: 8px; font-family: var(--display); font-size: 22px; }
+    .course-id { color: var(--muted); font-family: var(--mono); font-size: 11px; }
+    .course-card p { margin: 5px 0 13px; color: var(--ink-soft); font-size: 13px; }
+    .course-card .course-meta { display: flex; flex-wrap: wrap; gap: 6px; }
+    .course-card .card-actions { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 15px; }
+    .session-code {
+      display: inline-block;
+      padding: 6px 9px;
+      color: var(--ink);
+      border: 1px dashed var(--line-strong);
+      border-radius: var(--radius-small);
+      background: var(--surface-2);
+      font-family: var(--mono);
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: .14em;
+    }
+    .code-lockup { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; }
+    .session-list { display: grid; gap: 9px; }
+    .session-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius-small);
+      background: var(--surface-2);
+    }
+    .session-row .session-main { min-width: 0; }
+    .session-row .session-title { font-weight: 800; }
+    .session-row .session-sub { color: var(--muted); font-size: 12px; }
+    .sequence { display: flex; align-items: center; gap: 0; overflow-x: auto; padding: 8px 2px 14px; }
+    .sequence-item { position: relative; display: flex; align-items: center; min-width: 120px; }
+    .sequence-item:not(:last-child)::after { content: ""; flex: 1; height: 1px; margin: 0 8px; background: var(--line-strong); }
+    .sequence-dot { display: grid; place-items: center; width: 29px; height: 29px; flex: 0 0 auto; border: 2px solid var(--line-strong); border-radius: 50%; color: var(--muted); background: var(--surface); font-family: var(--mono); font-size: 11px; }
+    .sequence-item[data-current="true"] .sequence-dot { border-color: var(--blue); color: #fff; background: var(--blue); box-shadow: 0 0 0 5px color-mix(in srgb, var(--blue) 15%, transparent); }
+    .sequence-label { display: grid; gap: 1px; margin-left: 7px; }
+    .sequence-label strong { font-size: 12px; }
+    .sequence-label span { color: var(--muted); font-family: var(--mono); font-size: 10px; }
+    .bar-chart { display: grid; gap: 10px; margin-top: 12px; padding: 4px 0; }
+    .bar-row { display: grid; grid-template-columns: minmax(80px, 1.1fr) minmax(90px, 2fr) 50px; align-items: center; gap: 9px; }
+    .bar-label { min-width: 0; overflow: hidden; color: var(--ink-soft); font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+    .bar-track { position: relative; height: 22px; border-radius: 4px; background: color-mix(in srgb, var(--line) 58%, transparent); }
+    .bar-mark { display: block; width: 100%; height: 100%; min-width: 24px; border: 0; border-radius: 0 4px 4px 0; background: transparent; }
+    .bar-fill { height: 100%; max-width: 100%; border-radius: 0 4px 4px 0; background: var(--bar-color, var(--chart-1)); transition: width .35s ease; }
+    .bar-row:focus-within .bar-fill, .bar-mark:hover .bar-fill { filter: brightness(1.1); }
+    .bar-value { color: var(--ink); font-family: var(--mono); font-size: 12px; font-variant-numeric: tabular-nums; text-align: right; }
+    .bar-value small { display: block; color: var(--muted); font-size: 10px; }
+    .chart-table { width: 100%; margin-top: 13px; border-collapse: collapse; font-size: 12px; }
+    .chart-table th, .chart-table td { padding: 7px 6px; border-bottom: 1px solid var(--line); text-align: left; }
+    .chart-table th { color: var(--muted); font-size: 11px; font-weight: 700; }
+    .chart-table td:last-child, .chart-table th:last-child { text-align: right; }
+    .legend-note { display: flex; align-items: center; gap: 7px; margin-top: 8px; color: var(--muted); font-size: 11px; }
+    .legend-dot { width: 9px; height: 9px; border-radius: 2px; background: var(--chart-1); }
+    .legend-dot.correct { background: repeating-linear-gradient(135deg, var(--chart-1), var(--chart-1) 4px, var(--violet) 4px, var(--violet) 7px); }
+    .result-lock { display: grid; place-items: center; min-height: 150px; padding: 20px; border: 1px dashed var(--line-strong); border-radius: var(--radius-small); color: var(--muted); background: var(--surface-2); text-align: center; }
+    .result-lock .lock-symbol { margin-bottom: 8px; color: var(--violet); font-size: 30px; }
+    .text-results { display: grid; gap: 8px; margin-top: 12px; }
+    .text-result { padding: 11px 12px; border-left: 3px solid var(--violet); border-radius: 0 var(--radius-small) var(--radius-small) 0; color: var(--ink-soft); background: var(--violet-soft); }
+    .text-result::before { content: "匿名回應"; display: block; margin-bottom: 3px; color: var(--violet); font-family: var(--mono); font-size: 10px; }
+    .validation-list { display: grid; gap: 8px; margin: 12px 0 0; padding: 0; list-style: none; }
+    .validation-item { display: grid; grid-template-columns: auto 1fr; gap: 8px; padding: 10px; border: 1px solid var(--line); border-radius: var(--radius-small); background: var(--surface-2); }
+    .validation-item[data-blocking="true"] { border-color: color-mix(in srgb, var(--red) 35%, var(--line)); background: var(--red-soft); }
+    .validation-item[data-blocking="false"] { border-color: color-mix(in srgb, var(--gold) 35%, var(--line)); background: var(--gold-soft); }
+    .validation-code { color: var(--red); font-family: var(--mono); font-size: 11px; font-weight: 800; }
+    .validation-item[data-blocking="false"] .validation-code { color: var(--gold); }
+    .validation-message { color: var(--ink-soft); font-size: 12px; }
+    .validation-meta { grid-column: 2; color: var(--muted); font-family: var(--mono); font-size: 10px; }
+    .editor-options { display: grid; gap: 8px; }
+    .editor-option-row { display: grid; grid-template-columns: 26px 1fr auto; align-items: center; gap: 8px; }
+    .editor-option-row > span { color: var(--muted); font-family: var(--mono); font-size: 11px; text-align: right; }
+    .editor-option-row button { min-width: 30px; padding: 5px; }
+    .batch-toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin-bottom: 12px; }
+    .batch-toolbar select { padding: 8px; color: var(--ink); border: 1px solid var(--line-strong); border-radius: var(--radius-small); background: var(--surface); }
+    .batch-preview { margin-top: 14px; padding: 14px; border: 2px solid var(--violet); border-radius: var(--radius); background: color-mix(in srgb, var(--violet-soft) 65%, var(--surface)); }
+    .batch-preview h4 { color: var(--violet); }
+    .preview-row { display: grid; grid-template-columns: 35px 1fr; gap: 9px; padding: 9px 0; border-top: 1px solid color-mix(in srgb, var(--violet) 20%, var(--line)); }
+    .preview-index { color: var(--violet); font-family: var(--mono); font-weight: 800; }
+    .preview-content strong { display: block; margin-bottom: 3px; }
+    .preview-content p { margin: 0; color: var(--ink-soft); font-size: 12px; }
+    .question-select { display: grid; gap: 8px; }
+    .select-row { display: grid; grid-template-columns: 24px 1fr auto; align-items: center; gap: 9px; padding: 10px; border: 1px solid var(--line); border-radius: var(--radius-small); background: var(--surface-2); }
+    .select-row[data-selected="true"] { border-color: var(--blue); background: var(--blue-soft); }
+    .select-row input { accent-color: var(--blue); }
+    .select-row .select-info { min-width: 0; }
+    .select-row .select-info strong { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+    .select-row .select-info span { color: var(--muted); font-size: 11px; }
+    .select-row .move-buttons { display: flex; gap: 4px; }
+    .privacy-wall { display: flex; align-items: flex-start; gap: 9px; padding: 11px; border: 1px solid color-mix(in srgb, var(--violet) 35%, var(--line)); border-radius: var(--radius-small); background: var(--violet-soft); }
+    .privacy-wall .privacy-symbol { color: var(--violet); font-family: var(--mono); font-size: 20px; }
+    .privacy-wall strong { display: block; color: var(--ink); font-size: 13px; }
+    .privacy-wall p { margin: 2px 0 0; color: var(--ink-soft); font-size: 12px; }
+    .history-item { padding: 13px; border: 1px solid var(--line); border-radius: var(--radius-small); background: var(--surface-2); }
+    .history-item + .history-item { margin-top: 8px; }
+    .history-top { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+    .history-item h4 { margin: 0; }
+    .history-meta { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 6px; color: var(--muted); font-family: var(--mono); font-size: 10px; }
+    .event-log { display: grid; gap: 7px; max-height: 220px; overflow-y: auto; margin: 9px 0 0; padding: 0; list-style: none; }
+    .event-item { display: grid; grid-template-columns: 45px 1fr; gap: 7px; padding-bottom: 7px; border-bottom: 1px solid var(--line); font-size: 11px; }
+    .event-time { color: var(--muted); font-family: var(--mono); }
+    .event-message { color: var(--ink-soft); }
+    .event-message[data-tone="error"] { color: var(--red); }
+    .event-message[data-tone="success"] { color: var(--good); }
+    .event-rule { display: block; color: var(--muted); font-family: var(--mono); font-size: 10px; }
+    .scenario-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; }
+    .scenario-button { padding: 7px 8px; color: var(--ink-soft); border: 1px solid var(--line); border-radius: var(--radius-small); background: var(--surface); font-size: 11px; text-align: left; }
+    .scenario-button:hover, .scenario-button[data-active="true"] { color: var(--blue); border-color: var(--blue); background: var(--blue-soft); }
+    .tooltip {
+      position: fixed;
+      z-index: 50;
+      max-width: 260px;
+      padding: 8px 10px;
+      color: var(--surface);
+      border: 1px solid var(--ink);
+      border-radius: 5px;
+      background: var(--ink);
+      box-shadow: var(--shadow-small);
+      font-size: 12px;
+      pointer-events: none;
+    }
+    .tooltip strong { display: block; color: #fff; font-size: 14px; }
+    .toast {
+      position: fixed;
+      right: 18px;
+      bottom: 18px;
+      z-index: 60;
+      max-width: min(390px, calc(100vw - 36px));
+      padding: 12px 14px;
+      color: var(--surface);
+      border-left: 4px solid var(--blue);
+      border-radius: var(--radius-small);
+      background: var(--ink);
+      box-shadow: var(--shadow);
+      transform: translateY(0);
+      transition: opacity .2s ease, transform .2s ease;
+    }
+    .toast[data-tone="error"] { border-left-color: var(--red); }
+    .toast[data-tone="success"] { border-left-color: #43d5aa; }
+    .toast[hidden] { opacity: 0; transform: translateY(12px); }
+    .toast strong { display: block; color: #fff; font-size: 13px; }
+    .toast span { display: block; margin-top: 2px; color: #d8e8ec; font-size: 12px; }
+    .empty { padding: 24px 10px; color: var(--muted); text-align: center; }
+    .sr-only { position: absolute !important; width: 1px !important; height: 1px !important; padding: 0 !important; margin: -1px !important; overflow: hidden !important; clip: rect(0, 0, 0, 0) !important; white-space: nowrap !important; border: 0 !important; }
+    .divider { height: 1px; margin: 17px 0; background: var(--line); }
+    .inline-code { padding: 2px 5px; border-radius: 4px; color: var(--violet); background: var(--violet-soft); font-family: var(--mono); font-size: 11px; }
+    .right { text-align: right; }
+    .center { text-align: center; }
+    .nowrap { white-space: nowrap; }
+    details > summary { cursor: pointer; color: var(--blue); font-weight: 750; }
+    details > summary::marker { color: var(--violet); }
+    details .details-body { padding-top: 10px; }
+    @keyframes rulerPulse { 0%, 100% { box-shadow: none; } 50% { box-shadow: 0 0 0 5px color-mix(in srgb, var(--blue) 14%, transparent); } }
+    .ruler-segment[data-pulse="true"] { animation: rulerPulse .9s ease; }
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
+    }
+    @media (max-width: 1180px) {
+      .app-shell { grid-template-columns: 190px minmax(0, 1fr); }
+      .ledger { grid-column: 1 / -1; position: static; }
+      .ledger-content { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+      .ledger-card { margin-top: 0; }
+    }
+    @media (max-width: 760px) {
+      .topbar { flex-wrap: wrap; gap: 9px; min-height: auto; padding: 12px 16px; }
+      .topbar-spacer { display: none; }
+      .fixture-pill { order: 3; width: 100%; justify-content: center; }
+      .state-ruler { padding: 12px 16px 3px; }
+      .app-shell { display: flex; flex-direction: column; gap: 12px; padding: 12px 16px 34px; }
+      .rail, .ledger { position: static; width: 100%; }
+      .rail-nav { display: flex; overflow-x: auto; padding-bottom: 2px; }
+      .rail-nav button { flex: 0 0 auto; width: auto; white-space: nowrap; }
+      .rail-note { display: none; }
+      .ledger-content { display: block; }
+      .ledger-card { margin-top: 10px; }
+      .grid-2, .grid-3, .form-grid { grid-template-columns: 1fr; }
+      .metric-strip { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .hero { padding: 24px 18px; }
+      h1 { font-size: clamp(33px, 13vw, 54px); }
+      .section-card { padding: 15px; }
+      .section-head { display: block; }
+      .section-head > .button-row { margin-top: 10px; }
+      .bar-row { grid-template-columns: minmax(70px, 1fr) minmax(80px, 1.3fr) 43px; }
+      .session-row { align-items: flex-start; flex-direction: column; }
+      .scenario-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .scenario-button { font-size: 10px; }
+    }
+    @media print {
+      .topbar, .rail, .ledger, .fixture-drawer, .hero-actions, button { display: none !important; }
+      .state-ruler { padding: 0; }
+      .app-shell { display: block; padding: 0; }
+      body { background: #fff; color: #000; }
+      .section-card, .hero { box-shadow: none; break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+  <div id="app" aria-live="polite"></div>
+  <div id="chart-tooltip" class="tooltip" role="tooltip" hidden></div>
+  <div id="toast" class="toast" role="status" aria-live="assertive" hidden></div>
+
+  <script>
+    "use strict";
+
+    const VALID_CODE = /^[A-HJ-NP-Z2-9]{8}$/;
+    const FORBIDDEN_DISPLAY = /[\u0000-\u001f\u007f-\u009f\u202a-\u202e\u2066-\u2069]/u;
+    const SCENARIOS = [
+      ["student-join", "學員加入"],
+      ["waiting-room", "等待老師"],
+      ["active-poll", "Poll 作答"],
+      ["active-quiz", "Quiz 作答"],
+      ["active-open-text", "文字回應"],
+      ["closed-results", "關題公布"],
+      ["cancelled-empty", "取消場次"],
+      ["archive-blocked", "封存被擋"],
+      ["archived-readonly", "封存只讀"],
+      ["batch-invalid", "批次錯誤"],
+      ["batch-valid-preview", "批次預覽"],
+      ["snapshot-edited-source", "快照隔離"],
+      ["second-question-open", "一題 open"],
+      ["submission-duplicate", "答案衝突"],
+      ["race-submit-first", "提交先 commit"],
+      ["race-close-first", "關題先 commit"],
+      ["auto-closed", "8 小時終止"]
+    ];
+
+    const BASE_FIXTURE = {
+      counters: { course: 2, question: 4, option: 12, session: 4, participant: 10, submission: 10 },
+      accounts: [
+        { id: "account-authorized", role: "teacher", displayName: "林老師", canCreateCourse: true, status: "active" },
+        { id: "account-blocked", role: "teacher", displayName: "未授權老師", canCreateCourse: false, status: "active" }
+      ],
+      courses: [
+        { id: "course-draft", name: "資料素養入門", description: "把課堂裡的直覺，變成可以一起檢查的證據。", status: "draft", ownerAccountId: "account-authorized" },
+        { id: "course-archived", name: "已結束的媒體識讀課", description: "這是一門只供歷史查詢的封存課程。", status: "archived", ownerAccountId: "account-authorized", archivedAt: "2026-07-19" }
+      ],
+      questionDefinitions: [
+        {
+          id: "q-poll", courseId: "course-draft", type: "poll", prompt: "目前你最想釐清哪一個概念？", selectionMode: "single", position: 1,
+          options: [
+            { id: "opt-p1", text: "資料來源", isCorrect: false, position: 1 },
+            { id: "opt-p2", text: "樣本偏差", isCorrect: false, position: 2 },
+            { id: "opt-p3", text: "因果關係", isCorrect: false, position: 3 }
+          ]
+        },
+        {
+          id: "q-quiz", courseId: "course-draft", type: "quiz", prompt: "以下哪些做法可以降低誤判？", selectionMode: null, position: 2,
+          options: [
+            { id: "opt-q1", text: "交叉查證", isCorrect: true, position: 1 },
+            { id: "opt-q2", text: "只看標題", isCorrect: false, position: 2 },
+            { id: "opt-q3", text: "確認資料時間", isCorrect: true, position: 3 },
+            { id: "opt-q4", text: "忽略來源", isCorrect: false, position: 4 }
+          ]
+        },
+        {
+          id: "q-open", courseId: "course-draft", type: "open_text", prompt: "請用一句話寫下今天最有用的提醒。", selectionMode: null, position: 3, options: []
+        },
+        {
+          id: "q-archived", courseId: "course-archived", type: "poll", prompt: "封存課程中的歷史問題", selectionMode: "single", position: 1,
+          options: [
+            { id: "opt-a1", text: "保留資料脈絡", isCorrect: false, position: 1 },
+            { id: "opt-a2", text: "重新開課", isCorrect: false, position: 2 }
+          ]
+        }
+      ],
+      liveSessions: [
+        { id: "session-waiting", courseId: "course-draft", status: "waiting", sessionCode: "B7K4N9Q2", selectedQuestionIds: ["q-poll", "q-quiz", "q-open"], activeQuestionId: null, joinedCount: 12, autoClosed: false },
+        { id: "session-active", courseId: "course-draft", status: "active", sessionCode: "K7M4R8T2", selectedQuestionIds: ["q-poll", "q-quiz", "q-open"], activeQuestionId: "sq-poll-open", joinedCount: 28, autoClosed: false, startedAt: "2026-08-14 09:06" },
+        { id: "session-closed", courseId: "course-draft", status: "closed", sessionCode: "H2M4N7Q8", selectedQuestionIds: ["q-poll"], activeQuestionId: "sq-closed", joinedCount: 24, autoClosed: false, startedAt: "2026-08-07 14:00", closedAt: "2026-08-07 15:20" },
+        { id: "session-cancelled", courseId: "course-draft", status: "cancelled", sessionCode: "C7D4H9K2", selectedQuestionIds: ["q-poll"], activeQuestionId: null, joinedCount: 0, autoClosed: false, closedAt: "2026-08-12 08:50" }
+      ],
+      sessionQuestions: [
+        {
+          id: "sq-poll-open", liveSessionId: "session-active", sourceQuestionId: "q-poll", position: 1, status: "open", openedAt: "2026-08-14 09:07", closedAt: null,
+          snapshot: { type: "poll", prompt: "目前你最想釐清哪一個概念？", selectionMode: "single", options: [
+            { id: "sopt-p1", text: "資料來源", isCorrect: false, position: 1 },
+            { id: "sopt-p2", text: "樣本偏差", isCorrect: false, position: 2 },
+            { id: "sopt-p3", text: "因果關係", isCorrect: false, position: 3 }
+          ] },
+          aggregate: { total: 28, options: [{ id: "sopt-p1", text: "資料來源", count: 12 }, { id: "sopt-p2", text: "樣本偏差", count: 9 }, { id: "sopt-p3", text: "因果關係", count: 7 }], textResponses: [] }
+        },
+        {
+          id: "sq-quiz", liveSessionId: "session-active", sourceQuestionId: "q-quiz", position: 2, status: "not_open", openedAt: null, closedAt: null,
+          snapshot: { type: "quiz", prompt: "以下哪些做法可以降低誤判？", selectionMode: null, options: [
+            { id: "sopt-q1", text: "交叉查證", isCorrect: true, position: 1 },
+            { id: "sopt-q2", text: "只看標題", isCorrect: false, position: 2 },
+            { id: "sopt-q3", text: "確認資料時間", isCorrect: true, position: 3 },
+            { id: "sopt-q4", text: "忽略來源", isCorrect: false, position: 4 }
+          ] },
+          aggregate: { total: 20, options: [{ id: "sopt-q1", text: "交叉查證", count: 15 }, { id: "sopt-q2", text: "只看標題", count: 4 }, { id: "sopt-q3", text: "確認資料時間", count: 13 }, { id: "sopt-q4", text: "忽略來源", count: 1 }], textResponses: [] }
+        },
+        {
+          id: "sq-open", liveSessionId: "session-active", sourceQuestionId: "q-open", position: 3, status: "not_open", openedAt: null, closedAt: null,
+          snapshot: { type: "open_text", prompt: "請用一句話寫下今天最有用的提醒。", selectionMode: null, options: [] },
+          aggregate: { total: 16, options: [], textResponses: ["先看來源，再相信結論。", "把猜測和證據分開寫。", "一個數字也需要脈絡。"] }
+        },
+        {
+          id: "sq-closed", liveSessionId: "session-closed", sourceQuestionId: "q-poll", position: 1, status: "closed", openedAt: "2026-08-07 14:06", closedAt: "2026-08-07 14:18",
+          snapshot: { type: "poll", prompt: "上一輪課堂最需要補充什麼？", selectionMode: "single", options: [
+            { id: "sopt-c1", text: "案例", isCorrect: false, position: 1 },
+            { id: "sopt-c2", text: "定義", isCorrect: false, position: 2 },
+            { id: "sopt-c3", text: "練習", isCorrect: false, position: 3 }
+          ] },
+          aggregate: { total: 24, options: [{ id: "sopt-c1", text: "案例", count: 8 }, { id: "sopt-c2", text: "定義", count: 11 }, { id: "sopt-c3", text: "練習", count: 5 }], textResponses: [] }
+        }
+      ],
+      participants: [],
+      submissions: [],
+      archivedResults: [
+        { id: "result-closed", liveSessionId: "session-closed", courseId: "course-draft", closedAt: "2026-08-07 15:20", retentionExpiresAt: "2026-11-05", status: "available", questionCount: 1 },
+        { id: "result-tombstone", liveSessionId: "session-old", courseId: "course-archived", closedAt: "2026-04-01 10:20", retentionExpiresAt: "2026-06-30", status: "tombstone", deletedAt: "2026-07-01", deletionReason: "retention_expired", questionCount: 0 }
+      ]
+    };
+
+    let state = createState();
+
+    function createState() {
+      return {
+        domain: clone(BASE_FIXTURE),
+        ui: {
+          mode: "student",
+          theme: "paper",
+          student: {
+            view: "join",
+            sessionId: "session-active",
+            participantId: null,
+            tokenState: "missing",
+            tokenLabel: "",
+            joinCode: "k7m4r8t2",
+            joinName: "小明",
+            draftAnswer: null,
+            submittedByQuestion: {},
+            idempotencyKey: null,
+            reconnectState: "connected"
+          },
+          teacher: {
+            view: "courses",
+            accountId: "account-authorized",
+            courseId: "course-draft",
+            sessionId: "session-active",
+            selectedQuestionIds: ["q-poll", "q-quiz", "q-open"],
+            editorOpen: false,
+            editorDraft: createEditorDraft(),
+            editorMessages: [],
+            batchFixture: "valid-warning",
+            batchDraft: null,
+            batchStatus: "idle",
+            batchMessages: [],
+            batchRevision: 0,
+            batchPreviewRevision: null,
+            batchPreviewVisible: false,
+            batchCreatedCount: 0,
+            newCourseName: "現場回聲練習場"
+          },
+          fixture: {
+            scenarioId: "student-join",
+            eventLog: [],
+            toast: null,
+            lastGuard: null,
+            pulse: false,
+            raceMode: null
+          }
+        }
+      };
+    }
+
+    function createEditorDraft() {
+      return { type: "poll", prompt: "", selectionMode: "single", options: ["", ""], correctIndices: [] };
+    }
+
+    function clone(value) {
+      return JSON.parse(JSON.stringify(value));
+    }
+
+    function esc(value) {
+      return String(value ?? "")
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    function shortText(value, max = 100) {
+      const text = String(value ?? "");
+      return text.length > max ? `${text.slice(0, max)}…` : text;
+    }
+
+    function charCount(value) {
+      return Array.from(String(value ?? "")).length;
+    }
+
+    function nextId(prefix) {
+      const key = prefix.replace(/[^a-z]/gi, "").toLowerCase();
+      state.domain.counters[key] = (state.domain.counters[key] || 0) + 1;
+      return `${prefix}-${state.domain.counters[key]}`;
+    }
+
+    function getCourse(courseId) {
+      return state.domain.courses.find(item => item.id === courseId) || null;
+    }
+
+    function getSession(sessionId) {
+      return state.domain.liveSessions.find(item => item.id === sessionId) || null;
+    }
+
+    function getQuestion(questionId) {
+      return state.domain.questionDefinitions.find(item => item.id === questionId) || null;
+    }
+
+    function getSessionQuestions(sessionId) {
+      return state.domain.sessionQuestions.filter(item => item.liveSessionId === sessionId).sort((a, b) => a.position - b.position);
+    }
+
+    function getSessionQuestion(questionId) {
+      return state.domain.sessionQuestions.find(item => item.id === questionId) || null;
+    }
+
+    function getParticipant(participantId) {
+      return state.domain.participants.find(item => item.id === participantId) || null;
+    }
+
+    function getStudentSubmission(sqId) {
+      const participantId = state.ui.student.participantId;
+      if (!participantId) return null;
+      return state.domain.submissions.find(item => item.participantId === participantId && item.sessionQuestionId === sqId) || null;
+    }
+
+    function getCurrentStudentSession() {
+      return getSession(state.ui.student.sessionId);
+    }
+
+    function getCurrentStudentQuestion() {
+      const session = getCurrentStudentSession();
+      if (!session || !session.activeQuestionId) return null;
+      return getSessionQuestion(session.activeQuestionId);
+    }
+
+    function getTeacherSession() {
+      return getSession(state.ui.teacher.sessionId);
+    }
+
+    function getTeacherCourse() {
+      return getCourse(state.ui.teacher.courseId);
+    }
+
+    function isSafeDisplayName(value) {
+      const text = String(value ?? "").trim();
+      return text.length >= 1 && charCount(text) <= 40 && !FORBIDDEN_DISPLAY.test(text);
+    }
+
+    function normalizeOption(value) {
+      return String(value ?? "").normalize("NFKC").trim().replace(/\s+/gu, " ").toLocaleLowerCase("zh-Hant");
+    }
+
+    function addEvent(message, tone = "info", rule = "") {
+      const event = {
+        time: new Date().toLocaleTimeString("zh-TW", { hour: "2-digit", minute: "2-digit" }),
+        message,
+        tone,
+        rule
+      };
+      state.ui.fixture.eventLog.unshift(event);
+      state.ui.fixture.eventLog = state.ui.fixture.eventLog.slice(0, 9);
+      state.ui.fixture.toast = { message, tone, rule };
+    }
+
+    function guard(condition, message, rule = "prototype guard") {
+      if (condition) return true;
+      state.ui.fixture.lastGuard = { message, rule };
+      addEvent(`拒絕：${message}`, "error", rule);
+      return false;
+    }
+
+    function succeed(message, rule = "") {
+      state.ui.fixture.lastGuard = null;
+      addEvent(message, "success", rule);
+    }
+
+    function setToast(message, tone = "info", rule = "") {
+      state.ui.fixture.toast = { message, tone, rule };
+    }
+
+    function formatStatus(status) {
+      const labels = { draft: "draft 草稿", archived: "archived 已封存", waiting: "waiting 等待中", active: "active 進行中", closed: "closed 已結束", cancelled: "cancelled 已取消", not_open: "not_open 尚未開放", open: "open 作答中" };
+      return labels[status] || status;
+    }
+
+    function statusBadge(status, label = formatStatus(status)) {
+      return `<span class="status-badge" data-status="${esc(status)}">${esc(label)}</span>`;
+    }
+
+    function typeBadge(type) {
+      const labels = { poll: "poll 投票", quiz: "quiz 測驗", open_text: "open text 問答" };
+      return `<span class="type-badge">${esc(labels[type] || type)}</span>`;
+    }
+
+    function ruleRef(rule) {
+      return rule ? `<span class="rule-ref">${esc(rule)}</span>` : "";
+    }
+
+    function render() {
+      document.documentElement.dataset.theme = state.ui.theme;
+      const app = document.getElementById("app");
+      app.innerHTML = renderApp();
+      renderToast();
+      const pulse = state.ui.fixture.pulse;
+      if (pulse) {
+        requestAnimationFrame(() => {
+          document.querySelectorAll(".ruler-segment[data-pulse=\"true\"]").forEach(node => node.removeAttribute("data-pulse"));
+          state.ui.fixture.pulse = false;
+        });
+      }
+    }
+
+    function renderApp() {
+      const mode = state.ui.mode;
+      const currentCourse = mode === "student" ? getCourse(getCurrentStudentSession()?.courseId) : getTeacherCourse();
+      const currentSession = mode === "student" ? getCurrentStudentSession() : getTeacherSession();
+      return `
+        ${renderTopbar()}
+        ${renderStateRuler(currentCourse, currentSession)}
+        <div class="app-shell">
+          ${renderRail(mode)}
+          <main class="stage" id="main-content" tabindex="-1">
+            <div class="stage-kicker"><span>${mode === "student" ? "學員 workspace" : "老師 workspace"}</span><span class="kicker-status">${esc(state.ui.fixture.scenarioId)} / fixture</span></div>
+            ${mode === "student" ? renderStudentStage() : renderTeacherStage()}
+          </main>
+          ${renderLedger(mode, currentCourse, currentSession)}
+        </div>
+      `;
+    }
+
+    function renderTopbar() {
+      const mode = state.ui.mode;
+      const scenarioLabel = SCENARIOS.find(item => item[0] === state.ui.fixture.scenarioId)?.[1] || state.ui.fixture.scenarioId;
+      return `
+        <header class="topbar">
+          <div class="brand" aria-label="智學互動平台">
+            <span class="brand-mark" aria-hidden="true"></span>
+            <span><span class="brand-name">智學</span><span class="brand-sub"> / echo mark</span></span>
+          </div>
+          <div class="topbar-spacer"></div>
+          <span class="fixture-pill" title="所有資料都是本地展示用 fixture">prototype fixture · ${esc(scenarioLabel)}</span>
+          <div class="role-switch" aria-label="切換展示視角">
+            <button type="button" data-action="set-mode" data-mode="student" aria-pressed="${mode === "student"}">學員端</button>
+            <button type="button" data-action="set-mode" data-mode="teacher" aria-pressed="${mode === "teacher"}">老師端</button>
+          </div>
+          <button type="button" class="theme-button" data-action="toggle-theme" aria-label="切換紙張與投影模式">${state.ui.theme === "projector" ? "☼ 紙張" : "◐ 投影"}</button>
+        </header>
+      `;
+    }
+
+    function renderStateRuler(course, session) {
+      const sq = session?.activeQuestionId ? getSessionQuestion(session.activeQuestionId) : null;
+      const submission = state.ui.mode === "student" && sq ? getStudentSubmission(sq.id) : null;
+      const questionState = sq?.status || "—";
+      const responseState = state.ui.mode === "student" ? (submission ? "submitted" : (session?.status === "active" ? "ready" : "—")) : `${session ? getSessionQuestions(session.id).filter(item => item.status === "open").length : 0} open`;
+      const revealState = sq ? (sq.status === "closed" || submission || state.ui.mode === "teacher" ? "public aggregate" : "restricted") : "—";
+      const parts = [
+        ["COURSE", course?.status || "—", "R-F1-1", course?.status === "archived" || course?.status === "draft"],
+        ["ROOM", session?.status || "—", "R-F2-2", session?.status === "active" || session?.status === "waiting"],
+        ["QUESTION", questionState, "R-F4-5", questionState === "open" || questionState === "closed"],
+        ["RESPONSE", responseState, "R-F14-1", responseState === "submitted"],
+        ["REVEAL", revealState, "R-F17-1", revealState === "public aggregate"]
+      ];
+      return `<div class="state-ruler" aria-label="平台狀態尺">${parts.map(([key, value, ref, active]) => `
+        <div class="ruler-segment" data-active="${Boolean(active)}" data-pulse="${state.ui.fixture.pulse}">
+          <span class="ruler-key">${esc(key)}</span>
+          <strong class="ruler-value">${esc(formatStatus(value))}</strong>
+          <span class="ruler-ref">${esc(ref)}</span>
+        </div>`).join("")}</div>`;
+    }
+
+    function renderRail(mode) {
+      const items = mode === "student" ? [
+        ["join", "01", "加入場次"],
+        ["classroom", "02", "目前課堂"],
+        ["ended", "03", "結果與重連"],
+        ["rules", "04", "規則說明"]
+      ] : [
+        ["courses", "01", "課程與場次"],
+        ["question-bank", "02", "題庫與出題"],
+        ["setup", "03", "建立場次"],
+        ["classroom", "04", "課堂控制"],
+        ["history", "05", "歷史結果"]
+      ];
+      const view = state.ui[mode].view;
+      return `<aside class="rail" aria-label="${mode === "student" ? "學員" : "老師"}導覽">
+        <p class="rail-heading">${mode === "student" ? "Your seat" : "Teacher desk"}</p>
+        <nav class="rail-nav">
+          ${items.map(([key, icon, label]) => `<button type="button" data-action="navigate" data-mode="${mode}" data-view="${key}" aria-current="${view === key ? "page" : "false"}"><span class="rail-icon">${icon}</span><span class="rail-label">${esc(label)}</span><span aria-hidden="true">›</span></button>`).join("")}
+        </nav>
+        <div class="rail-note">
+          <strong>${mode === "student" ? "匿名，但不是無狀態" : "先控狀態，再看數字"}</strong>
+          <p>${mode === "student" ? "顯示名只負責顯示；場次限定 token fixture 才代表這次連線。" : "Course、LiveSession、SessionQuestion 是三個不同層次；右側只呈現匿名 aggregate。"}</p>
+        </div>
+      </aside>`;
+    }
+
+    function renderLedger(mode, course, session) {
+      const questions = session ? getSessionQuestions(session.id) : [];
+      const current = session?.activeQuestionId ? getSessionQuestion(session.activeQuestionId) : null;
+      const submitted = mode === "student" && current ? Boolean(getStudentSubmission(current.id)) : false;
+      const openCount = questions.filter(item => item.status === "open").length;
+      const joined = session?.joinedCount ?? (session ? state.domain.participants.filter(item => item.liveSessionId === session.id).length : 0);
+      const voted = current ? current.aggregate?.total || 0 : 0;
+      return `<aside class="ledger" aria-label="狀態與訊號摘要">
+        <p class="ledger-heading">Signal ledger</p>
+        <div class="ledger-content">
+          <div class="ledger-card">
+            <div class="small-copy">COURSE</div>
+            <strong>${esc(course?.name || "尚未選擇")}</strong>
+            <div style="margin-top:7px">${course ? statusBadge(course.status) : ""}</div>
+            <div class="small-copy" style="margin-top:8px">${esc(course?.id || "—")}</div>
+          </div>
+          <div class="ledger-card">
+            <div class="small-copy">ROOM / PRESENCE</div>
+            <div class="metric-strip" style="margin:8px 0 0;grid-template-columns:1fr 1fr;">
+              <div class="metric"><span class="metric-label">加入</span><strong class="metric-value">${joined}</strong></div>
+              <div class="metric"><span class="metric-label">已投</span><strong class="metric-value">${mode === "teacher" ? voted : (submitted ? 1 : 0)}</strong></div>
+            </div>
+            <div style="margin-top:8px">${session ? statusBadge(session.status) : ""} ${current ? statusBadge(current.status) : ""}</div>
+          </div>
+          <div class="ledger-card">
+            <div class="small-copy">VISIBILITY</div>
+            <strong>${current ? (current.status === "closed" || submitted || mode === "teacher" ? "aggregate public" : "vote-to-reveal") : "等待題目"}</strong>
+            <p style="margin-top:6px">${mode === "teacher" ? "老師端僅顯示匿名彙總，不渲染個別答案。" : "提交前的 open 題目不顯示受限統計。"}</p>
+            <div style="margin-top:8px">${current ? (current.status === "closed" || submitted || mode === "teacher" ? `<span class="privacy-badge">公開彙總</span>` : `<span class="privacy-badge">提交後解鎖</span>`) : ""}</div>
+          </div>
+          <div class="ledger-card">
+            <div class="small-copy">RULE TRACE</div>
+            <ul class="event-log" aria-label="最近事件">
+              ${state.ui.fixture.eventLog.length ? state.ui.fixture.eventLog.slice(0, 4).map(renderEvent).join("") : `<li class="empty">尚未有事件</li>`}
+            </ul>
+          </div>
+          <div class="ledger-card fixture-drawer">
+            <div class="section-head" style="margin-bottom:9px"><div><div class="small-copy">FIXTURE SHELF</div><strong>快速載入狀態</strong></div><span class="rule-ref">local only</span></div>
+            <p class="small-copy" style="margin-bottom:9px">展示用狀態，不是正式 API 或資料庫管理介面。</p>
+            <div class="scenario-grid" aria-label="prototype fixture scenarios">
+              ${SCENARIOS.map(([id, label]) => `<button type="button" class="scenario-button" data-active="${state.ui.fixture.scenarioId === id}" data-action="load-scenario" data-scenario="${esc(id)}">${esc(label)}</button>`).join("")}
+            </div>
+          </div>
+        </div>
+      </aside>`;
+    }
+
+    function renderEvent(event) {
+      return `<li class="event-item"><span class="event-time">${esc(event.time)}</span><span class="event-message" data-tone="${esc(event.tone)}">${esc(event.message)}${event.rule ? `<span class="event-rule">${esc(event.rule)}</span>` : ""}</span></li>`;
+    }
+
+    function renderStudentStage() {
+      const view = state.ui.student.view;
+      if (view === "join") return renderStudentJoin();
+      if (view === "waiting") return renderStudentWaiting();
+      if (view === "ended") return renderStudentEnded();
+      if (view === "rules") return renderStudentRules();
+      return renderStudentClassroom();
+    }
+
+    function renderStudentJoin() {
+      const code = state.ui.student.joinCode || "";
+      const name = state.ui.student.joinName || "";
+      return `
+        <section class="hero">
+          <span class="eyebrow">學員入口 / no account required</span>
+          <h1>把你的回應，放進現場。</h1>
+          <p>輸入老師提供的場次代碼與顯示名稱。這裡不建立平台帳號；你只會拿到這一場專用的 participant token fixture。</p>
+          <div class="hero-actions"><span class="mini-badge">8 碼 code</span><span class="mini-badge">1–40 字元顯示名</span><span class="mini-badge">同場可重複顯示名</span></div>
+        </section>
+        <section class="section-card" data-tone="blue">
+          <div class="section-head"><div><h2>加入一間正在發生的教室</h2><p>code 不分大小寫；場次結束後舊 code 不會指向新的場次。</p></div><span class="rule-ref">R-F3-1 · R-F12-1</span></div>
+          <form data-form="student-join">
+            <div class="form-grid">
+              <div class="field"><label for="student-code">Session code</label><input id="student-code" class="code-input" maxlength="8" autocomplete="off" data-model="student-code" value="${esc(code)}" aria-describedby="code-help"><span id="code-help" class="field-help">允許字元 A–H、J–N、P–Z、2–9；排除 I/O/0/1。</span></div>
+              <div class="field"><label for="student-name">顯示名稱</label><input id="student-name" maxlength="40" autocomplete="nickname" data-model="student-name" value="${esc(name)}" aria-describedby="name-help"><span id="name-help" class="field-help">只用於課堂畫面；不得含換行、控制字元或方向控制符。</span></div>
+              <div class="field full"><div class="button-row"><button class="button primary" type="submit"><span class="icon">↳</span>加入場次</button><button class="button" type="button" data-action="load-scenario" data-scenario="waiting-room">先看 waiting 狀態</button><span class="small-copy">目前 fixture：<span class="inline-code">K7M4R8T2</span> active</span></div></div>
+            </div>
+          </form>
+          <div class="callout"><span class="callout-icon">i</span><div>加入成功後會顯示一個不含秘密內容的 token fixture label。正式 token 的格式、儲存與重連 protocol 仍待 M2 定案。</div></div>
+        </section>
+        <section class="section-card">
+          <div class="section-head"><div><h3>這個入口刻意保留的邊界</h3><p>用小型 fixture 讓拒絕狀態也能被看見。</p></div></div>
+          <div class="grid-3"><div class="callout warning" style="margin:0"><span class="callout-icon">◇</span><div><strong>waiting 可加入</strong><br><span class="small-copy">但要等老師開始授課。</span></div></div><div class="callout danger" style="margin:0"><span class="callout-icon">■</span><div><strong>closed 不可回來</strong><br><span class="small-copy">舊 code 不會重啟。</span></div></div><div class="callout" style="margin:0"><span class="callout-icon">◌</span><div><strong>顯示名不是身份</strong><br><span class="small-copy">相同名字仍可加入。</span></div></div></div>
+        </section>
+      `;
+    }
+
+    function renderStudentWaiting() {
+      const session = getCurrentStudentSession();
+      const course = session ? getCourse(session.courseId) : null;
+      const participant = getParticipant(state.ui.student.participantId);
+      if (!session || session.status !== "waiting") return renderStudentEnded("目前 fixture 已不是 waiting。", "請回到加入頁重新尋找有效場次。");
+      return `
+        <section class="hero">
+          <span class="eyebrow">${esc(course?.name || "課堂")} / waiting room</span>
+          <h1>先坐好，老師正在準備。</h1>
+          <p>你已加入場次；題目要等老師開始授課並逐題 open。waiting 不代表可以提前作答。</p>
+          <div class="hero-actions"><span class="status-badge" data-status="waiting">waiting 等待中</span><span class="mini-badge">${esc(participant?.displayName || "匿名學員")}</span></div>
+        </section>
+        <section class="section-card" data-tone="gold">
+          <div class="section-head"><div><h2>場次已鎖定</h2><p>老師開始後，這一頁會以 server fixture 的最新狀態重新整理。</p></div>${ruleRef("R-F2-4 · R-F14-6")}</div>
+          <div class="code-lockup"><span class="session-code">${esc(session.sessionCode)}</span><button class="button small" type="button" data-action="copy-code">複製代碼</button></div>
+          <div class="metric-strip"><div class="metric"><span class="metric-label">目前加入</span><strong class="metric-value">${session.joinedCount}</strong><span class="metric-note">匿名 participant</span></div><div class="metric"><span class="metric-label">可作答題目</span><strong class="metric-value">0</strong><span class="metric-note">等待 active</span></div><div class="metric"><span class="metric-label">你的 token</span><strong class="metric-value" style="font-size:15px">${esc(state.ui.student.tokenLabel || "fixture")}</strong><span class="metric-note">場次限定</span></div></div>
+          <div class="callout warning"><span class="callout-icon">◇</span><div><strong>提交按鈕不會在 waiting 開啟。</strong><br>這不是前端 disabled 就算完成；正式系統也必須在 server 端拒絕未 open 的 Submission。</div></div>
+          <div class="button-row"><button class="button" type="button" data-action="refresh-student">模擬重新取得狀態</button><button class="button ghost" type="button" data-action="navigate" data-mode="student" data-view="join">換一個場次</button></div>
+        </section>
+      `;
+    }
+
+    function renderStudentClassroom() {
+      const session = getCurrentStudentSession();
+      if (!session) return renderStudentEnded("找不到場次。", "請以有效 session code 重新加入。");
+      if (session.status === "closed" || session.status === "cancelled") return renderStudentEnded("這場課堂已經終止。", session.status === "cancelled" ? "waiting 場次沒有答案，因此被取消。" : "close 後結果保留在歷史查詢中。");
+      const sq = getCurrentStudentQuestion();
+      const participant = getParticipant(state.ui.student.participantId);
+      if (!sq) return renderStudentWaiting();
+      const submission = getStudentSubmission(sq.id);
+      const disconnected = state.ui.student.reconnectState === "disconnected";
+      const submitted = Boolean(submission);
+      const reveal = sq.status === "closed" || submitted;
+      return `
+        <section class="section-card" data-tone="blue">
+          <div class="section-head"><div><div class="eyebrow">${esc(getCourse(session.courseId)?.name || "課堂")} / live room</div><h2 style="margin-top:7px">${sq.status === "open" ? "現在輪到你的回應。" : "老師正在換題。"}</h2><p>${esc(participant?.displayName || "匿名學員")} · <span class="mono">${esc(session.sessionCode)}</span></p></div><div class="button-row"><span class="status-badge" data-status="${esc(session.status)}">${esc(formatStatus(session.status))}</span><span class="status-badge" data-status="${esc(sq.status)}">${esc(formatStatus(sq.status))}</span></div></div>
+          ${renderStudentSequence(session)}
+          ${disconnected ? `<div class="callout danger"><span class="callout-icon">×</span><div><strong>連線中斷，畫面不是權威來源。</strong><br>使用原 token fixture 重新取得 server state；不要用舊的 browser cache 判斷是否已提交。</div></div><div class="button-row"><button class="button primary" type="button" data-action="student-reconnect">使用原 token 重連</button></div>` : renderStudentQuestionBody(sq, submission, reveal)}
+        </section>
+        ${renderStudentResultCard(sq, reveal, submission)}
+      `;
+    }
+
+    function renderStudentSequence(session) {
+      const questions = getSessionQuestions(session.id);
+      return `<div class="sequence" aria-label="場次題目順序">${questions.map((sq, index) => `<div class="sequence-item" data-current="${sq.id === session.activeQuestionId}"><span class="sequence-dot">${index + 1}</span><span class="sequence-label"><strong>${esc(shortText(sq.snapshot.prompt, 20))}</strong><span>${esc(sq.status)}</span></span></div>`).join("")}</div>`;
+    }
+
+    function renderStudentQuestionBody(sq, submission, reveal) {
+      const snapshot = sq.snapshot;
+      const draft = state.ui.student.draftAnswer;
+      if (sq.status === "not_open") {
+        return `<div class="result-lock"><div><div class="lock-symbol">◇</div><strong>老師尚未開放這一題</strong><p class="small-copy">題目狀態是 <span class="inline-code">not_open</span>；即使你有草稿，server 也會拒絕提交。</p>${ruleRef("R-F4-5 · R-F14-6")}</div></div>`;
+      }
+      if (sq.status === "closed") {
+        return `<div class="callout success"><span class="callout-icon">✓</span><div><strong>這一題已 close，結果自動公布。</strong><br>沒有獨立的「公布」按鈕；所有學員都能看見 final aggregate。</div></div>`;
+      }
+      if (submission) {
+        return `<div class="callout success"><span class="callout-icon">✓</span><div><strong>答案已送出並鎖定。</strong><br>這個 participant 對這一題只有一筆有效 Submission；不能編輯。</div></div><div class="button-row"><button class="button small" type="button" data-action="student-safe-retry">安全重送（同 key）</button><button class="button small danger" type="button" data-action="student-conflict-retry">改答案重送（模擬衝突）</button><button class="button small" type="button" data-action="student-multitab">模擬多分頁</button><button class="button small" type="button" data-action="student-disconnect">模擬斷線</button></div>`;
+      }
+      return `<form data-form="student-answer">
+        <div class="question-head"><div><div class="question-meta">${typeBadge(snapshot.type)} ${snapshot.type === "quiz" ? `<span class="mini-badge">${snapshot.options.filter(item => item.isCorrect).length > 1 ? "複選" : "單選"} · 由正解數量推導</span>` : ""}</div><div class="question-prompt">${esc(snapshot.prompt)}</div></div><span class="rule-ref">R-F14-6</span></div>
+        ${snapshot.type === "open_text" ? `<div class="field"><label for="student-answer-text">你的回應</label><textarea id="student-answer-text" maxlength="2000" data-model="student-text-answer" placeholder="只寫你願意在課堂中分享的一句話。">${esc(typeof draft === "string" ? draft : "")}</textarea><span class="field-help">純文字；不支援 Markdown、HTML、附件或圖片。上限 2,000 字元。</span></div>` : `<fieldset class="field"><legend>${snapshot.type === "quiz" ? "選出你認為正確的做法" : "選一個最接近的回答"}</legend><div class="choice-list">${snapshot.options.map(option => {
+          const checked = Array.isArray(draft) ? draft.includes(option.id) : draft === option.id;
+          const inputType = snapshot.type === "quiz" && snapshot.options.filter(item => item.isCorrect).length > 1 ? "checkbox" : "radio";
+          return `<label class="answer-option"><input type="${inputType}" name="student-answer-choice" value="${esc(option.id)}" data-model="student-choice" ${checked ? "checked" : ""}><span>${esc(option.text)}</span></label>`;
+        }).join("")}</div></fieldset>`}
+        <div class="button-row" style="margin-top:15px"><button class="button primary" type="submit"><span class="icon">↗</span>提交答案</button><button class="button" type="button" data-action="student-disconnect">先模擬斷線</button></div>
+        <p class="small-copy" style="margin-top:10px">提交後會以同一個 fixture idempotency key 查回第一次結果；不同答案不會覆寫。</p>
+      </form>`;
+    }
+
+    function renderStudentResultCard(sq, reveal, submission) {
+      if (!sq || sq.status === "not_open") return "";
+      return `<section class="section-card" data-tone="${reveal ? "violet" : "gold"}"><div class="section-head"><div><h3>${reveal ? "回應的回聲" : "結果還在幕後"}</h3><p>${reveal ? (sq.status === "closed" ? "題目已關閉，結果對全班公布。" : "你已提交，現在可以看匿名彙總。") : "先提交自己的答案，才會解鎖 open 期間的受限統計。"}</p></div>${ruleRef("R-F17-1 · R-F17-2")}</div>${reveal ? renderResult(sq, false) : `<div class="result-lock"><div><div class="lock-symbol">◌</div><strong>提交後解鎖 aggregate</strong><p class="small-copy">其他人的回應不會在你作答前透露。</p></div></div>`}</section>`;
+    }
+
+    function renderStudentEnded(title = "場次已結束。", detail = "closed / cancelled 狀態不可逆，也不能再加入、重連或提交。") {
+      const session = getCurrentStudentSession();
+      return `<section class="hero"><span class="eyebrow">terminal state / no replay</span><h1>${esc(title)}</h1><p>${esc(detail)}</p><div class="hero-actions">${session ? statusBadge(session.status) : ""}<button class="button" type="button" data-action="navigate" data-mode="student" data-view="join">回到加入頁</button></div></section>${session?.status === "closed" ? `<section class="section-card" data-tone="violet"><div class="section-head"><div><h3>歷史結果仍可查詢</h3><p>結束不等於刪除；retention metadata 由 ArchivedResult fixture 代表。</p></div>${ruleRef("P0-06 · archived_result")}</div>${getSessionQuestions(session.id).map(sq => renderResult(sq, false)).join("")}</section>` : ""}`;
+    }
+
+    function renderStudentRules() {
+      return `<section class="hero"><span class="eyebrow">rulebook / student</span><h1>你需要知道的五個狀態。</h1><p>這裡把規格中的拒絕邊界翻成操作語言；它不是 API 文件，也不會顯示秘密 token。</p></section><section class="section-card"><div class="grid-2"><div class="callout" style="margin:0"><span class="callout-icon">01</span><div><strong>Code 找場次</strong><br><span class="small-copy">8 碼、大小寫不敏感；不是你的身份。</span></div></div><div class="callout" style="margin:0"><span class="callout-icon">02</span><div><strong>名字只做顯示</strong><br><span class="small-copy">同場可以有兩個「小明」。</span></div></div><div class="callout" style="margin:0"><span class="callout-icon">03</span><div><strong>Open 才能送</strong><br><span class="small-copy">active + SessionQuestion open 是雙重閘門。</span></div></div><div class="callout" style="margin:0"><span class="callout-icon">04</span><div><strong>送出就鎖定</strong><br><span class="small-copy">同 key 可安全重送，不同答案會衝突。</span></div></div></div><div class="divider"></div><div class="callout warning" style="margin:0"><span class="callout-icon">05</span><div><strong>提交前看不到受限結果</strong><br><span class="small-copy">close 後會自動對全班公布，不需要老師再按一次 publish。</span></div></div></section>`;
+    }
+
+    function renderTeacherStage() {
+      const view = state.ui.teacher.view;
+      if (view === "courses") return renderTeacherCourses();
+      if (view === "question-bank") return renderTeacherQuestionBank();
+      if (view === "setup") return renderTeacherSetup();
+      if (view === "history") return renderTeacherHistory();
+      return renderTeacherClassroom();
+    }
+
+    function renderTeacherCourses() {
+      const account = state.domain.accounts.find(item => item.id === state.ui.teacher.accountId);
+      const activeCourseId = state.ui.teacher.courseId;
+      return `<section class="hero"><span class="eyebrow">老師桌面 / course container</span><h1>先把問題排好，課堂才有回聲。</h1><p>Course 是持久容器；LiveSession 才是一次授課活動。這裡不把 Course 誤標成 active 或 closed。</p><div class="hero-actions"><span class="mini-badge">${esc(account?.displayName || "老師")}</span><span class="mini-badge">can_create_course: ${account?.canCreateCourse ? "true" : "false"}</span><button class="button primary" type="button" data-action="teacher-create-course">建立 draft Course</button></div></section>
+        ${renderTeacherAccountSwitcher(account)}
+        <section class="section-card" data-tone="blue"><div class="section-head"><div><h2>你的 Course 容器</h2><p>每門課只有一位 owner；封存後只能讀取歷史。</p></div>${ruleRef("R-F0-1 · R-F1-1")}</div><div class="grid-2">${state.domain.courses.filter(course => course.ownerAccountId === "account-authorized" || course.id === activeCourseId).map(renderCourseCard).join("")}</div></section>`;
+    }
+
+    function renderTeacherAccountSwitcher(account) {
+      return `<section class="section-card"><div class="section-head"><div><h3>展示用授權切換</h3><p>這不是正式登入；用來看見 <span class="inline-code">can_create_course</span> 的拒絕閘門。</p></div>${ruleRef("R-F16-1 · R-F16-2")}</div><div class="button-row">${state.domain.accounts.map(item => `<button class="button ${item.id === state.ui.teacher.accountId ? "primary" : ""}" type="button" data-action="teacher-select-account" data-account="${esc(item.id)}">${esc(item.displayName)} · ${item.canCreateCourse ? "可開課" : "不可開課"}</button>`).join("")}</div>${!account?.canCreateCourse ? `<div class="callout danger"><span class="callout-icon">×</span><div><strong>未授權帳號仍可登入，但不能建立 Course。</strong><br>既有資料不會因此刪除。</div></div>` : ""}</section>`;
+    }
+
+    function renderCourseCard(course) {
+      const sessions = state.domain.liveSessions.filter(session => session.courseId === course.id);
+      const inProgress = sessions.find(session => session.status === "waiting" || session.status === "active");
+      const questionCount = state.domain.questionDefinitions.filter(item => item.courseId === course.id).length;
+      return `<article class="course-card" data-selected="${course.id === state.ui.teacher.courseId}"><div class="course-id">${esc(course.id)}</div><div style="margin-top:7px">${statusBadge(course.status)}</div><h3>${esc(course.name)}</h3><p>${esc(course.description || "")}</p><div class="course-meta"><span class="mini-badge">${questionCount} 題 QuestionDefinition</span><span class="mini-badge">${sessions.length} 場歷史/現場</span>${inProgress ? statusBadge(inProgress.status) : ""}</div><div class="card-actions"><button class="button small" type="button" data-action="teacher-select-course" data-course="${esc(course.id)}">查看課程</button><button class="button small" type="button" data-action="teacher-go-question-bank" data-course="${esc(course.id)}" ${course.status === "archived" ? "" : ""}>題庫</button>${course.status === "draft" ? `<button class="button small danger" type="button" data-action="teacher-archive-course" data-course="${esc(course.id)}" ${inProgress ? "disabled" : ""}>封存${inProgress ? "（有進行中場次）" : ""}</button>` : `<button class="button small" type="button" data-action="teacher-attempt-edit" data-course="${esc(course.id)}">嘗試編輯</button>`}</div></article>`;
+    }
+
+    function renderTeacherQuestionBank() {
+      const course = getTeacherCourse();
+      if (!course) return `<section class="section-card"><div class="empty">請先選擇 Course。</div></section>`;
+      const questions = state.domain.questionDefinitions.filter(item => item.courseId === course.id).sort((a, b) => a.position - b.position);
+      const readOnly = course.status === "archived";
+      return `<section class="hero"><span class="eyebrow">題庫 / QuestionDefinition</span><h1>${esc(course.name)}</h1><p>${readOnly ? "這門課已封存；歷史仍在，但所有寫入操作都會被拒絕。" : "題目會留在 Course 裡，下一場授課再建立不可變 SessionQuestion snapshot。"}</p><div class="hero-actions">${statusBadge(course.status)}<span class="mini-badge">${esc(course.id)}</span><button class="button primary" type="button" data-action="teacher-open-editor" ${readOnly ? "disabled" : ""}>＋新增單題</button></div></section>
+        <section class="section-card" data-tone="blue"><div class="section-head"><div><h2>題目序列</h2><p>第一版只接受純文字；Question ID 由平台 fixture 指定。</p></div>${ruleRef("R-F9-4 · R-F11-4")}</div>${questions.length ? questions.map(renderQuestionCard).join("") : `<div class="empty">尚未有題目；可以新增一題。</div>`}</section>
+        ${state.ui.teacher.editorOpen ? renderQuestionEditor(course) : ""}
+        ${renderBatchBuilder(course)}
+      `;
+    }
+
+    function renderQuestionCard(question) {
+      const options = question.options || [];
+      const correct = options.filter(item => item.isCorrect).map(item => item.text).join("、");
+      return `<article class="question-card"><div class="question-card-top"><span class="position">#${question.position} · ${esc(question.id)}</span><div class="question-meta">${typeBadge(question.type)}${question.type === "poll" ? `<span class="mini-badge">${esc(question.selectionMode)}</span>` : ""}${correct ? `<span class="mini-badge">正解 ${esc(correct)}</span>` : ""}</div></div><p class="prompt">${esc(question.prompt)}</p>${options.length ? `<ul class="option-list">${options.map(option => `<li>${esc(option.text)}${option.isCorrect ? ` <span class="rule-ref">· correct</span>` : ""}</li>`).join("")}</ul>` : `<p class="small-copy">不含 options；提交內容為純文字。</p>`}<div class="card-footer"><span class="small-copy">可跨 LiveSession 重用；active 後以 snapshot 為準。</span><button class="button small" type="button" data-action="teacher-edit-source" data-question="${esc(question.id)}">編輯來源題幹</button></div></article>`;
+    }
+
+    function renderQuestionEditor(course) {
+      const draft = state.ui.teacher.editorDraft;
+      const messages = state.ui.teacher.editorMessages;
+      const isQuiz = draft.type === "quiz";
+      const hasBlocking = messages.some(item => item.blocking);
+      return `<section class="section-card" data-tone="violet"><div class="section-head"><div><h2>新增單題</h2><p>欄位會隨題型收斂；禁用欄位不應送到正式 payload。</p></div><div class="button-row"><span class="mini-badge">Course ${esc(course.id)}</span><button class="button small" type="button" data-action="teacher-close-editor">關閉</button></div></div><form data-form="teacher-editor"><div class="form-grid"><div class="field"><label for="editor-type">題型</label><select id="editor-type" data-model="editor-type"><option value="poll" ${draft.type === "poll" ? "selected" : ""}>poll 投票</option><option value="open_text" ${draft.type === "open_text" ? "selected" : ""}>open_text 問答</option><option value="quiz" ${draft.type === "quiz" ? "selected" : ""}>quiz 測驗</option></select></div>${draft.type === "poll" ? `<div class="field"><label for="editor-selection">選擇模式</label><select id="editor-selection" data-model="editor-selection"><option value="single" ${draft.selectionMode === "single" ? "selected" : ""}>single 單選</option><option value="multiple" ${draft.selectionMode === "multiple" ? "selected" : ""}>multiple 複選</option></select></div>` : `<div class="field"><label>欄位契約</label><div class="callout" style="margin:0;padding:9px"><span class="callout-icon">${isQuiz ? "✓" : "∎"}</span><div>${isQuiz ? "selection_mode 禁止；由正解數量推導。" : "options / selection_mode / correct refs 禁止。"}</div></div></div>`}<div class="field full"><label for="editor-prompt">題幹</label><textarea id="editor-prompt" maxlength="1000" data-model="editor-prompt" placeholder="輸入 1–1,000 個 Unicode 純文字字元">${esc(draft.prompt)}</textarea><span class="counter">${charCount(draft.prompt)} / 1,000</span></div>${draft.type !== "open_text" ? `<fieldset class="field full"><legend>選項（2–10 個；每個 1–250 字元）</legend><div class="editor-options">${draft.options.map((option, index) => `<div class="editor-option-row"><span>${index + 1}</span><input aria-label="選項 ${index + 1}" maxlength="250" data-model="editor-option" data-index="${index}" value="${esc(option)}" placeholder="選項文字">${isQuiz ? `<label class="mini-badge"><input type="checkbox" data-model="editor-correct" data-index="${index}" ${draft.correctIndices.includes(index) ? "checked" : ""}> 正解</label>` : `<span class="mini-badge">無正解欄位</span>`}</div>`).join("")}</div><div class="button-row" style="margin-top:9px"><button class="button small" type="button" data-action="teacher-add-option">＋新增選項</button><button class="button small" type="button" data-action="teacher-remove-option">−移除最後選項</button></div></fieldset>` : ""}</div><div class="button-row" style="margin-top:14px"><button class="button primary" type="submit">驗證並建立</button><span class="small-copy">任一 error 都不會建立部分資料。</span></div></form>${messages.length ? renderValidationMessages(messages) : ""}${hasBlocking ? `<div class="callout danger"><span class="callout-icon">!</span><div>目前有 blocking error；修正後重新驗證。</div></div>` : ""}</section>`;
+    }
+
+    function renderBatchBuilder(course) {
+      const teacher = state.ui.teacher;
+      const batch = teacher.batchDraft;
+      return `<section class="section-card" data-tone="gold"><div class="section-head"><div><h2>批次建題：先驗證，再預覽</h2><p>這個面板用 fixture 重現 all-or-nothing、warning 與 payload 改變重驗證。</p></div>${ruleRef("R-F10-3 · R-F11-1")}</div><div class="batch-toolbar"><label for="batch-fixture" class="small-copy">載入案例</label><select id="batch-fixture" data-model="batch-fixture"><option value="valid-warning" ${teacher.batchFixture === "valid-warning" ? "selected" : ""}>合法 + duplicate warning</option><option value="invalid" ${teacher.batchFixture === "invalid" ? "selected" : ""}>多個 blocking errors</option><option value="over-limit" ${teacher.batchFixture === "over-limit" ? "selected" : ""}>51 題超過上限</option></select><button class="button small" type="button" data-action="teacher-load-batch">載入 fixture</button><button class="button small primary" type="button" data-action="teacher-validate-batch" ${batch ? "" : "disabled"}>執行 validation</button></div>${batch ? renderBatchDraft(batch) : `<div class="callout"><span class="callout-icon">↳</span><div>批次每批 1–50 題；先載入一組案例再看完整錯誤/警告。</div></div>`}${teacher.batchMessages.length ? renderValidationMessages(teacher.batchMessages) : ""}${teacher.batchStatus === "valid" ? renderBatchPreview(course, batch) : ""}${teacher.batchCreatedCount ? `<div class="callout success"><span class="callout-icon">✓</span><div>已依 preview 順序建立 ${teacher.batchCreatedCount} 題。可在上方題目序列查看。</div></div>` : ""}</section>`;
+    }
+
+    function renderBatchDraft(batch) {
+      if (batch.count > 50) return `<div class="callout danger"><span class="callout-icon">×</span><div><strong>目前 fixture 宣稱 ${batch.count} 題。</strong><br>不渲染 51 個表單，只展示 <span class="inline-code">BATCH_SIZE_INVALID</span> 的邊界。</div></div>`;
+      return `<div class="question-card"><div class="question-card-top"><span class="position">payload / ${batch.items.length} 題</span><span class="mini-badge">revision ${state.ui.teacher.batchRevision}</span></div>${batch.items.map((item, index) => `<div class="preview-row"><span class="preview-index">${index + 1}</span><div class="preview-content"><strong>${esc(item.type)} · ${esc(item.clientRef)}</strong><p>${esc(shortText(item.prompt, 90))}</p></div></div>`).join("")}<div class="button-row" style="margin-top:10px"><button class="button small" type="button" data-action="teacher-mutate-batch">修改 payload（使 preview 失效）</button></div></div>`;
+    }
+
+    function renderBatchPreview(course, batch) {
+      const current = state.ui.teacher.batchPreviewRevision === state.ui.teacher.batchRevision && state.ui.teacher.batchPreviewVisible;
+      return `<div class="batch-preview"><h4>Preview / explicit confirmation</h4><p class="small-copy">${esc(course.name)} · <span class="mono">${esc(course.id)}</span> · revision ${state.ui.teacher.batchRevision}</p>${batch.items.map((item, index) => `<div class="preview-row"><span class="preview-index">${String(index + 1).padStart(2, "0")}</span><div class="preview-content"><strong>${esc(item.type)} · ${esc(shortText(item.prompt, 90))}</strong><p>${item.type === "quiz" ? `正解：${esc((item.options || []).filter(option => item.correctOptionRefs?.includes(option.ref)).map(option => option.text).join("、"))}` : "不含正解欄位"}</p></div></div>`).join("")}<div class="callout warning"><span class="callout-icon">◇</span><div>warning 只提醒，不阻擋建立；payload 改變後必須重新 validation 與 confirm。</div></div><div class="button-row"><button class="button small" type="button" data-action="teacher-show-preview">${current ? "Preview 已確認版本" : "產生 Preview"}</button><button class="button primary small" type="button" data-action="teacher-confirm-batch" ${current ? "" : "disabled"}>明確確認並建立</button></div></div>`;
+    }
+
+    function renderTeacherSetup() {
+      const course = getTeacherCourse();
+      const sessions = course ? state.domain.liveSessions.filter(session => session.courseId === course.id) : [];
+      const inProgress = sessions.find(session => session.status === "waiting" || session.status === "active");
+      const questions = course ? state.domain.questionDefinitions.filter(item => item.courseId === course.id).sort((a, b) => a.position - b.position) : [];
+      const selected = state.ui.teacher.selectedQuestionIds;
+      return `<section class="hero"><span class="eyebrow">建立場次 / select a slice</span><h1>把題庫切成今天的課堂。</h1><p>建立場次時選擇題目子集合與順序；開始後會建立不可變快照，之後修改來源題目也不會改變現場。</p><div class="hero-actions">${course ? statusBadge(course.status) : ""}<span class="mini-badge">${selected.length} 題將加入</span></div></section><section class="section-card" data-tone="blue"><div class="section-head"><div><h2>選擇題目與順序</h2><p>用上移/下移取代拖曳，保持 prototype 的可驗證性。</p></div>${ruleRef("R-F4-2 · R-F4-3")}</div>${course?.status === "archived" ? `<div class="callout danger"><span class="callout-icon">×</span><div><strong>archived Course 只讀。</strong><br>不能建立新 LiveSession。</div></div>` : ""}<div class="question-select">${questions.map((question, index) => { const checked = selected.includes(question.id); return `<div class="select-row" data-selected="${checked}"><input type="checkbox" aria-label="選擇 ${esc(question.prompt)}" data-model="setup-question" data-question="${esc(question.id)}" ${checked ? "checked" : ""}><div class="select-info"><strong>${index + 1}. ${esc(question.prompt)}</strong><span>${esc(question.type)} · ${esc(question.id)}</span></div>${checked ? `<div class="move-buttons"><button class="button small" type="button" data-action="teacher-move-question" data-question="${esc(question.id)}" data-direction="up" aria-label="上移">↑</button><button class="button small" type="button" data-action="teacher-move-question" data-question="${esc(question.id)}" data-direction="down" aria-label="下移">↓</button></div>` : ""}</div>`; }).join("")}</div><div class="button-row" style="margin-top:14px"><button class="button primary" type="button" data-action="teacher-create-session" ${!course || course.status === "archived" || !selected.length || inProgress ? "disabled" : ""}>建立 waiting 場次</button>${inProgress ? `<span class="small-copy">已有 ${esc(inProgress.status)} 場次：${esc(inProgress.sessionCode)}</span>` : ""}</div></section>${inProgress ? renderSetupExistingSession(inProgress) : ""}`;
+    }
+
+    function renderSetupExistingSession(session) {
+      const questions = getSessionQuestions(session.id);
+      return `<section class="section-card" data-tone="gold"><div class="section-head"><div><h3>目前場次</h3><p>同一 Course 同時最多一個 waiting 或 active。</p></div>${statusBadge(session.status)}${ruleRef("R-F2-1")}</div><div class="code-lockup"><span class="session-code">${esc(session.sessionCode)}</span><button class="button small" type="button" data-action="copy-code">複製代碼</button></div>${session.status === "waiting" ? `<div class="callout warning"><span class="callout-icon">◇</span><div>waiting 可以取消（前提是沒有 Submission），也可以開始授課建立 snapshot。</div></div><div class="button-row"><button class="button primary" type="button" data-action="teacher-start-session">開始授課</button><button class="button danger" type="button" data-action="teacher-cancel-session">取消這場</button></div>` : `<div class="callout success"><span class="callout-icon">✓</span><div>active 之後題目已進入 snapshot；新增題目與重排本場都不再可用。</div></div><button class="button" type="button" data-action="navigate" data-mode="teacher" data-view="classroom">前往課堂控制</button>`}<div class="divider"></div><div class="sequence">${questions.length ? questions.map((sq, index) => `<div class="sequence-item"><span class="sequence-dot">${index + 1}</span><span class="sequence-label"><strong>${esc(shortText(sq.snapshot.prompt, 17))}</strong><span>${esc(sq.status)}</span></span></div>`).join("") : `<span class="small-copy">尚未建立 snapshot；waiting 啟動後才會出現。</span>`}</div></section>`;
+    }
+
+    function renderTeacherClassroom() {
+      const session = getTeacherSession();
+      const course = session ? getCourse(session.courseId) : getTeacherCourse();
+      if (!session) return `<section class="hero"><span class="eyebrow">classroom control</span><h1>先選一場課堂。</h1><p>從「建立場次」或「歷史結果」進入。</p></section>`;
+      const questions = getSessionQuestions(session.id);
+      const current = session.activeQuestionId ? getSessionQuestion(session.activeQuestionId) : questions[0];
+      const open = questions.find(item => item.status === "open");
+      const terminalNote = session.status === "closed" && session.autoClosed
+        ? `<section class="section-card" data-tone="red"><div class="callout danger"><span class="callout-icon">■</span><div><strong>auto-close fixture：場次已達 +8 小時 hard limit。</strong><br>session code 已失效；後續加入、重連與 Submission 都應被拒絕。</div></div><div class="button-row"><button class="button" type="button" data-action="navigate" data-mode="teacher" data-view="history">查看 ArchivedResult</button></div></section>`
+        : "";
+      return `<section class="hero"><span class="eyebrow">課堂控制 / teacher only</span><div class="section-head"><div><h1>${esc(course?.name || "LiveSession")}</h1><p>老師只看匿名 aggregate；不會在這裡看到個別學員答案。</p></div><div class="button-row">${statusBadge(session.status)}${session.autoClosed ? `<span class="status-badge" data-status="closed">auto_closed</span>` : ""}</div></div><div class="code-lockup"><span class="session-code">${esc(session.sessionCode)}</span><button class="button small" type="button" data-action="copy-code">複製 code</button></div><div class="hero-actions">${session.status === "waiting" ? `<button class="button primary" type="button" data-action="teacher-start-session">開始授課</button><button class="button danger" type="button" data-action="teacher-cancel-session">取消場次</button>` : ""}${session.status === "active" ? `<button class="button" type="button" data-action="teacher-close-session">結束場次</button><button class="button danger" type="button" data-action="teacher-auto-close">模擬 +8 小時 auto-close</button>` : ""}<button class="button ghost" type="button" data-action="navigate" data-mode="teacher" data-view="history">查看歷史</button></div></section>
+        ${terminalNote}
+        ${session.status === "waiting" ? `<section class="section-card" data-tone="gold"><div class="callout warning"><span class="callout-icon">◇</span><div><strong>尚未 active：所有 SessionQuestion 都還不存在。</strong><br>開始授課時才以當下選定順序建立不可變 snapshot。</div></div><div class="sequence">${session.selectedQuestionIds.map((id, index) => { const q = getQuestion(id); return `<div class="sequence-item"><span class="sequence-dot">${index + 1}</span><span class="sequence-label"><strong>${esc(shortText(q?.prompt, 18))}</strong><span>待建立</span></span></div>`; }).join("")}</div></section>` : session.status === "closed" ? `<section class="section-card" data-tone="violet"><div class="section-head"><div><h2>終止後的 snapshot</h2><p>本場只能查詢；不可再 open、加入或提交。</p></div>${ruleRef("R-F2-6 · R-F13-3")}</div>${questions.map(sq => renderTeacherAggregate(sq)).join("") || `<div class="empty">這場沒有可呈現的題目 snapshot。</div>`}</section>` : renderTeacherLiveControl(session, questions, current, open)}
+      `;
+    }
+
+    function renderTeacherLiveControl(session, questions, current, open) {
+      return `<section class="section-card" data-tone="blue"><div class="section-head"><div><h2>逐題控制</h2><p>先 close 當前題，才能 open 下一題；closed 題不會重開。</p></div>${ruleRef("R-F4-5 · R-F4-6")}</div><div class="sequence">${questions.map((sq, index) => `<div class="sequence-item" data-current="${sq.id === session.activeQuestionId}"><span class="sequence-dot">${index + 1}</span><span class="sequence-label"><strong>${esc(shortText(sq.snapshot.prompt, 18))}</strong><span>${esc(sq.status)}</span></span></div>`).join("")}</div><div class="session-list">${questions.map(sq => renderTeacherQuestionControl(sq, open)).join("")}</div></section>${current ? renderTeacherAggregate(current) : ""}${state.ui.fixture.raceMode ? renderRacePanel() : ""}`;
+    }
+
+    function renderTeacherQuestionControl(sq, open) {
+      const isCurrentOpen = sq.status === "open";
+      const canOpen = sq.status === "not_open" && !open;
+      const canClose = sq.status === "open";
+      return `<article class="session-row"><div class="session-main"><div class="question-meta">${statusBadge(sq.status)}${typeBadge(sq.snapshot.type)}<span class="mini-badge">#${sq.position}</span></div><div class="session-title" style="margin-top:7px">${esc(sq.snapshot.prompt)}</div><div class="session-sub">snapshot · ${esc(sq.id)} · source ${esc(sq.sourceQuestionId || "detached")}</div></div><div class="button-row">${canOpen ? `<button class="button small primary" type="button" data-action="teacher-open-question" data-question="${esc(sq.id)}">open</button>` : ""}${canClose ? `<button class="button small" type="button" data-action="teacher-close-question" data-question="${esc(sq.id)}">close</button>` : ""}${sq.status === "not_open" && open ? `<button class="button small" type="button" data-action="teacher-open-question" data-question="${esc(sq.id)}">嘗試 open</button>` : ""}${sq.status === "closed" ? `<button class="button small" type="button" data-action="teacher-reopen-question" data-question="${esc(sq.id)}">嘗試重開</button>` : ""}</div></article>`;
+    }
+
+    function renderTeacherAggregate(sq) {
+      const aggregate = sq.aggregate || { total: 0, options: [], textResponses: [] };
+      return `<section class="section-card" data-tone="violet"><div class="section-head"><div><h3>匿名 aggregate / ${esc(sq.snapshot.type)}</h3><p>已提交 ${aggregate.total} 人；老師看不到 participant name、token 或原始個別答案。</p></div><div class="button-row"><span class="privacy-badge">teacher projection</span>${ruleRef("R-F17-6 · R-F17-7")}</div></div>${sq.snapshot.type === "open_text" ? `<div class="metric-strip"><div class="metric"><span class="metric-label">文字提交</span><strong class="metric-value">${aggregate.total}</strong><span class="metric-note">只顯示數量</span></div><div class="metric"><span class="metric-label">呈現決策</span><strong class="metric-value" style="font-size:15px">列表*</strong><span class="metric-note">prototype assumption</span></div><div class="metric"><span class="metric-label">原文</span><strong class="metric-value" style="font-size:15px">隱藏</strong><span class="metric-note">匿名治理邊界</span></div></div>` : renderResult(sq, true)}<div class="privacy-wall"><span class="privacy-symbol">◌</span><div><strong>老師端不渲染個別回應。</strong><p>圖表只讀 aggregate fixture；open text 的學員原文只在學員端的公開結果列表展示。</p></div></div>${sq.sourceQuestionId ? `<div class="callout"><span class="callout-icon">⌁</span><div>來源 QuestionDefinition 可在題庫編輯；這個 SessionQuestion snapshot 仍保持原樣。</div></div>` : ""}</section>`;
+    }
+
+    function renderTeacherHistory() {
+      const course = getTeacherCourse();
+      const sessions = state.domain.liveSessions.filter(session => !course || session.courseId === course.id).sort((a, b) => String(b.closedAt || b.startedAt || "").localeCompare(String(a.closedAt || a.startedAt || "")));
+      const results = state.domain.archivedResults.filter(result => !course || result.courseId === course.id);
+      return `<section class="hero"><span class="eyebrow">history / ArchivedResult</span><h1>每一場課堂，都留下一條可查的線。</h1><p>歷史結果與即時課堂分開；到期或刪除後只剩 tombstone metadata，不在這個 prototype 假裝可恢復原文。</p><div class="hero-actions"><span class="mini-badge">${sessions.filter(item => item.status === "closed").length} closed sessions</span><span class="mini-badge">retention: 90 days fixture</span></div></section><section class="section-card" data-tone="violet"><div class="section-head"><div><h2>LiveSession 歷史</h2><p>closed/cancelled 不可逆；closed 才會形成結果快照。</p></div>${ruleRef("archived_result · P0-06")}</div><div class="session-list">${sessions.map(session => `<article class="history-item"><div class="history-top"><h4>${esc(session.sessionCode)} · ${esc(session.id)}</h4>${statusBadge(session.status)}</div><div class="history-meta"><span>joined ${session.joinedCount}</span><span>closed ${esc(session.closedAt || "—")}</span><span>${session.autoClosed ? "auto_closed" : "manual close/cancel"}</span></div><div class="button-row" style="margin-top:9px"><button class="button small" type="button" data-action="teacher-select-session" data-session="${esc(session.id)}">查看場次</button></div></article>`).join("")}</div></section><section class="section-card"><div class="section-head"><div><h3>ArchivedResult 索引</h3><p>只呈現可查詢 metadata 與保留期限。</p></div></div>${results.map(result => `<article class="history-item"><div class="history-top"><h4>${esc(result.liveSessionId)}</h4><span class="status-badge" data-status="${result.status === "tombstone" ? "archived" : "closed"}">${esc(result.status)}</span></div><div class="history-meta"><span>closed ${esc(result.closedAt)}</span><span>retention ${esc(result.retentionExpiresAt)}</span><span>${result.status === "tombstone" ? `deleted ${esc(result.deletedAt)} · ${esc(result.deletionReason)}` : `${result.questionCount} 題結果`}</span></div>${result.status === "tombstone" ? `<div class="callout warning" style="margin-bottom:0"><span class="callout-icon">▣</span><div>tombstone：aggregation 已清除，不含題幹、選項、答案、顯示名或 token。</div></div>` : ""}</article>`).join("")}</section>`;
+    }
+
+    function renderRacePanel() {
+      const submitFirst = state.ui.fixture.raceMode === "submit-first";
+      return `<section class="section-card" data-tone="${submitFirst ? "blue" : "red"}"><div class="section-head"><div><h3>競態 fixture：${submitFirst ? "Submission 先 commit" : "close 先 commit"}</h3><p>不使用 client 時間或 WebSocket 到達順序；只展示 server commit 順序的預期。</p></div>${ruleRef("R-F15-1 · R-F15-3")}</div><div class="callout ${submitFirst ? "success" : "danger"}"><span class="callout-icon">${submitFirst ? "✓" : "×"}</span><div><strong>${submitFirst ? "答案保留並納入結果。" : "後續 Submission 拒絕，不納入結果。"}</strong><br><span class="small-copy">prototype event log 已記錄先後，不代表正式 transaction implementation。</span></div></div><button class="button small" type="button" data-action="clear-race">關閉 fixture 說明</button></section>`;
+    }
+
+    function renderResult(sq, teacherView = false) {
+      const snapshot = sq.snapshot;
+      const aggregate = sq.aggregate || { total: 0, options: [], textResponses: [] };
+      if (snapshot.type === "open_text") {
+        if (teacherView) return `<div class="metric-strip"><div class="metric"><span class="metric-label">提交人數</span><strong class="metric-value">${aggregate.total}</strong><span class="metric-note">匿名 aggregate</span></div><div class="metric"><span class="metric-label">文字原文</span><strong class="metric-value" style="font-size:16px">hidden</strong><span class="metric-note">teacher privacy projection</span></div><div class="metric"><span class="metric-label">視覺呈現</span><strong class="metric-value" style="font-size:16px">列表*</strong><span class="metric-note">待產品/M2 定案</span></div></div>`;
+        return `<div class="text-results">${aggregate.textResponses.map(text => `<div class="text-result">${esc(text)}</div>`).join("") || `<div class="empty">還沒有匿名文字回應。</div>`}</div><div class="callout warning"><span class="callout-icon">◇</span><div>目前 prototype 先用文字列表；文字雲或切換仍是待確認決策。</div></div>`;
+      }
+      const max = Math.max(...aggregate.options.map(item => item.count), 1);
+      const isQuiz = snapshot.type === "quiz";
+      return `<div class="legend-note"><span class="legend-dot ${isQuiz ? "correct" : ""}"></span><span>${isQuiz ? "長條高度代表選擇次數；條紋與「正解」標示是第二識別通道。" : "長條高度代表選擇次數；數字直接標在右側。"}</span></div><div class="bar-chart" role="img" aria-label="${esc(snapshot.type)} 匿名結果長條圖">${aggregate.options.map((item, index) => { const opt = snapshot.options.find(option => option.id === item.id); const correct = Boolean(opt?.isCorrect); const percent = aggregate.total ? Math.round(item.count / aggregate.total * 100) : 0; const color = index % 4 === 0 ? "var(--chart-1)" : index % 4 === 1 ? "var(--chart-2)" : index % 4 === 2 ? "var(--chart-3)" : "var(--chart-4)"; return `<div class="bar-row"><span class="bar-label" title="${esc(item.text)}">${esc(item.text)}${correct ? ` <span class="rule-ref">✓ 正解</span>` : ""}</span><span class="bar-track"><span class="bar-mark" tabindex="0" data-tooltip-title="${esc(item.text)}" data-tooltip-value="${item.count} 人 · ${percent}%" aria-label="${esc(item.text)}：${item.count} 人，${percent}%"><span class="bar-fill" style="width:${Math.max(item.count / max * 100, 2)}%;--bar-color:${color};${correct ? "background:repeating-linear-gradient(135deg,var(--bar-color),var(--bar-color) 7px,var(--violet) 7px,var(--violet) 10px);" : ""}"></span></span></span><span class="bar-value">${item.count}<small>${percent}%</small></span></div>`; }).join("")}</div><table class="chart-table"><caption class="sr-only">${esc(snapshot.type)} 結果表格</caption><thead><tr><th>選項</th><th>狀態</th><th>人數</th></tr></thead><tbody>${aggregate.options.map(item => { const opt = snapshot.options.find(option => option.id === item.id); return `<tr><td>${esc(item.text)}</td><td>${opt?.isCorrect ? "正解" : "—"}</td><td>${item.count}</td></tr>`; }).join("")}</tbody></table>`;
+    }
+
+    function renderValidationMessages(messages) {
+      return `<ul class="validation-list" aria-label="validation messages">${messages.map(item => `<li class="validation-item" data-blocking="${item.blocking}"><span class="validation-code">${esc(item.code)}</span><span class="validation-message">${esc(item.message)}</span><span class="validation-meta">path ${esc(item.path)} · ${item.blocking ? "blocking" : "warning"} · ${esc(item.next)}</span></li>`).join("")}</ul>`;
+    }
+
+    function renderToast() {
+      const node = document.getElementById("toast");
+      const toast = state.ui.fixture.toast;
+      if (!toast) { node.hidden = true; return; }
+      node.hidden = false;
+      node.dataset.tone = toast.tone;
+      node.innerHTML = `<strong>${esc(toast.message)}</strong>${toast.rule ? `<span>${esc(toast.rule)}</span>` : ""}`;
+      clearTimeout(renderToast.timer);
+      renderToast.timer = setTimeout(() => { state.ui.fixture.toast = null; renderToast(); }, 4200);
+    }
+
+    function loadScenario(id) {
+      const theme = state.ui.theme;
+      state = createState();
+      state.ui.theme = theme;
+      state.ui.fixture.scenarioId = id;
+      const teacherScenarios = new Set(["archive-blocked", "archived-readonly", "batch-invalid", "batch-valid-preview", "snapshot-edited-source", "second-question-open", "race-submit-first", "race-close-first", "auto-closed"]);
+      state.ui.mode = teacherScenarios.has(id) ? "teacher" : "student";
+      const teacher = state.ui.teacher;
+      const student = state.ui.student;
+      const active = getSession("session-active");
+
+      if (["waiting-room"].includes(id)) {
+        student.sessionId = "session-waiting";
+        seedStudentParticipant("session-waiting", "小明");
+        student.view = "waiting";
+      } else if (["active-poll", "submission-duplicate", "race-submit-first", "race-close-first"].includes(id)) {
+        seedStudentParticipant("session-active", "小明");
+        student.view = "classroom";
+      } else if (id === "active-quiz") {
+        active.activeQuestionId = "sq-quiz";
+        getSessionQuestion("sq-poll-open").status = "not_open";
+        getSessionQuestion("sq-quiz").status = "open";
+        seedStudentParticipant("session-active", "小明");
+        student.view = "classroom";
+      } else if (id === "active-open-text") {
+        active.activeQuestionId = "sq-open";
+        getSessionQuestion("sq-poll-open").status = "not_open";
+        getSessionQuestion("sq-open").status = "open";
+        seedStudentParticipant("session-active", "小明");
+        student.view = "classroom";
+      } else if (id === "closed-results") {
+        student.sessionId = "session-closed";
+        seedStudentParticipant("session-closed", "小明");
+        student.view = "ended";
+      } else if (id === "cancelled-empty") {
+        student.sessionId = "session-cancelled";
+        student.view = "ended";
+      } else if (id === "archive-blocked") {
+        teacher.courseId = "course-draft";
+        teacher.sessionId = "session-active";
+        teacher.view = "courses";
+      } else if (id === "archived-readonly") {
+        teacher.courseId = "course-archived";
+        teacher.sessionId = "session-closed";
+        teacher.view = "question-bank";
+      } else if (id === "batch-invalid" || id === "batch-valid-preview") {
+        teacher.view = "question-bank";
+        teacher.batchFixture = id === "batch-invalid" ? "invalid" : "valid-warning";
+        loadBatchFixture(false);
+        if (id === "batch-valid-preview") validateBatch(false);
+      } else if (id === "snapshot-edited-source") {
+        teacher.view = "classroom";
+        teacher.sessionId = "session-active";
+        const source = getQuestion("q-poll");
+        source.prompt = "來源題幹已被修改（snapshot 應該不變）";
+      } else if (id === "second-question-open") {
+        teacher.view = "classroom";
+        teacher.sessionId = "session-active";
+      } else if (id === "race-submit-first" || id === "race-close-first") {
+        teacher.view = "classroom";
+        teacher.sessionId = "session-active";
+        teacher.raceMode = id === "race-submit-first" ? "submit-first" : "close-first";
+        state.ui.fixture.raceMode = teacher.raceMode;
+        addEvent(id === "race-submit-first" ? "fixture：Submission 先 commit，答案保留" : "fixture：close 先 commit，後續答案拒絕", id === "race-submit-first" ? "success" : "error", "R-F15-1");
+      } else if (id === "auto-closed") {
+        teacher.view = "classroom";
+        teacher.sessionId = "session-active";
+        active.status = "closed";
+        active.autoClosed = true;
+        active.closedAt = "2026-08-14 17:06 (+8h fixture)";
+        getSessionQuestion("sq-poll-open").status = "closed";
+      }
+      if (id === "active-poll") student.view = "classroom";
+      addEvent(`載入 scenario：${id}`, "info", "prototype fixture");
+      render();
+    }
+
+    function seedStudentParticipant(sessionId, displayName, submittedAnswer = null) {
+      const participant = { id: "participant-demo", liveSessionId: sessionId, displayName, tokenLabel: "fixture ····7A", joinedAt: "2026-08-14 09:06" };
+      state.domain.participants.push(participant);
+      state.ui.student.sessionId = sessionId;
+      state.ui.student.participantId = participant.id;
+      state.ui.student.tokenState = "available";
+      state.ui.student.tokenLabel = participant.tokenLabel;
+      if (submittedAnswer) createSubmission(participant.id, getCurrentStudentQuestion()?.id, submittedAnswer, "idem-fixture-1", false);
+    }
+
+    function createSubmission(participantId, sqId, answer, idempotencyKey, announce = true) {
+      if (!participantId || !sqId) return null;
+      const submission = { id: nextId("submission"), participantId, liveSessionId: getSessionQuestion(sqId)?.liveSessionId, sessionQuestionId: sqId, idempotencyKey, answer, submittedAt: "server fixture time" };
+      state.domain.submissions.push(submission);
+      const sq = getSessionQuestion(sqId);
+      if (sq?.aggregate) {
+        if (Array.isArray(answer)) answer.forEach(id => incrementAggregate(sq, id));
+        else if (typeof answer === "string" && sq.snapshot.type !== "open_text") incrementAggregate(sq, answer);
+        else if (typeof answer === "string" && sq.snapshot.type === "open_text") { sq.aggregate.textResponses.push(answer); sq.aggregate.total += 1; }
+      }
+      state.ui.student.submittedByQuestion[sqId] = submission.id;
+      if (announce) succeed("Submission 已建立；答案鎖定。", "R-F14-1 · R-F14-2");
+      return submission;
+    }
+
+    function incrementAggregate(sq, optionId) {
+      const item = sq.aggregate.options.find(option => option.id === optionId);
+      if (item) { item.count += 1; sq.aggregate.total += 1; }
+    }
+
+    function handleInput(event) {
+      const target = event.target;
+      if (!target.closest("#app")) return;
+      const model = target.dataset.model;
+      if (model === "student-code") state.ui.student.joinCode = target.value.toUpperCase();
+      if (model === "student-name") state.ui.student.joinName = target.value;
+      if (model === "student-text-answer") state.ui.student.draftAnswer = target.value;
+      if (model === "editor-prompt") state.ui.teacher.editorDraft.prompt = target.value;
+      if (model === "editor-option") state.ui.teacher.editorDraft.options[Number(target.dataset.index)] = target.value;
+      if (model === "new-course-name") state.ui.teacher.newCourseName = target.value;
+    }
+
+    function handleChange(event) {
+      const target = event.target;
+      if (!target.closest("#app")) return;
+      const model = target.dataset.model;
+      if (model === "student-choice") {
+        const sq = getCurrentStudentQuestion();
+        if (!sq) return;
+        const quizMultiple = sq.snapshot.type === "quiz" && sq.snapshot.options.filter(item => item.isCorrect).length > 1;
+        if (quizMultiple) {
+          const checked = [...document.querySelectorAll("input[data-model=student-choice]:checked")].map(input => input.value);
+          state.ui.student.draftAnswer = checked;
+        } else state.ui.student.draftAnswer = target.value;
+      }
+      if (model === "editor-type") {
+        const draft = state.ui.teacher.editorDraft;
+        draft.type = target.value;
+        if (draft.type === "open_text") { draft.options = []; draft.correctIndices = []; }
+        else if (!draft.options.length) draft.options = ["", ""];
+        render();
+      }
+      if (model === "editor-selection") state.ui.teacher.editorDraft.selectionMode = target.value;
+      if (model === "editor-correct") {
+        const index = Number(target.dataset.index);
+        const indices = new Set(state.ui.teacher.editorDraft.correctIndices);
+        if (target.checked) indices.add(index); else indices.delete(index);
+        state.ui.teacher.editorDraft.correctIndices = [...indices].sort((a, b) => a - b);
+      }
+      if (model === "setup-question") {
+        const id = target.dataset.question;
+        const selected = new Set(state.ui.teacher.selectedQuestionIds);
+        if (target.checked) selected.add(id); else selected.delete(id);
+        state.ui.teacher.selectedQuestionIds = [...selected];
+        render();
+      }
+      if (model === "batch-fixture") {
+        state.ui.teacher.batchFixture = target.value;
+        state.ui.teacher.batchDraft = null;
+        state.ui.teacher.batchStatus = "idle";
+        state.ui.teacher.batchMessages = [];
+        state.ui.teacher.batchPreviewVisible = false;
+        render();
+      }
+    }
+
+    function handleSubmit(event) {
+      const form = event.target;
+      if (!form.dataset.form) return;
+      event.preventDefault();
+      if (form.dataset.form === "student-join") studentJoin();
+      if (form.dataset.form === "student-answer") studentSubmit();
+      if (form.dataset.form === "teacher-editor") teacherValidateSingle();
+    }
+
+    function handleClick(event) {
+      const actionNode = event.target.closest("[data-action]");
+      if (!actionNode) return;
+      const action = actionNode.dataset.action;
+      if (action === "set-mode") {
+        state.ui.mode = actionNode.dataset.mode;
+        if (state.ui.mode === "teacher" && !state.ui.teacher.view) state.ui.teacher.view = "courses";
+        render();
+        return;
+      }
+      if (action === "toggle-theme") {
+        state.ui.theme = state.ui.theme === "projector" ? "paper" : "projector";
+        render();
+        return;
+      }
+      if (action === "navigate") {
+        const mode = actionNode.dataset.mode || state.ui.mode;
+        state.ui[mode].view = actionNode.dataset.view;
+        render();
+        return;
+      }
+      if (action === "load-scenario") { loadScenario(actionNode.dataset.scenario); return; }
+      switch (action) {
+        case "copy-code": copyCurrentCode(); break;
+        case "student-refresh": studentRefresh(); break;
+        case "student-reconnect": studentReconnect(); break;
+        case "student-disconnect": studentDisconnect(); break;
+        case "student-safe-retry": studentSafeRetry(); break;
+        case "student-conflict-retry": studentConflictRetry(); break;
+        case "student-multitab": studentMultitab(); break;
+        case "teacher-select-account": state.ui.teacher.accountId = actionNode.dataset.account; render(); break;
+        case "teacher-create-course": teacherCreateCourse(); break;
+        case "teacher-select-course": state.ui.teacher.courseId = actionNode.dataset.course; state.ui.teacher.view = "courses"; render(); break;
+        case "teacher-go-question-bank": state.ui.teacher.courseId = actionNode.dataset.course; state.ui.teacher.view = "question-bank"; render(); break;
+        case "teacher-archive-course": teacherArchiveCourse(actionNode.dataset.course); break;
+        case "teacher-attempt-edit": teacherAttemptEdit(actionNode.dataset.course); break;
+        case "teacher-open-editor": teacherOpenEditor(); break;
+        case "teacher-close-editor": state.ui.teacher.editorOpen = false; render(); break;
+        case "teacher-add-option": teacherAddOption(); break;
+        case "teacher-remove-option": teacherRemoveOption(); break;
+        case "teacher-load-batch": loadBatchFixture(true); break;
+        case "teacher-validate-batch": validateBatch(true); break;
+        case "teacher-mutate-batch": mutateBatch(); break;
+        case "teacher-show-preview": teacherShowPreview(); break;
+        case "teacher-confirm-batch": teacherConfirmBatch(); break;
+        case "teacher-create-session": teacherCreateSession(); break;
+        case "teacher-move-question": teacherMoveQuestion(actionNode.dataset.question, actionNode.dataset.direction); break;
+        case "teacher-start-session": teacherStartSession(); break;
+        case "teacher-cancel-session": teacherCancelSession(); break;
+        case "teacher-open-question": teacherOpenQuestion(actionNode.dataset.question); break;
+        case "teacher-close-question": teacherCloseQuestion(actionNode.dataset.question); break;
+        case "teacher-reopen-question": teacherReopenQuestion(actionNode.dataset.question); break;
+        case "teacher-close-session": teacherCloseSession(false); break;
+        case "teacher-auto-close": teacherCloseSession(true); break;
+        case "teacher-edit-source": teacherEditSource(actionNode.dataset.question); break;
+        case "teacher-select-session": state.ui.teacher.sessionId = actionNode.dataset.session; state.ui.teacher.view = "classroom"; render(); break;
+        case "clear-race": state.ui.fixture.raceMode = null; render(); break;
+        default: break;
+      }
+    }
+
+    function studentJoin() {
+      const code = String(state.ui.student.joinCode || "").trim().toUpperCase();
+      const name = String(state.ui.student.joinName || "").trim();
+      if (!guard(VALID_CODE.test(code), "session code 必須是 8 碼且不含混淆字元。", "R-F3-1 · R-F3-2")) { render(); return; }
+      const session = state.domain.liveSessions.find(item => item.sessionCode === code);
+      if (!guard(Boolean(session) && ["waiting", "active"].includes(session?.status), "找不到有效的 waiting/active 場次；舊 code 不會重新啟用。", "R-F3-3 · R-F3-4")) { render(); return; }
+      if (!guard(isSafeDisplayName(name), "顯示名稱需為 1–40 個安全 Unicode 字元，不能含控制或方向控制字元。", "R-F12-5")) { render(); return; }
+      const participant = { id: nextId("participant"), liveSessionId: session.id, displayName: name, tokenLabel: `fixture ····${String(state.domain.counters.participant).padStart(2, "0")}`, joinedAt: "server fixture time" };
+      state.domain.participants.push(participant);
+      session.joinedCount += 1;
+      state.ui.student.sessionId = session.id;
+      state.ui.student.participantId = participant.id;
+      state.ui.student.tokenState = "available";
+      state.ui.student.tokenLabel = participant.tokenLabel;
+      state.ui.student.reconnectState = "connected";
+      state.ui.student.draftAnswer = null;
+      state.ui.student.idempotencyKey = null;
+      state.ui.student.view = session.status === "waiting" ? "waiting" : "classroom";
+      succeed(`已加入 ${session.sessionCode}；取得場次限定 participant fixture。`, "R-F12-1 · R-F12-2");
+      render();
+    }
+
+    function studentRefresh() {
+      const session = getCurrentStudentSession();
+      if (!session) return;
+      addEvent(`重新取得 server fixture：${formatStatus(session.status)}`, "info", "R-F13-1 · R-F13-2");
+      if (session.status === "waiting") state.ui.student.view = "waiting";
+      else if (session.status === "active") state.ui.student.view = "classroom";
+      else state.ui.student.view = "ended";
+      render();
+    }
+
+    function studentDisconnect() {
+      if (!guard(Boolean(state.ui.student.participantId), "尚未加入場次，沒有可重連的 token fixture。", "R-F13-1")) { render(); return; }
+      state.ui.student.reconnectState = "disconnected";
+      addEvent("模擬斷線：暫停本地畫面，server fixture 仍是權威", "info", "R-F13-2");
+      render();
+    }
+
+    function studentReconnect() {
+      const session = getCurrentStudentSession();
+      if (!guard(Boolean(state.ui.student.tokenState === "available"), "沒有有效的場次限定 token fixture。", "R-F13-1")) { render(); return; }
+      if (!guard(Boolean(session) && ["waiting", "active"].includes(session?.status), "場次已終止；原 token 不可重連。", "R-F13-3")) { render(); return; }
+      state.ui.student.reconnectState = "connected";
+      state.ui.student.view = session.status === "waiting" ? "waiting" : "classroom";
+      succeed("以原 token fixture 恢復最新場次、目前題目與已提交狀態。", "R-F13-1 · R-F13-2");
+      render();
+    }
+
+    function studentSubmit() {
+      const session = getCurrentStudentSession();
+      const sq = getCurrentStudentQuestion();
+      const participant = getParticipant(state.ui.student.participantId);
+      if (!guard(Boolean(session) && session.status === "active", "只有 active LiveSession 可以提交。", "R-F14-6")) { render(); return; }
+      if (!guard(Boolean(sq) && sq.status === "open", "這一題還沒有 open；提交被拒絕。", "R-F14-6")) { render(); return; }
+      if (!guard(Boolean(participant), "找不到 participant fixture；請重新加入。", "R-F12-2")) { render(); return; }
+      if (!guard(!getStudentSubmission(sq.id), "這一題已經有第一次有效答案，不能覆寫。", "R-F14-1 · R-F14-2")) { render(); return; }
+      const answer = state.ui.student.draftAnswer;
+      const valid = sq.snapshot.type === "open_text" ? typeof answer === "string" && answer.trim().length > 0 && charCount(answer) <= 2000 : Array.isArray(answer) ? answer.length > 0 : Boolean(answer);
+      if (!guard(valid, "請先選擇答案或輸入文字，再提交。", "R-F14-6")) { render(); return; }
+      state.ui.student.idempotencyKey = state.ui.student.idempotencyKey || `idem-fixture-${sq.id}`;
+      createSubmission(participant.id, sq.id, Array.isArray(answer) ? [...answer] : String(answer).trim(), state.ui.student.idempotencyKey, true);
+      render();
+    }
+
+    function studentSafeRetry() {
+      const sq = getCurrentStudentQuestion();
+      const submission = sq ? getStudentSubmission(sq.id) : null;
+      if (!guard(Boolean(submission), "目前沒有可安全重送的第一次結果。", "R-F14-3")) { render(); return; }
+      addEvent("相同 idempotency key 命中第一次結果；沒有新增 Submission。", "success", "R-F14-3");
+      render();
+    }
+
+    function studentConflictRetry() {
+      const sq = getCurrentStudentQuestion();
+      const submission = sq ? getStudentSubmission(sq.id) : null;
+      if (!guard(Boolean(submission), "尚未有第一次答案，無法模擬不同答案衝突。", "R-F14-4")) { render(); return; }
+      guard(false, "不同答案重送被拒；第一次答案保持不變。", "R-F14-4 · SUBMISSION_CONFLICT");
+      render();
+    }
+
+    function studentMultitab() {
+      const sq = getCurrentStudentQuestion();
+      const submission = sq ? getStudentSubmission(sq.id) : null;
+      if (!submission) { studentSubmit(); return; }
+      guard(false, "多分頁競態只允許一筆成功；其他請求回傳已存在/衝突。", "R-F14-5");
+      render();
+    }
+
+    function copyCurrentCode() {
+      const code = state.ui.mode === "student" ? getCurrentStudentSession()?.sessionCode : getTeacherSession()?.sessionCode;
+      if (!code) { setToast("目前沒有可複製的 session code", "error", "prototype guard"); render(); return; }
+      if (navigator.clipboard?.writeText) navigator.clipboard.writeText(code).catch(() => {});
+      setToast(`已準備複製 ${code}`, "success", "session code 只用來尋找場次");
+      render();
+    }
+
+    function teacherCreateCourse() {
+      const account = state.domain.accounts.find(item => item.id === state.ui.teacher.accountId);
+      if (!guard(Boolean(account?.canCreateCourse), "目前帳號沒有 can_create_course，不能建立 Course。", "R-F0-1 · R-F16-2")) { render(); return; }
+      const name = String(state.ui.teacher.newCourseName || "").trim() || "未命名課程";
+      const course = { id: nextId("course"), name, description: "由 prototype 展示用建立流程產生。", status: "draft", ownerAccountId: account.id };
+      state.domain.courses.push(course);
+      state.ui.teacher.courseId = course.id;
+      succeed(`已建立 draft Course「${name}」，${account.displayName} 是唯一 owner。`, "R-F0-2 · R-F0-4");
+      render();
+    }
+
+    function teacherArchiveCourse(courseId) {
+      const course = getCourse(courseId);
+      const active = state.domain.liveSessions.find(session => session.courseId === courseId && ["waiting", "active"].includes(session.status));
+      if (!guard(Boolean(course) && course.status === "draft", "只有 draft Course 可以封存。", "R-F1-1")) { render(); return; }
+      if (!guard(!active, "仍有 waiting/active LiveSession，不能封存。", "R-F1-3")) { render(); return; }
+      course.status = "archived";
+      course.archivedAt = "server fixture time";
+      succeed(`Course「${course.name}」已 archived；歷史場次仍可查詢。`, "R-F1-3 · R-F1-4");
+      render();
+    }
+
+    function teacherAttemptEdit(courseId) {
+      const course = getCourse(courseId);
+      if (!guard(Boolean(course) && course.status === "draft", "archived Course 不可編輯、恢復或建立新場次。", "R-F1-4 · COURSE_NOT_EDITABLE")) { render(); return; }
+      state.ui.teacher.courseId = courseId;
+      state.ui.teacher.view = "question-bank";
+      render();
+    }
+
+    function teacherOpenEditor() {
+      const course = getTeacherCourse();
+      if (!guard(Boolean(course) && course.status === "draft", "archived Course 只讀，不能新增題目。", "R-F11-6 · COURSE_NOT_EDITABLE")) { render(); return; }
+      state.ui.teacher.editorOpen = true;
+      state.ui.teacher.editorDraft = createEditorDraft();
+      state.ui.teacher.editorMessages = [];
+      render();
+    }
+
+    function teacherAddOption() {
+      const draft = state.ui.teacher.editorDraft;
+      if (draft.type === "open_text") { setToast("open_text 禁止 options", "error", "R-F9-2 · FIELD_FORBIDDEN"); render(); return; }
+      if (!guard(draft.options.length < 10, "選項最多 10 個。", "R-F9-1 · R-F9-3")) { render(); return; }
+      draft.options.push("");
+      render();
+    }
+
+    function teacherRemoveOption() {
+      const draft = state.ui.teacher.editorDraft;
+      if (draft.options.length <= 2) { setToast("選項至少要保留 2 個", "error", "R-F9-1 · OPTION_COUNT_INVALID"); render(); return; }
+      draft.options.pop();
+      draft.correctIndices = draft.correctIndices.filter(index => index < draft.options.length);
+      render();
+    }
+
+    function validateQuestionPayload(payload, index = 0, existingQuestions = []) {
+      const messages = [];
+      const prefix = `questions[${index}]`;
+      const prompt = String(payload.prompt ?? "").trim();
+      if (!prompt) messages.push({ code: "FIELD_REQUIRED", path: `${prefix}.prompt`, message: "題幹不可為空白。", blocking: true, next: "輸入 1–1,000 個純文字字元" });
+      if (charCount(prompt) > 1000) messages.push({ code: "TEXT_TOO_LONG", path: `${prefix}.prompt`, message: "題幹超過 1,000 個 Unicode 字元。", blocking: true, next: "縮短題幹" });
+      if (payload.type === "poll") {
+        if (!["single", "multiple"].includes(payload.selectionMode)) messages.push({ code: "FIELD_REQUIRED", path: `${prefix}.selection_mode`, message: "poll 必須指定 single 或 multiple。", blocking: true, next: "選擇模式" });
+        validateOptions(payload.options || [], prefix, messages);
+        if (payload.correctOptionRefs?.length) messages.push({ code: "FIELD_FORBIDDEN", path: `${prefix}.correct_option_refs`, message: "poll 不允許 correct_option_refs。", blocking: true, next: "移除正確答案欄位" });
+      } else if (payload.type === "open_text") {
+        if ((payload.options || []).length) messages.push({ code: "FIELD_FORBIDDEN", path: `${prefix}.options`, message: "open_text 不允許 options。", blocking: true, next: "移除 options" });
+        if (payload.selectionMode) messages.push({ code: "FIELD_FORBIDDEN", path: `${prefix}.selection_mode`, message: "open_text 不允許 selection_mode。", blocking: true, next: "移除 selection_mode" });
+        if (payload.correctOptionRefs?.length) messages.push({ code: "FIELD_FORBIDDEN", path: `${prefix}.correct_option_refs`, message: "open_text 不允許正確答案欄位。", blocking: true, next: "移除 correct refs" });
+      } else if (payload.type === "quiz") {
+        validateOptions(payload.options || [], prefix, messages);
+        if (payload.selectionMode) messages.push({ code: "FIELD_FORBIDDEN", path: `${prefix}.selection_mode`, message: "quiz 不允許 selection_mode；由正解數量推導。", blocking: true, next: "移除 selection_mode" });
+        const refs = payload.correctOptionRefs || [];
+        const known = new Set((payload.options || []).map(option => option.ref || option.id));
+        if (!refs.length || refs.some(ref => !known.has(ref))) messages.push({ code: "CORRECT_OPTION_INVALID", path: `${prefix}.correct_option_refs`, message: "quiz 必須至少有一個存在於 options 的正確答案。", blocking: true, next: "勾選至少一個正解" });
+      } else messages.push({ code: "TYPE_INVALID", path: `${prefix}.type`, message: "題型必須是 poll、open_text 或 quiz。", blocking: true, next: "選擇支援題型" });
+      const duplicatePrompt = existingQuestions.some(question => normalizeOption(question.prompt) === normalizeOption(prompt) && prompt);
+      if (duplicatePrompt) messages.push({ code: "QUESTION_DUPLICATE_WARNING", path: `${prefix}.prompt`, message: "可能與 Course 內既有題幹重複；這是 warning，不會自動合併。", blocking: false, next: "確認是否仍要建立" });
+      return messages;
+    }
+
+    function validateOptions(options, prefix, messages) {
+      if (options.length < 2 || options.length > 10) messages.push({ code: "OPTION_COUNT_INVALID", path: `${prefix}.options`, message: "options 數量必須介於 2–10。", blocking: true, next: "調整選項數量" });
+      const seen = new Map();
+      options.forEach((option, index) => {
+        const text = String(option.text ?? option ?? "").trim();
+        if (!text) messages.push({ code: "FIELD_REQUIRED", path: `${prefix}.options[${index}].text`, message: "選項不可為空白。", blocking: true, next: "輸入選項文字" });
+        if (charCount(text) > 250) messages.push({ code: "TEXT_TOO_LONG", path: `${prefix}.options[${index}].text`, message: "選項超過 250 個字元。", blocking: true, next: "縮短選項" });
+        const normalized = normalizeOption(text);
+        if (normalized && seen.has(normalized)) messages.push({ code: "OPTION_DUPLICATE", path: `${prefix}.options[${index}].text`, message: `與 options[${seen.get(normalized)}] 正規化後重複。`, blocking: true, next: "改寫成不同選項" });
+        if (normalized) seen.set(normalized, index);
+      });
+    }
+
+    function editorPayload() {
+      const draft = state.ui.teacher.editorDraft;
+      const options = draft.options.map((text, index) => ({ id: `draft-opt-${index + 1}`, text, isCorrect: draft.correctIndices.includes(index), position: index + 1 }));
+      return { type: draft.type, prompt: draft.prompt, selectionMode: draft.type === "poll" ? draft.selectionMode : null, options, correctOptionRefs: draft.type === "quiz" ? draft.correctIndices.map(index => `draft-opt-${index + 1}`) : [] };
+    }
+
+    function teacherValidateSingle() {
+      const course = getTeacherCourse();
+      if (!guard(Boolean(course) && course.status === "draft", "archived Course 不可修改題目。", "R-F11-6 · COURSE_NOT_EDITABLE")) { render(); return; }
+      const payload = editorPayload();
+      const messages = validateQuestionPayload(payload, 0, state.domain.questionDefinitions.filter(item => item.courseId === course.id));
+      state.ui.teacher.editorMessages = messages;
+      if (messages.some(item => item.blocking)) { addEvent("單題 validation 發現 blocking error，沒有建立資料。", "error", "R-F9 · R-F10"); render(); return; }
+      const options = payload.options.map((option, index) => ({ id: nextId("option"), text: String(option.text).trim(), isCorrect: payload.type === "quiz" && payload.correctOptionRefs.includes(option.id), position: index + 1 }));
+      const question = { id: nextId("question"), courseId: course.id, type: payload.type, prompt: String(payload.prompt).trim(), selectionMode: payload.selectionMode, position: state.domain.questionDefinitions.filter(item => item.courseId === course.id).length + 1, options };
+      state.domain.questionDefinitions.push(question);
+      state.ui.teacher.editorOpen = false;
+      succeed(`已建立 ${question.type} 題目；題目依序附加到 Course 末端。`, "R-F11-4");
+      render();
+    }
+
+    function makeBatchFixture(kind) {
+      if (kind === "over-limit") return { count: 51, items: [] };
+      if (kind === "invalid") return { count: 3, items: [
+        { clientRef: "invalid-01", type: "poll", prompt: "x".repeat(1001), selectionMode: "single", options: [{ ref: "a", text: "同一個" }, { ref: "b", text: " 同一個 " }], correctOptionRefs: [] },
+        { clientRef: "invalid-02", type: "open_text", prompt: "帶了不該存在的選項", selectionMode: null, options: [{ ref: "a", text: "不允許" }, { ref: "b", text: "欄位" }], correctOptionRefs: [] },
+        { clientRef: "invalid-03", type: "quiz", prompt: "缺少正確答案", selectionMode: "single", options: [{ ref: "a", text: "選項 A" }, { ref: "b", text: "選項 B" }], correctOptionRefs: [] }
+      ] };
+      return { count: 3, items: [
+        { clientRef: "valid-01", type: "poll", prompt: "今天最想練習哪個步驟？", selectionMode: "single", options: [{ ref: "a", text: "拆解問題" }, { ref: "b", text: "檢查證據" }], correctOptionRefs: [] },
+        { clientRef: "valid-02", type: "quiz", prompt: "哪些做法可以降低誤判？", selectionMode: null, options: [{ ref: "a", text: "交叉查證" }, { ref: "b", text: "確認時間" }, { ref: "c", text: "只看標題" }], correctOptionRefs: ["a", "b"] },
+        { clientRef: "valid-03", type: "open_text", prompt: "今天帶走的一句提醒？", selectionMode: null, options: [], correctOptionRefs: [] }
+      ] };
+    }
+
+    function loadBatchFixture(announce = true) {
+      state.ui.teacher.batchDraft = makeBatchFixture(state.ui.teacher.batchFixture);
+      state.ui.teacher.batchRevision += 1;
+      state.ui.teacher.batchStatus = "idle";
+      state.ui.teacher.batchMessages = [];
+      state.ui.teacher.batchPreviewVisible = false;
+      state.ui.teacher.batchPreviewRevision = null;
+      if (announce) addEvent(`載入批次 fixture：${state.ui.teacher.batchFixture}`, "info", "R-F10-3");
+      render();
+    }
+
+    function validateBatch(announce = true) {
+      const course = getTeacherCourse();
+      const batch = state.ui.teacher.batchDraft;
+      if (!batch) { setToast("先載入一組批次 fixture", "error", "R-F10-3"); render(); return; }
+      if (!guard(Boolean(course) && course.status === "draft", "archived Course 不可建立批次題目。", "R-F11-6 · COURSE_NOT_EDITABLE")) { render(); return; }
+      let messages = [];
+      if (batch.count < 1 || batch.count > 50) messages.push({ code: "BATCH_SIZE_INVALID", path: "payload", message: `目前批次為 ${batch.count} 題；允許 1–50 題。`, blocking: true, next: "拆成較小批次" });
+      const refs = new Map();
+      batch.items.forEach((item, index) => {
+        if (refs.has(item.clientRef)) messages.push({ code: "CLIENT_REF_DUPLICATE", path: `questions[${index}].client_ref`, message: `與 questions[${refs.get(item.clientRef)}] 重複。`, blocking: true, next: "改用唯一 client_ref" });
+        refs.set(item.clientRef, index);
+        messages = messages.concat(validateQuestionPayload(item, index, state.domain.questionDefinitions.filter(question => question.courseId === course.id)));
+      });
+      state.ui.teacher.batchMessages = messages;
+      state.ui.teacher.batchStatus = messages.some(item => item.blocking) ? "invalid" : "valid";
+      state.ui.teacher.batchPreviewVisible = false;
+      state.ui.teacher.batchPreviewRevision = null;
+      if (announce) addEvent(state.ui.teacher.batchStatus === "valid" ? "批次 validation 通過；下一步是 preview。" : "批次 validation 有 blocking error；依 all-or-nothing 不建立任何題目。", state.ui.teacher.batchStatus === "valid" ? "success" : "error", "R-F10-4 · R-F10-5");
+      render();
+    }
+
+    function mutateBatch() {
+      const batch = state.ui.teacher.batchDraft;
+      if (!batch || !batch.items.length) { setToast("over-limit fixture 沒有可修改的題目表單", "error", "prototype guard"); render(); return; }
+      batch.items[0].prompt = `${batch.items[0].prompt}（已修改）`;
+      state.ui.teacher.batchRevision += 1;
+      state.ui.teacher.batchStatus = "stale";
+      state.ui.teacher.batchPreviewVisible = false;
+      state.ui.teacher.batchPreviewRevision = null;
+      addEvent("payload 已改變，舊 preview 失效；必須重新 validation。", "error", "R-F11-2");
+      render();
+    }
+
+    function teacherShowPreview() {
+      if (!guard(state.ui.teacher.batchStatus === "valid", "必須先有沒有 blocking error 的 validation 結果。", "R-F11-1")) { render(); return; }
+      state.ui.teacher.batchPreviewVisible = true;
+      state.ui.teacher.batchPreviewRevision = state.ui.teacher.batchRevision;
+      addEvent("已產生本 revision 的完整 preview，等待明確 confirm。", "info", "R-F11-1 · R-F11-2");
+      render();
+    }
+
+    function teacherConfirmBatch() {
+      const teacher = state.ui.teacher;
+      const course = getTeacherCourse();
+      if (!guard(teacher.batchStatus === "valid" && teacher.batchPreviewVisible && teacher.batchPreviewRevision === teacher.batchRevision, "preview 已失效或尚未明確確認；請重新 validation/preview。", "R-F11-2 · R-F11-3")) { render(); return; }
+      if (!guard(Boolean(course) && course.status === "draft", "archived Course 不可建立題目。", "R-F11-6 · COURSE_NOT_EDITABLE")) { render(); return; }
+      const existing = state.domain.questionDefinitions.filter(item => item.courseId === course.id);
+      teacher.batchDraft.items.forEach((item, index) => {
+        const options = (item.options || []).map((option, optionIndex) => ({ id: nextId("option"), text: String(option.text).trim(), isCorrect: item.correctOptionRefs.includes(option.ref), position: optionIndex + 1 }));
+        state.domain.questionDefinitions.push({ id: nextId("question"), courseId: course.id, type: item.type, prompt: String(item.prompt).trim(), selectionMode: item.selectionMode, position: existing.length + index + 1, options });
+      });
+      teacher.batchCreatedCount = teacher.batchDraft.items.length;
+      teacher.batchStatus = "created";
+      teacher.batchPreviewVisible = false;
+      succeed(`批次已依 preview 順序建立 ${teacher.batchCreatedCount} 題。`, "R-F11-3 · R-F11-4");
+      render();
+    }
+
+    function teacherCreateSession() {
+      const course = getTeacherCourse();
+      const existing = state.domain.liveSessions.find(session => session.courseId === course?.id && ["waiting", "active"].includes(session.status));
+      const selected = state.ui.teacher.selectedQuestionIds;
+      if (!guard(Boolean(course) && course.status === "draft", "只有 draft Course 可以建立 LiveSession。", "R-F1-2")) { render(); return; }
+      if (!guard(!existing, "同一 Course 已有 waiting/active 場次，不能建立第二場。", "R-F2-1")) { render(); return; }
+      if (!guard(selected.length > 0, "至少選擇一題才能建立場次。", "R-F4-2")) { render(); return; }
+      const id = nextId("session");
+      const code = "D5X7K2M9";
+      const session = { id, courseId: course.id, status: "waiting", sessionCode: code, selectedQuestionIds: [...selected], activeQuestionId: null, joinedCount: 0, autoClosed: false };
+      state.domain.liveSessions.push(session);
+      state.ui.teacher.sessionId = id;
+      state.ui.teacher.view = "setup";
+      succeed(`已建立 waiting LiveSession ${code}。`, "R-F2-1 · R-F2-2");
+      render();
+    }
+
+    function teacherMoveQuestion(questionId, direction) {
+      const selected = state.ui.teacher.selectedQuestionIds;
+      const index = selected.indexOf(questionId);
+      if (index < 0) return;
+      const next = direction === "up" ? index - 1 : index + 1;
+      if (next < 0 || next >= selected.length) return;
+      [selected[index], selected[next]] = [selected[next], selected[index]];
+      render();
+    }
+
+    function teacherStartSession() {
+      const session = getTeacherSession();
+      if (!guard(Boolean(session) && session.status === "waiting", "只有 waiting 場次可以開始。", "R-F2-2")) { render(); return; }
+      const selectedIds = session.selectedQuestionIds || state.ui.teacher.selectedQuestionIds;
+      if (!guard(selectedIds.length > 0, "場次沒有選定題目。", "R-F4-2")) { render(); return; }
+      const existing = getSessionQuestions(session.id);
+      if (!existing.length) selectedIds.forEach((questionId, index) => {
+        const source = getQuestion(questionId);
+        if (!source) return;
+        state.domain.sessionQuestions.push({ id: `sq-${session.id}-${index + 1}`, liveSessionId: session.id, sourceQuestionId: source.id, position: index + 1, status: "not_open", openedAt: null, closedAt: null, snapshot: makeSnapshot(source), aggregate: makeAggregate(source) });
+      });
+      session.status = "active";
+      session.startedAt = "server fixture time";
+      session.activeQuestionId = getSessionQuestions(session.id)[0]?.id || null;
+      state.ui.teacher.view = "classroom";
+      succeed("場次 active；SessionQuestion snapshot 已在同一個 fixture transaction 建立。", "R-F2-3 · R-F2-4");
+      render();
+    }
+
+    function makeSnapshot(source) {
+      return { type: source.type, prompt: source.prompt, selectionMode: source.selectionMode || null, options: (source.options || []).map(option => ({ id: `snap-${option.id}`, text: option.text, isCorrect: Boolean(option.isCorrect), position: option.position })) };
+    }
+
+    function makeAggregate(source) {
+      return { total: 0, options: (source.options || []).map(option => ({ id: `snap-${option.id}`, text: option.text, count: 0 })), textResponses: [] };
+    }
+
+    function teacherCancelSession() {
+      const session = getTeacherSession();
+      const hasSubmission = state.domain.submissions.some(item => item.liveSessionId === session?.id);
+      if (!guard(Boolean(session) && session.status === "waiting" && !hasSubmission, "只有沒有 Submission 的 waiting 場次可以取消。", "R-F2-5")) { render(); return; }
+      session.status = "cancelled";
+      session.closedAt = "server fixture time";
+      state.ui.teacher.view = "setup";
+      succeed(`場次 ${session.sessionCode} 已 cancelled，且不可恢復。`, "R-F2-5 · R-F2-6");
+      render();
+    }
+
+    function teacherOpenQuestion(questionId) {
+      const session = getTeacherSession();
+      const sq = getSessionQuestion(questionId);
+      const otherOpen = session ? getSessionQuestions(session.id).find(item => item.status === "open") : null;
+      if (!guard(Boolean(session) && session.status === "active", "只有 active LiveSession 可以 open 題目。", "R-F2-4")) { render(); return; }
+      if (!guard(Boolean(sq) && sq.liveSessionId === session.id, "題目不屬於這個 Session。", "R-F4-3")) { render(); return; }
+      if (!guard(sq.status === "not_open", "closed 題目不能重開。", "R-F4-6")) { render(); return; }
+      if (!guard(!otherOpen, `目前已有 ${shortText(otherOpen?.snapshot.prompt, 30)} open；先 close 才能換題。`, "R-F4-5")) { render(); return; }
+      sq.status = "open";
+      sq.openedAt = "server fixture time";
+      session.activeQuestionId = sq.id;
+      state.ui.fixture.pulse = true;
+      succeed(`已 open 第 ${sq.position} 題；同場最多一題 open。`, "R-F4-5");
+      render();
+    }
+
+    function teacherCloseQuestion(questionId) {
+      const session = getTeacherSession();
+      const sq = getSessionQuestion(questionId);
+      if (!guard(Boolean(session) && session.status === "active" && sq?.status === "open", "目前只有 active + open 題目可以 close。", "R-F15-1")) { render(); return; }
+      sq.status = "closed";
+      sq.closedAt = "server fixture time";
+      succeed("題目已 closed；統計自動公布給全班，沒有獨立 publish。", "R-F17-2 · R-F15-1");
+      render();
+    }
+
+    function teacherReopenQuestion(questionId) {
+      const sq = getSessionQuestion(questionId);
+      if (!guard(false, "closed SessionQuestion 不可在同一場次重新 open。", "R-F4-6")) { render(); return; }
+      if (sq) render();
+    }
+
+    function teacherCloseSession(autoClosed) {
+      const session = getTeacherSession();
+      if (!guard(Boolean(session) && session.status === "active", "只有 active 場次可以結束。", "R-F2-6")) { render(); return; }
+      getSessionQuestions(session.id).filter(item => item.status === "open").forEach(item => { item.status = "closed"; item.closedAt = "server fixture time"; });
+      session.status = "closed";
+      session.closedAt = autoClosed ? "server fixture time (+8h fixture)" : "server fixture time";
+      session.autoClosed = Boolean(autoClosed);
+      if (!state.domain.archivedResults.some(result => result.liveSessionId === session.id)) state.domain.archivedResults.push({ id: nextId("result"), liveSessionId: session.id, courseId: session.courseId, closedAt: session.closedAt, retentionExpiresAt: "closed + 90 days fixture", status: "available", questionCount: getSessionQuestions(session.id).length });
+      succeed(autoClosed ? "LiveSession 已模擬 +8 小時自動 closed；code、加入、重連、提交全部失效。" : "LiveSession 已 closed；可在歷史結果查詢。", autoClosed ? "R-F2-7 · W8 fixture" : "R-F2-6");
+      render();
+    }
+
+    function teacherEditSource(questionId) {
+      const question = getQuestion(questionId);
+      if (!guard(Boolean(question) && getCourse(question.courseId)?.status === "draft", "archived Course 不可編輯題目。", "R-F11-6 · COURSE_NOT_EDITABLE")) { render(); return; }
+      question.prompt = `${question.prompt}（來源已更新）`;
+      const snapshot = state.domain.sessionQuestions.find(item => item.sourceQuestionId === questionId && item.liveSessionId === state.ui.teacher.sessionId);
+      addEvent(`來源 QuestionDefinition 已修改；${snapshot ? "本場 snapshot 保持原題幹" : "尚無本場 snapshot"}。`, "success", "R-F4-4");
+      render();
+    }
+
+    document.addEventListener("input", handleInput);
+    document.addEventListener("change", handleChange);
+    document.addEventListener("submit", handleSubmit);
+    document.addEventListener("click", handleClick);
+
+    // Chart marks get a keyboard/focus tooltip as well as a native title-free custom layer.
+    document.addEventListener("mouseover", event => {
+      const mark = event.target.closest("[data-tooltip-title]");
+      if (mark) showTooltip(mark, event.clientX, event.clientY);
+    });
+    document.addEventListener("mousemove", event => {
+      const mark = event.target.closest("[data-tooltip-title]");
+      if (mark) showTooltip(mark, event.clientX, event.clientY);
+    });
+    document.addEventListener("focusin", event => {
+      const mark = event.target.closest("[data-tooltip-title]");
+      if (mark) showTooltip(mark, event.clientX || window.innerWidth / 2, event.clientY || window.innerHeight / 2);
+    });
+    document.addEventListener("mouseout", event => { if (!event.relatedTarget?.closest?.("[data-tooltip-title]")) hideTooltip(); });
+    document.addEventListener("focusout", event => { if (!event.relatedTarget?.closest?.("[data-tooltip-title]")) hideTooltip(); });
+
+    function showTooltip(mark, x, y) {
+      const tooltip = document.getElementById("chart-tooltip");
+      if (!tooltip) return;
+      tooltip.hidden = false;
+      tooltip.innerHTML = `<strong>${esc(mark.dataset.tooltipValue || "")}</strong><span>${esc(mark.dataset.tooltipTitle || "")}</span>`;
+      const left = Math.min(Math.max(10, x + 12), window.innerWidth - 280);
+      const top = Math.min(Math.max(10, y + 12), window.innerHeight - 74);
+      tooltip.style.left = `${left}px`;
+      tooltip.style.top = `${top}px`;
+    }
+
+    function hideTooltip() {
+      const tooltip = document.getElementById("chart-tooltip");
+      if (tooltip) tooltip.hidden = true;
+    }
+
+    window.__智學互動Prototype = {
+      reset: () => { state = createState(); render(); },
+      loadScenario,
+      summary: () => ({ mode: state.ui.mode, scenario: state.ui.fixture.scenarioId, studentView: state.ui.student.view, teacherView: state.ui.teacher.view, course: state.ui.teacher.courseId, session: state.ui.student.sessionId, submissions: state.domain.submissions.length })
+    };
+
+    render();
+  </script>
+</body>
+</html>
