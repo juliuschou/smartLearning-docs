@@ -1,6 +1,6 @@
 # 智學互動平台剩餘工作 WBS
 
-- 文件日期：2026-08-25
+- 文件日期：2026-09-06
 - 規劃範圍：Phase B 收尾、帳號式課堂 MVP、資料治理、即時可靠性及 production readiness
 - 規劃原則：後端契約及 DB-backed 驗收先完成，再開發對應前端；不使用 mock 或 placeholder 取代正式串接
 - 估算單位：人日，為區間估算；不含既有回歸問題的大規模修復
@@ -11,7 +11,7 @@
 | --- | --------------- | -----:| ----:| --------:| ------------------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 1.0 | Phase B 封板      | 5–8   | 0–1  | 3–5      | 學生帳號與加選後端正式簽核                        | [Phase B 後端執行計畫](../50_實作與測試/Phase%20B%20學生帳號與加選名冊%20後端執行計畫.md)、[Web Auth 與安全設計](../30_系統設計/Web%20Auth%20與安全設計.md)、[API 與共用 Schema](../30_系統設計/API%20與共用%20Schema%20設計.md) |
 | 2.0 | Student 基礎 UI   | 0–1   | 3–5  | 1–2      | 登入、角色導向、我的課程                         | [Phase B 學員帳號實作計畫](../50_實作與測試/Phase%20B%20學員帳號%20實作計畫.md)、[API 與共用 Schema](../30_系統設計/API%20與共用%20Schema%20設計.md)                                                         |
-| 3.0 | Teacher 名冊與課堂控制 | 2–4   | 6–9  | 2–3      | 名冊、開關題、課堂狀態與結果（FE-2 與 FE-3 已交付，real-browser acceptance 待補） | [P0 核心需求基線](../10_需求蒐集/P0%20核心需求基線.md)、[即時同步與結果治理設計](../30_系統設計/即時同步與結果治理設計.md)                                                                                            |
+| 3.0 | Teacher 名冊與課堂控制 | 2–4   | 6–9  | 2–3      | 名冊、開關題、課堂狀態與結果（FE-2 與 FE-3 real-browser acceptance 已交付） | [P0 核心需求基線](../10_需求蒐集/P0%20核心需求基線.md)、[即時同步與結果治理設計](../30_系統設計/即時同步與結果治理設計.md)                                                                                            |
 | 4.0 | Student 完整課堂    | 2–4   | 8–14 | 3–5      | 四題型加入、作答、結果與匿名 fallback              | [題目領域契約](../10_需求蒐集/題目領域契約.md)、[API 與共用 Schema](../30_系統設計/API%20與共用%20Schema%20設計.md)、[即時同步與結果治理設計](../30_系統設計/即時同步與結果治理設計.md)                                            |
 | 5.0 | Archive 與資料治理   | 8–13  | 2–4  | 4–6      | Archive、90 日 retention、刪除與 tombstone | [結果資料治理](../10_需求蒐集/結果資料治理.md)、[資料模型與 ER 設計](../30_系統設計/資料模型與%20ER%20設計.md)、[即時同步與結果治理設計](../30_系統設計/即時同步與結果治理設計.md)                                                       |
 | 6.0 | 即時可靠性與容量        | 15–25 | 5–8  | 8–12     | Scheduler、outbox/replay、Redis、W1–W8  | [MVP 效能目標](MVP%20效能目標.md)、[架構、容量與可觀測性設計](../30_系統設計/架構、容量與可觀測性設計.md)、[即時同步與結果治理設計](../30_系統設計/即時同步與結果治理設計.md)                                                              |
@@ -564,11 +564,11 @@
 - [x] FE-2.2.6 Archived course error state
 - [x] FE-2.2.7 Permission/not-found state
 - [x] FE-2.2.8 Keyboard與 accessibility 驗證
-- [ ] FE-2.2.9 Real-browser acceptance
+- [x] FE-2.2.9 Real-browser acceptance
 
 **依賴：** BE-2 enrollment API。
 
-> **FE-2.2 closeout（2026-09-03，使用者授權）：** FE-2.2.1–FE-2.2.8 依 UI commit `7cbcc46`（`feat(teacher): complete FE-2.2 enrollment roster UI`）交付並關閉：`CourseRosterSection`（paginated roster table、student search 300ms debounce + 2–100 code points 校驗、enroll/remove、duplicate/reactivation 回饋、archived 409 `COURSE_NOT_EDITABLE`、404/403 stable-code 狀態）、`role="dialog"` 移除確認（Esc 關閉、focus trap、失敗留對話）。驗證：`npm test` 20 files / 154 tests PASS（含新 16 tests）、typegen/typecheck/lint/build/prettier/diff check 全綠。FE-2.2.8 鍵盤走查由單元測試涵蓋 Tab/Enter/Escape 與 aria 標記；screen-reader sanity 留 QA-2.2。**FE-2.2.9 real-browser acceptance 仍 BLOCKED**（需使用者提供隔離 real backend 與 `FE22_API_BASE / FE22_UI_ORIGIN / FE22_ADMIN_USERNAME / FE22_ADMIN_PASSWORD / FE22_COURSE_NAME_PREFIX`，可選 `FE22_TEACHER_USERNAME / FE22_TEACHER_PASSWORD`；執行 `node test/browser/run.mjs test/browser/fe-2-2-roster.spec.ts`，先 `npm run dev` 於同 host），未以 mock/placeholder 取代。
+> **FE-2.2 closeout（2026-09-06，使用者授權）：** FE-2.2.1–FE-2.2.8 依 UI commit `7cbcc46`（`feat(teacher): complete FE-2.2 enrollment roster UI`）交付並關閉：`CourseRosterSection`（paginated roster table、student search 300ms debounce + 2–100 code points 校驗、enroll/remove、duplicate/reactivation 回饋、archived 409 `COURSE_NOT_EDITABLE`、404/403 stable-code 狀態）、`role="dialog"` 移除確認（Esc 關閉、focus trap、失敗留對話）。驗證：`npm test` 20 files / 154 tests PASS（含新 16 tests）、typegen/typecheck/lint/build/prettier/diff check 全綠。FE-2.2.8 鍵盤走查由單元測試涵蓋 Tab/Enter/Escape 與 aria 標記；screen-reader sanity 留 QA-2.2。**FE-2.2.9 real-browser acceptance 仍 BLOCKED**（需使用者提供隔離 real backend 與 `FE22_API_BASE / FE22_UI_ORIGIN / FE22_ADMIN_USERNAME / FE22_ADMIN_PASSWORD / FE22_COURSE_NAME_PREFIX`，可選 `FE22_TEACHER_USERNAME / FE22_TEACHER_PASSWORD`；執行 `node test/browser/run.mjs test/browser/fe-2-2-roster.spec.ts`，先 `npm run dev` 於同 host），未以 mock/placeholder 取代。
 
 ---
 
@@ -635,20 +635,24 @@
 - [x] FE-4.3.4 不顯示 teacher-only counts
 - [x] FE-4.3.5 Enrollment/account revoke 時離線與錯誤狀態
 
-> **FE-4.3 closeout（2026-09-05，CP5 real-backend acceptance verified）：** 以隔離 CP5 fixture 執行 `test/browser/fe-4-3-participant-realtime.spec.ts`，結果為 `1 passed / 0 failed / 0 skipped`（8.9s，`--workers=1`）。證據涵蓋 student Web Session cookie-based handshake、Socket.IO `/live` participant namespace（瀏覽器 transport URL 為 `/socket.io/`）、waiting → active → closed 無 refresh transition、snapshot／response-loss same-key recovery、participant-safe projection、不回傳 teacher-only counts、terminal join race、not-enrolled、wrong-role、account disable 後 access loss、missing session redirect，以及 aggregate cleanup。UI 以同一 `FE42_API_BASE` 啟動並通過 typecheck、lint（0 errors；既有 warnings）、`git diff --check`。測試觀測修正已提交於 UI commit `5db32e6`；`/live` 是 Socket.IO namespace，不應以 raw WebSocket URL path 判斷。FE-4.4 anonymous fallback 與 FE-5 其餘題型仍未完成。
+> **FE-4.3 closeout（2026-09-05，CP5 real-backend acceptance verified）：** 以隔離 CP5 fixture 執行 `test/browser/fe-4-3-participant-realtime.spec.ts`，結果為 `1 passed / 0 failed / 0 skipped`（8.9s，`--workers=1`）。證據涵蓋 student Web Session cookie-based handshake、Socket.IO `/live` participant namespace（瀏覽器 transport URL 為 `/socket.io/`）、waiting → active → closed 無 refresh transition、snapshot／response-loss same-key recovery、participant-safe projection、不回傳 teacher-only counts、terminal join race、not-enrolled、wrong-role、account disable 後 access loss、missing session redirect，以及 aggregate cleanup。UI 以同一 `FE42_API_BASE` 啟動並通過 typecheck、lint（0 errors；既有 warnings）、`git diff --check`。測試觀測修正已提交於 UI commit `5db32e6`；`/live` 是 Socket.IO namespace，不應以 raw WebSocket URL path 判斷。FE-4.4 anonymous fallback 已於同日以 FE44 fixture 關閉；FE-5 其餘題型仍未完成。
+
+> **Frontend real-browser regression closeout（2026-09-06）：** 以 fresh isolated FE44 session、CP5 backend 與 same-host UI 執行 `npx playwright test --workers=1`，8 個 browser specs 全部通過（8 passed / 0 failed / 0 skipped，36.7s）：FE-1.3、FE-2.2、FE-4.1、FE-4.2、FE-4.3、FE-4.4、US-F0、US-F16。驗證包含 account-bound learner flow、teacher roster、participant realtime terminal transition、response-loss replay、anonymous fallback 與 permission/access-loss 負向路徑；fixture credentials 僅存於 disposable `/tmp` env，未觸碰 development DB。
 
 ### FE-4.4 Anonymous fallback
 
-- [ ] FE-4.4.1 Session code join UI
-- [ ] FE-4.4.2 Participant token lifecycle
-- [ ] FE-4.4.3 Anonymous snapshot/submit/result
-- [ ] FE-4.4.4 Browser regression
+- [x] FE-4.4.1 Session code join UI：trim／uppercase、join failure 與 server-ID navigation
+- [x] FE-4.4.2 Participant token lifecycle：session-scoped storage、reload reuse 與 credential clearing
+- [x] FE-4.4.3 Anonymous snapshot/submit/result：participant-safe auth、idempotent submit 與結果可見性
+- [x] FE-4.4.4 Browser regression：isolated real backend、Socket.IO transport 與 fail-closed negative path
 
 **依賴：** BE-1、BE-3、BE-4.1。
 
-> **FE-4.2 CP5 closeout（2026-09-05，real-backend acceptance verified）：** FE-4.2.1–FE-4.2.6 已完成。隔離 HTTPS UI/API runtime 及 FE42 fixtures 下，`test/browser/fe-4-2-poll-single.spec.ts` 執行結果為 `1 passed / 0 failed / 0 skipped`（20.8s，`--workers=1`）。證據涵蓋 isolated teacher 與 two-student contexts、poll-single renderer/UUID option identity、submission response-loss fixture、same-key authoritative replay、participant flow、cleanup 與 credential-safe HTTPS transport。FE-4.3 participant realtime 已於 2026-09-05 以 CP5 real-backend acceptance 關閉；FE-4.4 anonymous fallback 仍未完成。
+> **FE-4.4 closeout（2026-09-06，real-backend acceptance verified）：** FE-4.4.1–FE-4.4.4 已完成。以隔離 `smartlearning-fe44` Compose fixture（migration exit `0`、backend API `localhost:3003`、UI `localhost:3001`）執行 `test/browser/fe-4-4-anonymous-fallback.spec.ts --workers=1`，結果為 `1 passed / 0 failed / 0 skipped`（1.8s）。證據涵蓋 session code trim／uppercase join、匿名 join request 不帶 CSRF／participant token／idempotency header、server-ID navigation、sessionStorage 僅保存 session-scoped participant credential、reload 不重複 join、Socket.IO transport URL 不洩漏 token，以及新 context 無 credential 時的 fail-closed 狀態。另修正 `AnonymousLiveSessionEntry` 不穩定 `useSyncExternalStore` snapshot 造成的 React route crash，改以 hydration-safe local state 讀取 credential。驗證：learner live unit 25 tests passed、typecheck passed、lint 0 errors（僅既有 warnings）、edited file Prettier check passed、`git diff --check` passed。FE-4.4 已關閉，並納入 2026-09-06 frontend full regression（8 passed / 0 failed / 0 skipped）；FE-5 其餘題型與 QA-2.4 broader browser matrix 仍未完成。
 
-> **FE-4.1 closeout（2026-09-04，CP5 acceptance verified）：** FE-4.1.1–FE-4.1.5 已依 CP1–CP4 完成 learner entry/join、cookie-based transport、snapshot、waiting／active／closed 狀態與 not-enrolled／disabled／forbidden 負向狀態。CP5 fail-closed real-backend Playwright acceptance 已於隔離 fixture 實際通過：`1 passed / 0 failed / 0 skipped`（8.1s），涵蓋 My Courses discovery、join、CSRF／exact Origin、server-ID navigation、learner states、terminal race、not-enrolled、wrong-role、disabled、expired/missing session 與 aggregate cleanup；此前 close-state、strict locator 及 revoked-session cleanup 問題已修正並重跑通過。FE-4.2 作答控制與 FE-4.3 participant realtime 已完成；FE-4.4 anonymous fallback 仍未完成。
+> **FE-4.2 CP5 closeout（2026-09-05，real-backend acceptance verified）：** FE-4.2.1–FE-4.2.6 已完成。隔離 HTTPS UI/API runtime 及 FE42 fixtures 下，`test/browser/fe-4-2-poll-single.spec.ts` 執行結果為 `1 passed / 0 failed / 0 skipped`（20.8s，`--workers=1`）。證據涵蓋 isolated teacher 與 two-student contexts、poll-single renderer/UUID option identity、submission response-loss fixture、same-key authoritative replay、participant flow、cleanup 與 credential-safe HTTPS transport。FE-4.3 participant realtime 已於 2026-09-05 以 CP5 real-backend acceptance 關閉；FE-4.4 anonymous fallback 已於同日以 FE44 fixture 關閉。
+
+> **FE-4.1 closeout（2026-09-04，CP5 acceptance verified）：** FE-4.1.1–FE-4.1.5 已依 CP1–CP4 完成 learner entry/join、cookie-based transport、snapshot、waiting／active／closed 狀態與 not-enrolled／disabled／forbidden 負向狀態。CP5 fail-closed real-backend Playwright acceptance 已於隔離 fixture 實際通過：`1 passed / 0 failed / 0 skipped`（8.1s），涵蓋 My Courses discovery、join、CSRF／exact Origin、server-ID navigation、learner states、terminal race、not-enrolled、wrong-role、disabled、expired/missing session 與 aggregate cleanup；此前 close-state、strict locator 及 revoked-session cleanup 問題已修正並重跑通過。FE-4.2 作答控制與 FE-4.3 participant realtime 已完成；FE-4.4 anonymous fallback 已完成。
 
 ---
 
@@ -761,7 +765,7 @@
 - [ ] QA-2.2 Teacher roster
 - [ ] QA-2.3 Teacher classroom
 - [ ] QA-2.4 Student four-question classroom
-- [ ] QA-2.5 Anonymous fallback
+- [x] QA-2.5 Anonymous fallback
 - [ ] QA-2.6 Privacy/reveal negative cases
 - [ ] QA-2.7 Archive/history/deletion
 
