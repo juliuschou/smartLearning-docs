@@ -612,28 +612,30 @@
 
 ### FE-4.1 Entry／join
 
-- [ ] FE-4.1.1 從我的課程進入 active session
-- [ ] FE-4.1.2 Cookie-based join transport
-- [ ] FE-4.1.3 Learner snapshot transport
-- [ ] FE-4.1.4 Waiting／active／closed state
-- [ ] FE-4.1.5 Not enrolled／disabled／forbidden 錯誤頁
+- [x] FE-4.1.1 從我的課程進入 active session
+- [x] FE-4.1.2 Cookie-based join transport
+- [x] FE-4.1.3 Learner snapshot transport
+- [x] FE-4.1.4 Waiting／active／closed state
+- [x] FE-4.1.5 Not enrolled／disabled／forbidden 錯誤頁
 
 ### FE-4.2 Poll single
 
-- [ ] FE-4.2.1 Question renderer
-- [ ] FE-4.2.2 Single choice answer state
-- [ ] FE-4.2.3 Submission idempotency key
-- [ ] FE-4.2.4 Submitted／retry state
-- [ ] FE-4.2.5 Result/reveal state
-- [ ] FE-4.2.6 Formal option UUID comparison
+- [x] FE-4.2.1 Question renderer
+- [x] FE-4.2.2 Single choice answer state
+- [x] FE-4.2.3 Submission idempotency key
+- [x] FE-4.2.4 Submitted／retry state
+- [x] FE-4.2.5 Result/reveal state
+- [x] FE-4.2.6 Formal option UUID comparison
 
 ### FE-4.3 Participant realtime
 
-- [ ] FE-4.3.1 Student Web Session handshake
-- [ ] FE-4.3.2 Participant-safe session events
-- [ ] FE-4.3.3 Snapshot recovery after reconnect
-- [ ] FE-4.3.4 不顯示 teacher-only counts
-- [ ] FE-4.3.5 Enrollment/account revoke 時離線與錯誤狀態
+- [x] FE-4.3.1 Student Web Session handshake
+- [x] FE-4.3.2 Participant-safe session events
+- [x] FE-4.3.3 Snapshot recovery after reconnect
+- [x] FE-4.3.4 不顯示 teacher-only counts
+- [x] FE-4.3.5 Enrollment/account revoke 時離線與錯誤狀態
+
+> **FE-4.3 closeout（2026-09-05，CP5 real-backend acceptance verified）：** 以隔離 CP5 fixture 執行 `test/browser/fe-4-3-participant-realtime.spec.ts`，結果為 `1 passed / 0 failed / 0 skipped`（8.9s，`--workers=1`）。證據涵蓋 student Web Session cookie-based handshake、Socket.IO `/live` participant namespace（瀏覽器 transport URL 為 `/socket.io/`）、waiting → active → closed 無 refresh transition、snapshot／response-loss same-key recovery、participant-safe projection、不回傳 teacher-only counts、terminal join race、not-enrolled、wrong-role、account disable 後 access loss、missing session redirect，以及 aggregate cleanup。UI 以同一 `FE42_API_BASE` 啟動並通過 typecheck、lint（0 errors；既有 warnings）、`git diff --check`。測試觀測修正已提交於 UI commit `5db32e6`；`/live` 是 Socket.IO namespace，不應以 raw WebSocket URL path 判斷。FE-4.4 anonymous fallback 與 FE-5 其餘題型仍未完成。
 
 ### FE-4.4 Anonymous fallback
 
@@ -643,6 +645,10 @@
 - [ ] FE-4.4.4 Browser regression
 
 **依賴：** BE-1、BE-3、BE-4.1。
+
+> **FE-4.2 CP5 closeout（2026-09-05，real-backend acceptance verified）：** FE-4.2.1–FE-4.2.6 已完成。隔離 HTTPS UI/API runtime 及 FE42 fixtures 下，`test/browser/fe-4-2-poll-single.spec.ts` 執行結果為 `1 passed / 0 failed / 0 skipped`（20.8s，`--workers=1`）。證據涵蓋 isolated teacher 與 two-student contexts、poll-single renderer/UUID option identity、submission response-loss fixture、same-key authoritative replay、participant flow、cleanup 與 credential-safe HTTPS transport。FE-4.3 participant realtime 已於 2026-09-05 以 CP5 real-backend acceptance 關閉；FE-4.4 anonymous fallback 仍未完成。
+
+> **FE-4.1 closeout（2026-09-04，CP5 acceptance verified）：** FE-4.1.1–FE-4.1.5 已依 CP1–CP4 完成 learner entry/join、cookie-based transport、snapshot、waiting／active／closed 狀態與 not-enrolled／disabled／forbidden 負向狀態。CP5 fail-closed real-backend Playwright acceptance 已於隔離 fixture 實際通過：`1 passed / 0 failed / 0 skipped`（8.1s），涵蓋 My Courses discovery、join、CSRF／exact Origin、server-ID navigation、learner states、terminal race、not-enrolled、wrong-role、disabled、expired/missing session 與 aggregate cleanup；此前 close-state、strict locator 及 revoked-session cleanup 問題已修正並重跑通過。FE-4.2 作答控制與 FE-4.3 participant realtime 已完成；FE-4.4 anonymous fallback 仍未完成。
 
 ---
 
