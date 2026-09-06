@@ -665,6 +665,8 @@
 - [ ] FE-5.1.3 Permutation idempotency UI regression
 - [ ] FE-5.1.4 Result projection
 
+> **FE-5.1 status（2026-09-06，real-backend acceptance blocked）：** FE-5.1 的 frontend implementation、isolated runtime scaffolding 與 browser-side `/auth/session`／DOM diagnostic instrumentation 已提交；但尚未完成 real-backend acceptance，故 FE-5.1.1–FE-5.1.4 維持未勾選。最新 disposable FE51 runtime 的 migration 與 backend readiness（`/health/ready` HTTP 200）成功，但 browser run 在 admin UI login 收到 HTTP 401，未到達 `/auth/session` 或 password-field DOM diagnostics。Bootstrap 記錄仍有 Prisma startup error；Compose project、volume、network、containers 已 teardown，未觸碰 development/shared runtime。下一步為修正 compiled bootstrap fixture、確保 fresh HTTPS UI process，再重新執行零 skip 的 FE-5.1 acceptance 與 FE-4.2/4.3/4.4 回歸；本項尚未 closeout。
+
 ### FE-5.2 Quiz
 
 - [ ] FE-5.2.1 Quiz answer UI
