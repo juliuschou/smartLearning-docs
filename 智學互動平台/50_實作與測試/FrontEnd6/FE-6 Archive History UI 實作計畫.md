@@ -189,11 +189,47 @@ Create a dedicated FE-6 fixture/spec rather than modifying the dirty FE-5 fixtur
 - Archive-specific Socket.IO events
 - Broad audit portal or unrelated scheduler/design-system refactor
 
-## Delivery checkpoints
+## Delivery checkpoints（每站須人工確認）
 
-1. **BE-5 contract freeze:** DTOs, filters, request state machine, tombstone, OpenAPI and targeted DB tests pass.
-2. **BE-5 operational closeout:** runner, dry-run, restart/concurrency, metrics and no-resurrection evidence pass.
-3. **FE-6 transport:** types/hooks/cache tests pass against frozen contract.
-4. **FE-6 read UI:** teacher/admin list/detail and all empty/deleted states pass.
-5. **FE-6 governance UI:** teacher request and admin request-bound step-up deletion pass.
-6. **FE-6 acceptance:** real-backend privacy/authorization/destructive-path browser matrix passes with 0 failed/0 skipped, and existing FE-5.4 work remains untouched.
+### Checkpoint 執行規則
+
+- 每個 Checkpoint 完成後必須**停止後續實作**，整理「變更內容、diff 範圍、驗證命令與結果、未解風險、下一階段內容」交由使用者手動確認。
+- 只有收到使用者明確的繼續指示，才能進入下一個 Checkpoint；測試通過、agent 結論或文件更新都不能視為人工批准。
+- 若驗證失敗、契約改變或實作範圍超出本計畫，維持在目前 Checkpoint，先更新計畫與風險，不得自行跨站。
+- destructive retention／early deletion 的真實資料操作需另外列出目標環境與資料安全證據；先取得該 Checkpoint 的人工批准再執行。
+
+### Checkpoint 1 — BE-5 contract freeze
+
+- 完成 DTO、course/status filters、request state machine、request-bound confirmation、tombstone、OpenAPI 與 targeted DB tests。
+- **人工確認材料：** API/OpenAPI contract diff、migration/state-transition 說明、authorization/privacy matrix、targeted test report。
+- **批准後才可進入：** BE-5 operational closeout。
+
+### Checkpoint 2 — BE-5 operational closeout
+
+- 完成 runner、dry-run、restart/concurrency、metrics/alerts 與 restore no-resurrection 證據。
+- **人工確認材料：** worker 操作方式、dry-run 範例、deadline/concurrency/restart 結果、rollback/stop procedure、no-resurrection report。
+- **批准後才可進入：** FE-6 frontend transport。
+
+### Checkpoint 3 — FE-6 transport
+
+- 完成 frozen types、role-separated query keys、archive/step-up hooks、cache eviction 與 transport tests。
+- **人工確認材料：** frontend wire types、endpoint/body/query-key 對照、cache/privacy policy、targeted test report；此站不應出現產品 UI 或 mock fallback。
+- **批准後才可進入：** FE-6 read UI。
+
+### Checkpoint 4 — FE-6 read UI
+
+- 完成 teacher/admin list/detail、shared result renderer 與 empty/not-found/active/pending/expired/deleted states。
+- **人工確認材料：** teacher/admin route map、desktop/mobile 畫面或實際操作證據、accessibility/role boundary tests、未納入功能清單。
+- **批准後才可進入：** FE-6 governance UI。
+
+### Checkpoint 5 — FE-6 governance UI
+
+- 完成 teacher request、admin pending queue、step-up 與 request-bound confirmation，以及刪除後 payload cache 清除。
+- **人工確認材料：** destructive flow walkthrough、CSRF/Origin/step-up 證據、request idempotency、刪除前後 network/cache 差異、rollback 限制。
+- **批准後才可進入：** FE-6 real-backend acceptance。
+
+### Checkpoint 6 — FE-6 acceptance and closeout
+
+- real-backend privacy/authorization/destructive-path browser matrix 必須為 0 failed／0 skipped，並確認既有 FE-5.4 work 未受影響。
+- **人工確認材料：** WBS item → dedicated evidence matrix、backend/frontend verification bundle、Playwright report、privacy response inspection、cleanup 結果與所有 remaining gaps。
+- 只有使用者人工確認後，才可勾選 FE-6.1–FE-6.8、更新 WBS closeout 或宣稱 FE-6 完成。
