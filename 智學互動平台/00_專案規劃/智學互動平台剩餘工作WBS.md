@@ -1,6 +1,6 @@
 # 智學互動平台剩餘工作 WBS
 
-- 文件日期：2026-09-06
+- 文件日期：2026-09-07
 - 規劃範圍：Phase B 收尾、帳號式課堂 MVP、資料治理、即時可靠性及 production readiness
 - 規劃原則：後端契約及 DB-backed 驗收先完成，再開發對應前端；不使用 mock 或 placeholder 取代正式串接
 - 估算單位：人日，為區間估算；不含既有回歸問題的大規模修復
@@ -296,7 +296,9 @@
 - [ ] BE-3.2.2 Session detail 顯示 voted count
 - [ ] BE-3.2.3 Teacher result projection
 - [ ] BE-3.2.4 Teacher-only counts 不廣播到 participant room
-- [ ] BE-3.2.5 Post-commit realtime event 不影響已提交 mutation
+- [x] BE-3.2.5 Post-commit realtime event 不影響已提交 mutation
+
+> **BE-3.2.5 evidence（2026-09-06）：** backend commits `d78cae9`、`0e0cb50`、`34ec33a` 分別補強 terminal event delivery 與 HTTP/realtime response-loss failpoint；FE-4.2 real-backend acceptance 以同一 idempotency key 驗證 response loss 後可取得 authority replay（`1 passed / 0 failed / 0 skipped`）。此項僅關閉 post-commit／response-loss 不回滾已提交 mutation 的行為，不代表 BE-3.3 submit／close race 已完成。
 
 ### BE-3.3 Submit／close race
 
@@ -552,7 +554,7 @@
 - [x] FE-2.1.4 Remove enrollment mutation
 - [x] FE-2.1.5 Query invalidation strategy
 
-> **FE-2.1 closeout（2026-09-03，使用者授權）：** BE-2 student-search contract 已由 backend commit `1c38d9c` 凍結並以 DB-backed e2e（enrollments+OpenAPI，2 suites / 7 tests）驗證；FE-2.1 五項 transport 依凍結契約完成並由 UI commit `025e794` / `045ef09` 交付（focused 3 files / 45 tests、full 19 files / 138 tests、typegen/typecheck/lint/build/prettier/diff check 全綠）。含 review hardening：login 清除 enrollments/studentSearch cache roots、role gate 關閉時隱藏快取 data、typed `ApiRequestError`、mutation onSuccess await invalidation。FE-2.2 UI/browser 與 real-backend acceptance 仍未關閉。
+> **FE-2.1 closeout（2026-09-03，使用者授權）：** BE-2 student-search contract 已由 backend commit `1c38d9c` 凍結並以 DB-backed e2e（enrollments+OpenAPI，2 suites / 7 tests）驗證；FE-2.1 五項 transport 依凍結契約完成並由 UI commit `025e794` / `045ef09` 交付（focused 3 files / 45 tests、full 19 files / 138 tests、typegen/typecheck/lint/build/prettier/diff check 全綠）。含 review hardening：login 清除 enrollments/studentSearch cache roots、role gate 關閉時隱藏快取 data、typed `ApiRequestError`、mutation onSuccess await invalidation。FE-2.2 UI 與 real-backend acceptance 已於 2026-09-06 後續 browser regression 關閉，詳見 FE-2.2 closeout。
 
 ### FE-2.2 UI
 
@@ -568,7 +570,7 @@
 
 **依賴：** BE-2 enrollment API。
 
-> **FE-2.2 closeout（2026-09-06，使用者授權）：** FE-2.2.1–FE-2.2.8 依 UI commit `7cbcc46`（`feat(teacher): complete FE-2.2 enrollment roster UI`）交付並關閉：`CourseRosterSection`（paginated roster table、student search 300ms debounce + 2–100 code points 校驗、enroll/remove、duplicate/reactivation 回饋、archived 409 `COURSE_NOT_EDITABLE`、404/403 stable-code 狀態）、`role="dialog"` 移除確認（Esc 關閉、focus trap、失敗留對話）。驗證：`npm test` 20 files / 154 tests PASS（含新 16 tests）、typegen/typecheck/lint/build/prettier/diff check 全綠。FE-2.2.8 鍵盤走查由單元測試涵蓋 Tab/Enter/Escape 與 aria 標記；screen-reader sanity 留 QA-2.2。**FE-2.2.9 real-browser acceptance 仍 BLOCKED**（需使用者提供隔離 real backend 與 `FE22_API_BASE / FE22_UI_ORIGIN / FE22_ADMIN_USERNAME / FE22_ADMIN_PASSWORD / FE22_COURSE_NAME_PREFIX`，可選 `FE22_TEACHER_USERNAME / FE22_TEACHER_PASSWORD`；執行 `node test/browser/run.mjs test/browser/fe-2-2-roster.spec.ts`，先 `npm run dev` 於同 host），未以 mock/placeholder 取代。
+> **FE-2.2 closeout（2026-09-06，使用者授權）：** FE-2.2.1–FE-2.2.9 已完成。UI commit `7cbcc46` 交付 roster UI；後續 UI commits `f7b1dfe`／`31858d5` 完成 real-backend browser fixture 穩定化。`test/browser/fe-2-2-roster.spec.ts` 已納入 2026-09-06 fresh isolated full regression，結果 `8 passed / 0 failed / 0 skipped`（整體 8 specs），因此原先 FE-2.2.9 的 BLOCKED 狀態已解除。功能包含 paginated roster、student search、enroll/remove、duplicate/reactivation、archived 409 `COURSE_NOT_EDITABLE`、404/403 stable-code 狀態、keyboard／dialog 行為與 real-backend acceptance；screen-reader sanity 仍留 QA-2.2。
 
 ---
 
@@ -660,37 +662,43 @@
 
 ### FE-5.1 Poll multiple
 
-- [ ] FE-5.1.1 Multiple selection UI
-- [ ] FE-5.1.2 Set-based submitted comparison
-- [ ] FE-5.1.3 Permutation idempotency UI regression
-- [ ] FE-5.1.4 Result projection
+- [x] FE-5.1.1 Multiple selection UI
+- [x] FE-5.1.2 Set-based submitted comparison
+- [x] FE-5.1.3 Permutation idempotency UI regression
+- [x] FE-5.1.4 Result projection
 
-> **FE-5.1 status（2026-09-06，real-backend acceptance blocked）：** FE-5.1 的 frontend implementation、isolated runtime scaffolding 與 browser-side `/auth/session`／DOM diagnostic instrumentation 已提交；但尚未完成 real-backend acceptance，故 FE-5.1.1–FE-5.1.4 維持未勾選。bootstrap 已改用 compiled `node dist/src/bootstrap/bootstrap-admin.js`，最新 disposable runtime 的 migration exit `0`、`/health/live`／`/health/ready` 均為 HTTP 200，admin login 為 HTTP 201。瀏覽器已實際確認 `https://localhost:3443/settings/password` 的 `/auth/session` 為 HTTP 200、`目前密碼` 欄位數為 1，且三個密碼欄位均渲染；目前新 blocker 是 Poll Multiple 流程中 `送出答案` 在等待 5 秒後仍 disabled，尚未進入 submission/replay/result/privacy assertions。Compose project、volume、network、containers 已 teardown，未觸碰 development/shared runtime；本項尚未 closeout。
+> **FE-5.1 closeout（2026-09-07，CLOSED）：** FE-5.1 Poll multiple learner flow 已完成並通過 isolated real-backend Playwright acceptance。先前 2026-09-06 的 learner join timeout／Chromium TLS handshake failure 已由 durable-attempt、permutation-stable option-set fingerprint、same-key replay 與 HTTPS same-origin proxy/runtime 修正消除；不得再保留為 current blocker。UI commits `7907a35`、`4e1a129`、`4f64579` 及既有 FE-5.1 implementation commit `8ec85d3` 對應本 slice；backend commits `5ac94fc`／`0e0cb50`／`34ec33a` 提供 isolated runtime 與 failpoint 驗證邊界。驗證：`fe-5-1-poll-multiple.spec.ts` **1 passed / 0 failed / 0 skipped**；targeted Poll Multiple `2 files / 16 tests passed`；frontend full unit `40 files / 329 tests passed`；typecheck、lint:check（0 errors；既有 warnings）、production build、browser discovery 與 `git diff --check` 全部通過。功能涵蓋 multiple selection、set-based comparison、permutation idempotency、response-loss 後 reload／same-key replay、participant-safe result projection 與 malformed／duplicate／missing-extra／stale／cross-actor attempt fail-closed。FE-5.1 已關閉；FE-5.2、FE-5.3 已關閉，FE-5.4 四題型共用驗收已完成但 screen-reader sanity check 尚未完成；QA-2.4 broader browser matrix 與 QA-2.6 privacy/reveal matrix 仍未完成。
 
 ### FE-5.2 Quiz
 
-- [ ] FE-5.2.1 Quiz answer UI
-- [ ] FE-5.2.2 Reveal 前不顯示 correctness
-- [ ] FE-5.2.3 Reveal 後顯示 participant-safe correctness
-- [ ] FE-5.2.4 Result state
+- [x] FE-5.2.1 Quiz answer UI
+- [x] FE-5.2.2 Reveal 前不顯示 correctness
+- [x] FE-5.2.3 Reveal 後顯示 participant-safe correctness
+- [x] FE-5.2.4 Result state
+
+> **FE-5.2 status（2026-09-07，CLOSED）：** FE-5.2 Quiz learner 端已依 `50_實作與測試/FrontEnd5.2/FE-5.2 Quiz 實作計畫.md` 完成並通過 real-backend browser acceptance，FE-5.2.1–FE-5.2.4 全數勾選。此輪證據對應 UI commits `4e1a129`（quiz learner flow）、`7907a35`（FE-5.1 gate 前置修復）、`4f64579`（fixture env gitignore 防護）及 backend commit `4a2480c`（`docs/frontend-api-reference.md` quiz 段 exact-set 語意同步，含 authoring `correctOptionRefs` 由「恰一」修正為「至少一」）。實作內容：`useSubmitQuiz`（`lib/api/participant-live-sessions.ts`）、`quiz-submission-attempt.ts`（storage namespace `smartlearning:v3:quiz:{actor}:{session}:{question}`，permutation-stable fingerprint，malformed/stale/cross-actor fail-closed）、`QuizQuestion.tsx`（exact-set 多選、reveal 前 strict allowlist 不渲染任何 correctness、reveal 後 participant-safe correctness、不做個人答對/答錯判定）、`LearnerLiveSessionView.tsx` dispatch 修正（先依 `snapshotType` 分流，消除 quiz 落入 single-choice renderer 的錯誤路徑）。驗證結果：`node test/browser/run.mjs test/browser/fe-5-2-quiz.spec.ts --workers=1` → **1 passed / 0 failed / 0 skipped**（17.9s test，2.6m total）；FE-5.1 gate 前置重跑 **1 passed / 0 failed / 0 skipped**（30.0s test，2.8m total）；full unit `40 files / 329 tests PASS`；typecheck／lint:check（0 errors；13 pre-existing warnings）／production build／`git diff --check` 全綠。FE-4.2/4.3/4.4 browser regressions 未執行（BLOCKED：缺 FE42_*/FE44_* env + `http://localhost:3001` origin，pre-existing fixture boundary，非 FE-5.2 回歸）。fixture 邊界：HTTP-proxy 不 proxy `/socket.io`，故 reveal 的 realtime DOM 更新由 unit/component 覆蓋，browser 於可靠 API boundary 斷言 closed results 的 correctness 欄位；run log 中 `socket hang up` 為預期 response-loss failpoint。cleanup 已關閉 session 後 archive course（waiting/active session 無法 archive）。詳細 checkpoint 記錄見 `smartLearning-ui/tasks/todo.md`（CP0–CP4）。
 
 ### FE-5.3 Open text
 
-- [ ] FE-5.3.1 Multiline text input
-- [ ] FE-5.3.2 Length/validation feedback
-- [ ] FE-5.3.3 Safe plain-text rendering
-- [ ] FE-5.3.4 Anonymous result list
-- [ ] FE-5.3.5 不顯示 identity linkage
+- [x] FE-5.3.1 Multiline text input
+- [x] FE-5.3.2 Length/validation feedback
+- [x] FE-5.3.3 Safe plain-text rendering
+- [x] FE-5.3.4 Anonymous result list
+- [x] FE-5.3.5 不顯示 identity linkage
+
+> **FE-5.3 status（2026-09-07，CLOSED）：** FE-5.3 Open text 已依 `50_實作與測試/FrontEnd5.3/FE-5.3 Open text 實作計畫.md` 完成，並通過 isolated real-backend Playwright acceptance。實作涵蓋 multiline `<textarea>`、NFC／Unicode whitespace normalization 與長度／unsafe-text validation feedback、strict text-only result parser、anonymous aggregate result list，以及 identity linkage fail-closed 邊界。驗證命令 `npm run test:browser -- --workers=1 test/browser/fe-5-3-open-text.spec.ts` → **1 passed / 0 failed / 0 skipped**（約 2.5 分鐘）；測試亦驗證 response-loss 後同一 idempotency key replay 與 anonymous result privacy，預期的 transient `socket hang up` failpoint 已正確恢復。最終 UI commits `d7b007d`、`6e4b551`、`38d01a9`、`7789279` 完成 learner flow、acceptance 與 renderer regression coverage；CP5 evidence 已記錄於 `smartLearning-ui/tasks/todo.md`。本次同步僅更新 FE-5.3 evidence 與相鄰 FE-5 狀態，未連帶宣稱 FE-5.4、QA-2.4、QA-2.6 或整體 release 完成。
 
 ### FE-5.4 四題型共用驗收
 
-- [ ] FE-5.4.1 Loading/error/closed/stale states
-- [ ] FE-5.4.2 Keyboard navigation
+- [x] FE-5.4.1 Loading/error/closed/stale states
+- [x] FE-5.4.2 Keyboard navigation
 - [ ] FE-5.4.3 Screen-reader sanity check
-- [ ] FE-5.4.4 Mobile/responsive smoke
-- [ ] FE-5.4.5 Real-backend browser matrix
+- [x] FE-5.4.4 Mobile/responsive smoke
+- [x] FE-5.4.5 Real-backend browser matrix
 
 **依賴：** BE-4。
+
+> **FE-5.4 closeout（2026-09-08，CP6）：** FE-5.4.1、FE-5.4.2、FE-5.4.4 與 FE-5.4.5 已完成；FE-5.4.3 screen-reader sanity check 仍保留。`test/browser/fe-5-4-four-question-matrix.spec.ts` 載入 `test/browser/FE51.env` 後，以 Chromium 實際通過 **1 passed / 0 failed / 0 skipped**，涵蓋 mobile 390×844 與 desktop 1280×800、四題型、loading／error／closed／stale submission、鍵盤送出、request Origin／CSRF／Idempotency-Key／body shape、participant-safe result 與 cleanup。驗證同時通過 targeted learner tests **42 passed**、`npm run typecheck` 與 `git diff --check`。修正已提交於 UI commit `8620bb2`：密碼變更後重新讀取 CSRF token；學員 submission 的 HTTP 409 `CONFLICT` 限域正規化為 `SUBMISSION_CONFLICT`，避免顯示帳號重複訊息。此 closeout 不連帶宣稱 screen-reader、QA-2.6 privacy/reveal matrix、FE-7、BE-4 或整體 release 完成。
 
 ---
 
@@ -763,8 +771,10 @@
 
 ## QA-2 Browser acceptance
 
-- [ ] QA-2.1 Student account/login/my courses
-- [ ] QA-2.2 Teacher roster
+- [x] QA-2.1 Student account/login/my courses
+- [x] QA-2.2 Teacher roster
+
+> **QA-2.1／QA-2.2 closeout（2026-09-06）：** fresh isolated frontend real-browser regression 共 `8 passed / 0 failed / 0 skipped`，包含 `fe-1-3-my-courses.spec.ts` 與 `fe-2-2-roster.spec.ts`。已覆蓋 student account/login/my courses、teacher roster、權限負向路徑與 aggregate cleanup；不代表 QA-2.3 teacher classroom、QA-2.4 四題型課堂或 QA-2.6 privacy/reveal matrix 已完成。
 - [ ] QA-2.3 Teacher classroom
 - [ ] QA-2.4 Student four-question classroom
 - [x] QA-2.5 Anonymous fallback
