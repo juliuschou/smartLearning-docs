@@ -715,6 +715,8 @@
 
 **依賴：** BE-5 完成後才開始，不做 mock。
 
+> **FE-6 backend readiness update（2026-09-09）：** backend 已完成 Archive／retention deletion manifest 的 guarded evidence：transactional outbox、controlled local-provider retry／backoff、partial-batch continuation、expired-lease recovery、malformed-manifest dead-letter、attempt exhaustion、provider-success-before-DB-ack recovery，以及 restore no-resurrection。另已加入 S3-compatible provider adapter contract（deterministic JSON/key、SHA-256、conditional immutable write、SSE-S3、COMPLIANCE Object Lock）與 `local|s3` config validation；`smartlearning-backend` 的 focused config/governance verification、typecheck、lint、format、build、diff check 均通過。**本次僅完成 adapter/config implementation，未執行真實 S3 sandbox upload。** External endpoint／credentials、production-like alert firing 與 full restore/restart rehearsal 已依使用者決定標示為 **DEFERRED**，因此不變更 FE-6.1～FE-6.8 或 QA-2.7 的 checkbox，也不宣稱 Archive/history UI 或 external delivery 已完成。參考 commits：`4d044a9`、`6c2ce0e`、`aff0c3a`。
+
 ---
 
 ## FE-7 Durable Realtime Client
