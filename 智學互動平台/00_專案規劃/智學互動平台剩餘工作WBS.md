@@ -667,7 +667,7 @@
 - [x] FE-5.1.3 Permutation idempotency UI regression
 - [x] FE-5.1.4 Result projection
 
-> **FE-5.1 closeout（2026-09-07，CLOSED）：** FE-5.1 Poll multiple learner flow 已完成並通過 isolated real-backend Playwright acceptance。先前 2026-09-06 的 learner join timeout／Chromium TLS handshake failure 已由 durable-attempt、permutation-stable option-set fingerprint、same-key replay 與 HTTPS same-origin proxy/runtime 修正消除；不得再保留為 current blocker。UI commits `7907a35`、`4e1a129`、`4f64579` 及既有 FE-5.1 implementation commit `8ec85d3` 對應本 slice；backend commits `5ac94fc`／`0e0cb50`／`34ec33a` 提供 isolated runtime 與 failpoint 驗證邊界。驗證：`fe-5-1-poll-multiple.spec.ts` **1 passed / 0 failed / 0 skipped**；targeted Poll Multiple `2 files / 16 tests passed`；frontend full unit `40 files / 329 tests passed`；typecheck、lint:check（0 errors；既有 warnings）、production build、browser discovery 與 `git diff --check` 全部通過。功能涵蓋 multiple selection、set-based comparison、permutation idempotency、response-loss 後 reload／same-key replay、participant-safe result projection 與 malformed／duplicate／missing-extra／stale／cross-actor attempt fail-closed。FE-5.1 已關閉；FE-5.2、FE-5.3 已關閉，FE-5.4 四題型共用驗收已完成但 screen-reader sanity check 尚未完成；QA-2.4 broader browser matrix 與 QA-2.6 privacy/reveal matrix 仍未完成。
+> **FE-5.1 closeout（2026-09-07，CLOSED）：** FE-5.1 Poll multiple learner flow 已完成並通過 isolated real-backend Playwright acceptance。先前 2026-09-06 的 learner join timeout／Chromium TLS handshake failure 已由 durable-attempt、permutation-stable option-set fingerprint、same-key replay 與 HTTPS same-origin proxy/runtime 修正消除；不得再保留為 current blocker。UI commits `7907a35`、`4e1a129`、`4f64579` 及既有 FE-5.1 implementation commit `8ec85d3` 對應本 slice；backend commits `5ac94fc`／`0e0cb50`／`34ec33a` 提供 isolated runtime 與 failpoint 驗證邊界。驗證：`fe-5-1-poll-multiple.spec.ts` **1 passed / 0 failed / 0 skipped**；targeted Poll Multiple `2 files / 16 tests passed`；frontend full unit `40 files / 329 tests passed`；typecheck、lint:check（0 errors；既有 warnings）、production build、browser discovery 與 `git diff --check` 全部通過。功能涵蓋 multiple selection、set-based comparison、permutation idempotency、response-loss 後 reload／same-key replay、participant-safe result projection 與 malformed／duplicate／missing-extra／stale／cross-actor attempt fail-closed。FE-5.1 已關閉；FE-5.2、FE-5.3、FE-5.4 已關閉（FE-5.4.2/5.4.3 dedicated evidence 於 2026-09-10 補齊）；QA-2.4 broader browser matrix 與 QA-2.6 privacy/reveal matrix 仍未完成。
 
 ### FE-5.2 Quiz
 
@@ -692,13 +692,15 @@
 
 - [x] FE-5.4.1 Loading/error/closed/stale states
 - [x] FE-5.4.2 Keyboard navigation
-- [ ] FE-5.4.3 Screen-reader sanity check
+- [x] FE-5.4.3 Screen-reader sanity check
 - [x] FE-5.4.4 Mobile/responsive smoke
 - [x] FE-5.4.5 Real-backend browser matrix
 
 **依賴：** BE-4。
 
 > **FE-5.4 closeout（2026-09-08，CP6）：** FE-5.4.1、FE-5.4.2、FE-5.4.4 與 FE-5.4.5 已完成；FE-5.4.3 screen-reader sanity check 仍保留。`test/browser/fe-5-4-four-question-matrix.spec.ts` 載入 `test/browser/FE51.env` 後，以 Chromium 實際通過 **1 passed / 0 failed / 0 skipped**，涵蓋 mobile 390×844 與 desktop 1280×800、四題型、loading／error／closed／stale submission、鍵盤送出、request Origin／CSRF／Idempotency-Key／body shape、participant-safe result 與 cleanup。驗證同時通過 targeted learner tests **42 passed**、`npm run typecheck` 與 `git diff --check`。修正已提交於 UI commit `8620bb2`：密碼變更後重新讀取 CSRF token；學員 submission 的 HTTP 409 `CONFLICT` 限域正規化為 `SUBMISSION_CONFLICT`，避免顯示帳號重複訊息。此 closeout 不連帶宣稱 screen-reader、QA-2.6 privacy/reveal matrix、FE-7、BE-4 或整體 release 完成。
+
+> **FE-5.4 closeout（2026-09-10，FE-5.4.2/5.4.3 dedicated evidence）：** FE-5.4.2 與 FE-5.4.3 的 dedicated component-level evidence 已補齊並提交於 UI commit `a9760b3`。FE-5.4.2：`test/fe-5-4-four-question-acceptance.test.tsx` 新增 table-driven keyboard-only 流程（Tab/Shift+Tab 往返 + no-trap sanity、native radio Arrow/Space、checkbox Space 獨立切換、open-text 輸入 + Enter），並斷言 answer labels 的 `focus-within` ring 與 submit button 的 `focus-visible` ring。FE-5.4.3（screen-reader sanity，依計畫界定為 semantic sanity check，非完整 WCAG audit）：aria-describedby help text、fieldset legend 作為 control group name、submission error 以 `role="alert"` 呈現 curated message 且保留可重試輸入、closed state 以 disabled fieldset + 狀態文字呈現，並對 accessibility tree 做 correctness/identity leakage 負向檢查。Production 僅做計畫允許的 focus-visible 修正（PollSingleQuestion labels 補 `focus-within` ring；Poll multiple/Quiz/Open text submit buttons 補 `focus-visible` ring），無 schema/query-key/attempt-storage/lifecycle-gate 變更。驗證：acceptance suite **38 passed**、targeted FE-5.4 regression **7 files / 109 passed**、full unit **43 files / 388 passed**、typecheck PASS、edited-file eslint clean、prettier PASS、`git diff --check` PASS、production edits 後 real-backend Chromium matrix **1 passed / 0 skipped**。同 commit 記錄 tripwire：user-event 鍵名大小寫敏感，`keyboard("{Space}")` 不會觸發 toggle，須用 `keyboard(" ")`。此 closeout 不連帶宣稱 QA-2.4、QA-2.6、FE-7、BE-4 或整體 release 完成。
 
 ---
 
