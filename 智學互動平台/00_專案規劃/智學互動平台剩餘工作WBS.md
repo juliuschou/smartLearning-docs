@@ -780,7 +780,9 @@
 
 > **QA-2.1／QA-2.2 closeout（2026-09-06）：** fresh isolated frontend real-browser regression 共 `8 passed / 0 failed / 0 skipped`，包含 `fe-1-3-my-courses.spec.ts` 與 `fe-2-2-roster.spec.ts`。已覆蓋 student account/login/my courses、teacher roster、權限負向路徑與 aggregate cleanup；不代表 QA-2.3 teacher classroom、QA-2.4 四題型課堂或 QA-2.6 privacy/reveal matrix 已完成。
 - [ ] QA-2.3 Teacher classroom
-- [ ] QA-2.4 Student four-question classroom
+- [x] QA-2.4 Student four-question classroom
+
+> **QA-2.4 closeout（2026-09-10）：** 學員四題型課堂已由 isolated real-backend Chromium matrix `test/browser/fe-5-4-four-question-matrix.spec.ts` 覆蓋：FE51 env + fe53 runtime 下 **1 passed / 0 failed / 0 skipped**（2.4 min，`--workers=1`），涵蓋 mobile 390×844 與 desktop 1280×800、四題型 join→answer→submit→result、request Origin/CSRF/Idempotency-Key/body shape、participant-safe result 負向檢查、close-first stale-submit、重複送出與帳號 disable cleanup（UI commit `a9760b3`；同日含 focus-visible production 修正後 rerun）。本 closeout 僅依 FE-5.4 已驗證證據勾選 QA-2.4，**不連帶宣稱** QA-2.3 teacher classroom、QA-2.6 privacy/reveal matrix、FE-7、BE-4 或整體 release 完成。
 - [x] QA-2.5 Anonymous fallback
 - [ ] QA-2.6 Privacy/reveal negative cases
 - [ ] QA-2.7 Archive/history/deletion
