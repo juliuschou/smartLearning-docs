@@ -929,6 +929,14 @@
 
 **依賴：** BE-5 完成後才開始，不做 mock。
 
+> **FE-6 status（2026-09-11 WBS sync）：FE-6.1～FE-6.8 全部未開始（dependency-gated）。**
+>
+> - **Dependency gate 未解除：** FE-6 依 BE-5 CP3 final sign-off（`BE-5 final verified and formally closed; authorize FE-6 Checkpoint 0.`）才可啟動。目前 BE-5 CP2 維持 APPROVAL WITHHELD（見 BE-5 CP2 remediation 進度更新），FE-6 CP0 尚未授權，全部 8 項不得開始。
+> - **後端契約已凍結（供未來 FE-6 CP0 intake，不解除 gate）：** BE-5 CP1 remediation 已 commit 於 backend `1c841ca` 並可在單一 clean revision 重現——archive list/detail、deletion request、admin step-up confirmation 五個 governance paths 已凍結 OpenAPI（integer pagination、`active|deleted` discriminator、required enums、prohibited properties、no student history route）；`docs/frontend-api-reference.md` §5 為前端消費文件。Machine-readable evidence：governance units 2 suites / 15 tests、OpenAPI 1 suite / 5 tests、guarded `smartlearning_test` archive governance E2E 1 suite / 11 tests，全部 0 failed / 0 skipped。
+> - **前端目前無 FE-6 實作：** UI repo 無 archive/history route、feature 或 transport（`app/` 僅 live/join/courses 等既有功能；`lib/api/` 無 archive endpoints）。依 Option B 不得以 mock/placeholder 提前實作。
+> - **Checkpoint 結構（依 `50_實作與測試/FrontEnd6/FE-6 Archive History UI 實作計畫.md`）：** CP0 frozen contract intake → CP1 transport（FE-6.1）→ CP2 teacher history/read UI（FE-6.2–FE-6.5）→ CP3 admin governance/tombstone UI（FE-6.6–FE-6.7）→ CP4 real-backend privacy acceptance（FE-6.8／QA-2.7 evidence）；每個 CP 以使用者明確回覆解鎖，不得跳站。
+> - **證據歸屬：** backend S3/retention/restore/outbox 與 sandbox rehearsal 證據屬 **BE-5 CP2**，不是 FE-6 implementation evidence；下方 historical handoff 僅為 provenance 記錄。FE-6.8 與 QA-2.7 需真實 backend browser acceptance，backend/sandbox evidence 不可替代。
+
 > **BE-5 CP2 historical evidence handoff（2026-09-09，尚待 CP0/CP2 reconciliation）：** 初次 S3 sandbox preflight 因 fixture env 不存在而 fail-closed，未連線或 upload；後續另有 disposable MinIO + guarded `smartlearning_test` rehearsal，記錄 S3-compatible manifest upload、selected alert threshold firing，以及 manifest-driven restore/restart no-resurrection。演練同時回報 UUID validation、production category fixture 與 S3 encryption/idempotency 修正，並記錄 focused **10 suites / 41 tests**、S3 integration 1/1。這些屬 **BE-5 archive governance／retention evidence**，不是 BE-8.2 account-management CP2，也不是 FE-6 implementation。
 >
 > **證據邊界（2026-09-10 CP0 稽核）：** 上述 rehearsal 僅涵蓋 disposable sandbox，沒有 production endpoint、production DB migration/purge、deployed alert routing/on-call 或 production backup restore 證據；相關最新程式、spec 與 task record 位於 dirty/uncommitted working tree，尚未形成可由單一 commit 重現的 baseline。故此段只保留為 reported historical evidence；不得據此勾選 BE-5、FE-6.1～FE-6.8 或 QA-2.7，也不得授權新的 destructive operation。正式 disposition 以 BE-5 CP0 evidence matrix 與後續人工 checkpoint 為準。
@@ -1035,7 +1043,7 @@
 | FE-3 Teacher classroom     | BE-3             | 已交付（FE-3.1/3.2/3.3 含 FE-3.3.8 real-browser acceptance，2026-09-11）；僅 FE-3.1.1 session-list transport 因後端無 list endpoint 仍 BLOCKED |
 | FE-4 Poll-single classroom | BE-1、BE-3、BE-4.1 | 後端 E2E 通過後                     |
 | FE-5 其餘題型                  | BE-4.2～BE-4.4    | 各題型 lifecycle 通過後逐題型實作         |
-| FE-6 Archive/history       | BE-5             | 不可提前做 placeholder              |
+| FE-6 Archive/history       | BE-5             | 不可提前做 placeholder；backend 契約已凍結（`1c841ca`），FE-6 CP0 仍須待 BE-5 final sign-off |
 | FE-7 Durable realtime      | BE-7             | 可先設計 adapter，不可假設 event schema |
 
 ---
