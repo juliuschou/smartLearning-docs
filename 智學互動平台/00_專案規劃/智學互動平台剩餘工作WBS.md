@@ -369,6 +369,190 @@
 
 **風險：** 不可逆資料操作；只能停止 worker 或 forward-fix，不能以 application rollback 恢復已刪資料。
 
+### BE-5 CP0 — Evidence audit／contract reconciliation（2026-09-10）
+
+> **CP0 稽核邊界：** 本輪僅讀取 WBS、backend API reference、BE-5 completion plan、backend task evidence 與目前 implementation/test/migration；未執行 tests、migration、DB query、purge、reconcile、restore、container、network upload 或 cleanup。下列 `EVIDENCE AVAILABLE` 只表示已有可供下一站審查的歷史或靜態證據，**不等於 VERIFIED，也不自動勾選 WBS**。
+
+| WBS item | CP0 disposition | 主要證據 | 缺口／限制 |
+|---|---|---|---|
+| BE-5.1.1 | EVIDENCE AVAILABLE—待 CP1 人工確認 | close transaction 內建立 archive；`liveSessionId` unique；archive E2E | 舊 completion plan 的「after committed close」措辭已與目前 transaction boundary 不一致 |
+| BE-5.1.2 | EVIDENCE AVAILABLE—待 CP1 人工確認 | additive archive migrations；guarded `smartlearning_test` migration status 曾達 16/18 migrations up to date | 無 production migration 證據；舊 completion plan 的「draft/unrun」已過時 |
+| BE-5.1.3 | EVIDENCE AVAILABLE—待 CP1 人工確認 | typed snapshot projection、stable ordering、aggregate-only tests | DB 本身不阻止所有 direct SQL payload update；須以 application boundary 審查 immutable 語意 |
+| BE-5.1.4 | EVIDENCE AVAILABLE—待 CP1 人工確認 | teacher/admin list/detail、owner scope、filter-before-pagination、deterministic ordering E2E | 正式 WBS 尚未 reconcile；無 student route 是設計限制而非缺口 |
+| BE-5.1.5 | EVIDENCE AVAILABLE—待 CP1 人工確認 | identity-free projection、open-text `{ text }`、participant anonymization 與 negative-field tests | submission 仍連到已匿名化 participant row；須於 privacy review 明確接受此模型 |
+| BE-5.1.6 | EVIDENCE AVAILABLE—具測試粒度缺口 | service 僅允許 `closed` + `closedAt`；cancel path 不 archive | 缺獨立 waiting 與 active archive-negative test；目前證據部分為組合式 |
+| BE-5.2.1 | EVIDENCE AVAILABLE—待 CP2 人工確認 | `purgeAt TIMESTAMPTZ`、due index、close + 90 days；guarded migration evidence | 無 production migration/schema probe；最新 dirty tree 未綁定單一 tested revision |
+| BE-5.2.2 | EVIDENCE AVAILABLE—待 CP2 人工確認 | exact 90-day boundary、`purgeAt <= now`、oldest-first guarded E2E | 無 production/staging due-population、capacity 或 clock operational evidence |
+| BE-5.2.3 | EVIDENCE AVAILABLE—具目前 tree drift | bounded 1–100、`SKIP LOCKED`、transactional/idempotent worker、concurrency E2E | current scheduler metrics calls 與 unit fixture 看似不同步；無 production scheduler/multi-replica evidence |
+| BE-5.2.4 | **BLOCKED** | read-only `inspectDue()` 與 runbook inspection 存在 | 沒有 execution-equivalent no-delete dry-run；`run-once` 仍回 `executed:false`；無 production dry-run artifact |
+| BE-5.2.5 | EVIDENCE AVAILABLE—provenance/ops 待審 | guarded retry/concurrency、local-provider lease tests、reported MinIO restart rehearsal | MinIO spec/相關變更未完整 commit；filtered no-resurrection run 有 8 個 name-filter skips；無 production restart evidence |
+| BE-5.2.6 | EVIDENCE AVAILABLE—production ops **BLOCKED** | retention/manifest metrics、Prometheus rules、sandbox threshold firing record | 未證明 Prometheus/Grafana deployment、routing、on-call ownership；current scheduler test fixture drift |
+| BE-5.3.1 | EVIDENCE AVAILABLE—待 CP1 人工確認 | teacher-owner request route、CSRF、serialized outstanding-request idempotency、guarded E2E | route guard 較廣但 service 僅允許 teacher；須維持分層契約說明 |
+| BE-5.3.2 | EVIDENCE AVAILABLE—待 CP1 人工確認 | AdminGuard + StepUpGuard、exact request/session binding、negative/positive E2E | exact Origin 依 shared CSRF guard；本輪未重跑各 branch |
+| BE-5.3.3 | EVIDENCE AVAILABLE—待 CP1/CP2 人工確認 | DeletionEvent/outbox schema、active/deleted invariant、payload null tombstone E2E | migration 證據限 `smartlearning_test`；不可宣稱 production deployment |
+| BE-5.3.4 | EVIDENCE AVAILABLE—待 CP1/CP2 人工確認 | sequential replay、retention/admin race、canonical-event uniqueness | 歷史記錄依序為 6/8 tests，目前 source 9 tests；final baseline 尚未凍結 |
+| BE-5.3.5 | EVIDENCE AVAILABLE—operational qualification | manifest-driven reconciliation 可再次移除 restored answer-bearing rows，且 replay idempotent | 不是透明 DB restore hook；仍需 production backup/restore runbook integration 與 watermark sequencing sign-off |
+| BE-5.3.6 | **BLOCKED—provisional evidence only** | committed guarded resurrection simulation；另有 reported MinIO + PostgreSQL restart rehearsal | 完整 rehearsal/spec/修正與紀錄尚未形成可重現 committed baseline；「backup restore」完成邊界尚待人工定義 |
+
+**CP0 provenance 摘要：**
+
+- CP1 歷史證據主要記錄於 backend commit `02a31bd8780126f8a13ccd63400aa7c6beeee5e6`；較早 archive E2E matrix 來自 `584e6613441bbe5be1207853809718016258574e`。
+- 稽核時 backend `HEAD` 為 `e880b0ef69b1116ced44fcbac639458ed5eaba9e`，local `main` ahead of `origin/main` 9 commits，且 governance/retention/S3/metrics/task evidence 含 modified/untracked files。因此最新 `10 suites / 41 tests` 與 MinIO rehearsal 只能列為 reported evidence，不能視為 clean-revision verification。
+- 歷史 DB evidence 均指向 guarded `smartlearning_test`；未找到 production migration、production purge、production object-store 或 production restore 證據。
+- test counts 是不同 checkpoint 的歷史快照（archive E2E 3 → 6 → 8 tests；目前 source 9 declarations），不得合併成一次 final regression。
+
+**CP0 結論：PARTIAL／NOT READY FOR BE-5 WBS CLOSEOUT。** 最主要 blockers 為 BE-5.2.4 缺 true dry-run、current dirty-tree provenance、scheduler/spec drift、BE-5.3.6 rehearsal 尚未形成可重現 baseline，以及 production operational certification 缺口。所有 BE-5 checkbox 保持未勾。
+
+**STOP／人工確認：** CP0 到此停止；不得進入 CP1、CP2、執行 destructive operation 或開始 FE-6。只有收到使用者明確回覆：
+
+`BE-5 Checkpoint 0 verified; authorize contract evidence review.`
+
+才可進入 BE-5 CP1。任何後續 migration deploy、truncate、purge、early deletion、reconcile-apply、restore rehearsal 或 external upload 仍須另行指定 exact environment/database、run-scoped disposable data 與 exact operation；本 checkpoint 的確認不構成 destructive authorization。
+
+**CP0 人工確認紀錄（2026-09-10）：** 使用者已明確回覆 `BE-5 Checkpoint 0 verified; authorize contract evidence review.`；此批准僅解除 CP1 read-only contract review gate，未授權 CP2 或任何 destructive operation。
+
+### BE-5 CP1 — Contract evidence review（2026-09-10）
+
+> **審查邊界：** 本輪只做 static/read-only review；未執行 tests、migration、DB、application、container 或 network command。歷史 PASS 僅作 evidence input，不等同 current dirty tree verification。
+
+| Contract area | Verdict | 已確認證據 | Blocking gap／decision |
+|---|---|---|---|
+| Archive list safe DTO | PASS implementation／evidence freeze BLOCKED | `ArchivePageDto` + `ArchiveSummaryDto`；summary 不含 payload/identity linkage | OpenAPI 使用 partial `objectContaining`，未鎖 exact properties、required/nullability/formats |
+| Pagination/filter/order | PASS implementation／HTTP evidence incomplete | `page>=1`、`pageSize 1..100`、course UUID、`active|deleted`；owner filter/count before pagination；`closedAt DESC,id DESC` | 缺 invalid query/bounds、combined filters、deleted filter、multi-page boundary HTTP tests；OpenAPI 未鎖 query schema |
+| Teacher/admin scope | PASS | Teacher owner scope、admin global scope、foreign detail 404、foreign filter empty page | 缺 explicit admin-list-all、student list/detail 403 與「無 student route」regression |
+| Active/deleted union | PASS source／OpenAPI BLOCKED | controller `oneOf` + `status` discriminator；deleted wire payload key absent、DB payload null | Generated OpenAPI test 未鎖 discriminator、required payload/deletion 與完整 variant schema |
+| Active payload privacy | **BLOCKED—correctness/privacy defect** | 新建 archive 的 `projectArchive()` 為 aggregate-only，open text 為 `{ text }` | `parseArchivedResult()` 驗證部分欄位後直接回傳原 question object；persisted/legacy JSON 的額外 `participantId`、`accountId`、token 等欄位可穿透 active-detail HTTP payload；現有 test 未覆蓋 parser extra-field stripping |
+| Participant anonymization | PASS design／manual model acceptance pending | archive 後 `accountId=null`、displayName anonymous、token hash rotation；HTTP projection無 identity | Submission 在 purge 前仍保留到 anonymized Participant 的 FK；需明確接受「projection de-identification，不是立即刪除 linkage row」模型 |
+| Teacher deletion request | PASS core／negative matrix incomplete | teacher-only service check、owner scope、CSRF、reason enum、serialized outstanding request | 缺 admin requester、foreign/nonexistent/deleted archive、malformed UUID/invalid reason endpoint-specific tests |
+| Request idempotency | PASS implementation／contract clarification required | sequential/concurrent retries 回原 receipt，DB partial unique index | 屬 resource-state idempotency，changed retry body 仍回原 receipt；須明確寫入 API/OpenAPI contract |
+| Admin pending queue | PASS core | admin-only、requested-only、oldest-first、safe non-answer projection；anonymous 401／teacher 403 | 缺 pagination/status-invalid/tie-order tests；必要 session/course metadata 尚無正式 data-classification rationale |
+| Request-bound confirmation | PASS identity binding／**reason semantics BLOCKED** | `deletionRequestId` + liveSession binding；mismatch 404；`confirmed:true` | Admin confirmation reason 可與 teacher request reason 不同；需決定「必須一致」或「admin adjudication 並保留 requested/resolved reasons」 |
+| Step-up | PASS core／negative matrix incomplete | SessionGuard + CSRF + AdminGuard + StepUpGuard；無 step-up 403，step-up 後成功 | 缺 expired/other-session/other-account/future timestamp/revocation BE-5-specific evidence；step-up 綁 session，不綁 request |
+| CSRF/exact Origin | PASS implementation／evidence incomplete | Shared `CsrfGuard` exact allowlist + cookie/header match；missing CSRF 403 | 缺 absent/malicious/deceptive Origin、missing cookie/header、mismatch 與 exact accepted Origin 的 BE-5 matrix |
+| Shared locked transition | PASS | Admin delete 與 retention 共用 transition，outer path 採 row lock/`SKIP LOCKED` | Private helper interface 本身未強制 lock token；仍依 caller convention |
+| Canonical tombstone | PASS core | payload null、answer-bearing rows delete、canonical deletion event + manifest outbox；DB uniqueness/invariants | deletion CHECK 未完全限制 reason、actor nullability 或 exact deleted categories，部分仍是 application invariant |
+| Confirmation replay | PASS implementation／**semantic contract gap** | identical replay 回 canonical result，僅一 canonical event | resolved request 以 conflicting reason replay 也 silently 回舊結果；須明定 replay-insensitive 或回 409，並補 test |
+| Retention/admin race reconciliation | PASS core／assertions incomplete | one canonical event、request 離開 queue、shared transition | 缺 winner-specific HTTP result、trigger/reason、`resolvedByEventId`、timestamp 與 replay canonical assertions |
+| Additive migration | PASS with qualification | preflight checks、columns/constraints/indexes、guarded `smartlearning_test` deploy record | migration 會 full-table backfill valid archives 並 replace index，不是 metadata-only；無 production deploy evidence |
+| OpenAPI/error contract | **BLOCKED** | 五個 paths 與部分 DTO/privacy assertions 存在 | 未完整鎖 methods、request required/enums、query bounds、union、auth/CSRF、envelope、400/401/403/404/409 schemas |
+
+**CP1 evidence/provenance review：**
+
+- 歷史 CP1 record：targeted units `2 suites / 6 tests, 0 failures`、OpenAPI `1 suite / 5 tests, 0 failures`、archive E2E `1 suite / 6 tests, 0 failures, 0 skips`，migration 僅套用 guarded `smartlearning_test` 並記錄 16 migrations up to date。
+- 只有 archive E2E 明確記錄 `0 skips`；unit/OpenAPI 未記 skip count，repository 亦無保存的 machine-readable Jest/JUnit artifacts，因此不能宣稱 CP1 全 bundle `0 failed / 0 skipped`。
+- CP1 與後續 CP2 implementation/evidence 同時進入 commit `02a31bd`，沒有可獨立審查的 CP1-only immutable revision；目前 backend `HEAD e880b0e` 又有 governance/retention/S3/metrics dirty/untracked changes。
+- Current source counts（archive E2E 9 declarations、兩個 focused unit files 合計 5 declarations）與歷史 CP1 6 E2E／6 unit counts不同；這是 scope 演進訊號，不能用歷史結果證明 current tree。
+- `frontend-api-reference.md` 的 §5 contract 大致正確，但其 generated date、scheduler/verification status 已過時；BE-5 completion plan 也仍保留 migration/DB E2E 未執行的歷史敘述。
+
+**CP1 結論：BLOCKED／APPROVAL WITHHELD。** 核心 workflow 與 schema contract 大致成立，但 active-detail strict privacy allowlist、reason/replay semantics、完整 OpenAPI/negative security evidence、全 bundle zero-skip 與 clean immutable provenance 尚未達到 contract freeze／release-grade evidence。所有 BE-5 checkbox 保持未勾，CP2 不得開始。
+
+**CP1 最小 remediation conditions：**
+
+1. 將 `parseArchivedResult()` 改為 nested strict allowlist reconstruction，補 persisted/legacy payload prohibited-extra-field negative tests。
+2. 人工決定並凍結 teacher requested reason、admin resolved reason 與 conflicting replay semantics。
+3. 擴充 OpenAPI assertions：exact methods/query/body/required/enums、active/deleted discriminator、payload variants、security/error envelopes、no student route。
+4. 補 deletion-request existence-hiding、student denial、pagination/invalid query、exact-Origin/CSRF、step-up session/expiry 與 race reconciliation negative matrix。
+5. 明確文件化 participant linkage 是 projection-level de-identification，並同步 stale API reference/completion-plan metadata。
+6. 在 clean/pinned revision 上重跑 targeted unit、OpenAPI、guarded DB-backed E2E，逐項記錄 `0 failed / 0 skipped`、DB target、migration status 與 machine-produced result artifact。
+
+**STOP／人工確認：** 此 CP1 review 已完成，但目前**不具備授權 CP2 的條件**。下一步僅能在使用者明確回覆下進行 CP1 remediation：
+
+`BE-5 Checkpoint 1 review acknowledged; authorize CP1 remediation only.`
+
+此回覆不授權 CP2、migration deploy、truncate、purge、early deletion、reconcile-apply、restore rehearsal 或 external upload。完成 remediation 並重新提供 clean-revision evidence 後，才會再次要求：
+
+`BE-5 Checkpoint 1 verified; authorize CP2 operational evidence review.`
+
+#### BE-5 CP1 remediation closeout（2026-09-10，等待人工 final sign-off）
+
+**授權與契約決策：** 使用者已回覆 `BE-5 Checkpoint 1 review acknowledged; authorize CP1 remediation only.`，並選擇 strict reason binding：Admin confirmation reason 必須等於 Teacher request reason；initial mismatch 與 resolved conflicting replay 都在 destructive write 前回 HTTP 409 `CONFLICT`、`field:"reason"`。matching replay 回 canonical result，request/session identity mismatch 維持 existence-hiding 404。另已授權只對 guarded `NODE_ENV=test`／`smartlearning_test` 執行 E2E reset/truncate 與 suite-owned destructive fixtures；未授權 dev/staging/production、external S3/MinIO、restore/upload 或手動 migration deploy。
+
+**完成的 remediation：**
+
+- `parseArchivedResult()` 改為 poll/quiz/open-text 全層級 nested strict allowlist reconstruction；persisted/legacy extra fields 不再穿透 active-detail HTTP，known malformed field fail closed。
+- Reason equality 在 resolved replay return 與 destructive transition 前檢查；conflict 不會刪除 rows、更新 archive、建立 deletion event 或 manifest outbox。
+- OpenAPI 凍結五個 governance paths/methods、integer pagination、filters、required request bodies/enums、active/deleted discriminator、nested result DTO 與 prohibited property names；no student history path。
+- Guarded E2E 擴充至 student denial、invalid query、Admin global list、deletion-request existence hiding、CSRF/Origin、session-bound/expired step-up、strict reason replay 與 canonical race reconciliation。
+- API reference、結果資料治理、即時同步/結果治理設計與 historical completion plan 已同步同一 404/409/replay/privacy 契約。Schema/migration 不變。
+
+**Machine-readable evidence：**
+
+| Gate | Result | Artifact／environment |
+|---|---|---|
+| Archive parser | PASS — 1 suite / 10 tests / 0 failed / 0 skipped | `/home/user/.claude/test-results/archive-projection-20260910065124-68979.json` |
+| Focused governance units | PASS — 2 suites / 15 tests / 0 failed / 0 skipped | `/home/user/.claude/test-results/governance-focused-20260910065359-70174.json` |
+| OpenAPI | PASS — 1 suite / 5 tests / 0 failed / 0 skipped | `/home/user/.claude/test-results/openapi-e2e-20260910-070409-75506.json`；no DB mutation |
+| Archive governance DB E2E | PASS — 1 suite / 11 tests / 0 failed / 0 skipped | `/home/user/.claude/test-results/archive-governance-20260910T174401200177123.json`；guarded `smartlearning_test`，migration status up to date |
+| Static gates | PASS | typecheck、lint:check、format:check、build、`git diff --check` |
+
+**Provenance／邊界：** backend branch `main`、HEAD `e880b0ef69b1116ced44fcbac639458ed5eaba9e`；本 evidence 精確對應目前 working tree，而非宣稱 clean commit。Pre-existing retention/S3/metrics dirty work被保留且未納入 CP1 acceptance。沒有 commit/stage、CP2、FE-6、production operation、external upload 或 restore。
+
+> **Provenance 更新（2026-09-11，committed）：** 原 CP1 remediation 證據（strict allowlist parser、reason binding、OpenAPI freeze、guarded E2E 與 API reference/docs 同步）現已 commit 於 backend **`1c841ca`**（`feat(governance): harden archive projection, reason binding, and retention observability`）並推至 `origin/main`。此 commit 同時納入 retention/metrics 可觀測性與 S3 sandbox rehearsal 工具；CP1 acceptance evidence 自此可由單一 clean revision（`1c841ca`）重現，不再依賴 dirty working tree。本更新只記錄 provenance 轉為 committed，**不自動勾選 BE-5**；CP2/final reconciliation 的人工 gate 與 STOP 條件維持不變。
+
+**CP1 remediation disposition：EVIDENCE COMPLETE／AWAITING MANUAL SIGN-OFF。** 本 closeout 只解除原 CP1 blockers，不自動勾選 BE-5、FE-6 或 QA-2.7。到此 **STOP**；只有收到使用者明確回覆：
+
+`BE-5 Checkpoint 1 verified; authorize CP2 operational evidence review.`
+
+才可進入 CP2。該回覆亦不自動授權任何新的 migration、purge、restore、reconcile 或 external upload；每個 destructive operation 仍須指定 exact target 與資料範圍。
+
+**CP1 人工確認紀錄（2026-09-10）：** 使用者已明確回覆 `BE-5 Checkpoint 1 verified; authorize CP2 operational evidence review.`；此批准只解除 CP2 read-only evidence review gate，未授權新的 purge、restore、reconcile-apply、migration deploy、external upload、production enablement 或 cleanup。
+
+### BE-5 CP2 — Operational evidence review（2026-09-10）
+
+> **審查邊界：** 本輪只讀取 current source/diff、tests、migrations、runbook、metrics/alerts、task history、Git provenance 與 sandbox narrative；未執行 tests、DB、migration、container、network、purge、restore、reconcile、upload、cleanup 或檔案修改。歷史 PASS 與 dirty rehearsal 只作 evidence input，不等於 current clean-revision／production verification。
+
+| Operational criterion | Evidence disposition | 已確認 | Blocking gap／risk |
+|---|---|---|---|
+| 90-day deadline／`purgeAt` | EVIDENCE COMPLETE—guarded contract | `TIMESTAMPTZ`、`closedAt + 90 days`、due index、exact-ms E2E | 無 production migration/schema/clock evidence |
+| Due selection | EVIDENCE COMPLETE—guarded DB | `status=active`、`purgeAt<=now`、oldest-first、deterministic tie、bounded DB E2E | 無 production population/query-plan/capacity/backlog-drain evidence |
+| Bounded/idempotent purge worker | PARTIAL | limit 1–100、transactional tombstone/outbox、repeat idempotency | Operator `run-once` 仍 no-op；無 production scheduler/multi-replica qualification |
+| Concurrent claim | EVIDENCE COMPLETE—guarded DB | `FOR UPDATE ... SKIP LOCKED`、one-row transaction、concurrent E2E canonical count | 無 multi-pod pools、lock timeout/failover/high-contention evidence |
+| Purge poison-row | PARTIAL | 單次 run 內排除 failed ID、繼續後續 rows、unit count/metrics | 缺 DB rollback/continuation/retry；每 tick 會重撞 oldest poison row；無 durable backoff/quarantine |
+| Execution-equivalent dry-run | **BLOCKED** | `inspectDue()` 可 read-only 顯示 due count/sample | 與真實 claim/validation path不同；`run-once` 回 `executed:false`；無可批准的 no-delete artifact |
+| Scheduler overlap/shutdown/restart | **BLOCKED／PARTIAL** | in-process overlap guard、shutdown drain、歷史 6 tests；sandbox 記錄 MinIO/Postgres restart | Current scheduler 新增 manifest inspection，但 unit fixture 未 mock/assert；無 process crash/rolling/multi-replica restart evidence |
+| Transactional manifest outbox | EVIDENCE COMPLETE—implementation | destructive transaction 同時寫 canonical event + unique outbox，FK restrict | Production delivery仍未接通，不能把 outbox存在等同 durable external evidence |
+| Export retry/lease/fencing | EVIDENCE AVAILABLE—committed local-provider | bounded claim、`SKIP LOCKED`、lease token、backoff、attempt exhaustion、ack-loss integration | Integration suite DB unavailable 時會 early-return 而非 fail/skip；需 machine evidence證明 assertions 真執行 |
+| Controlled local provider | TEST-ONLY | exact duplicate accepted、conflict rejected、無 network credential | Process-local memory不 durable，不能用於 production；outbox可能標 exported但唯一副本在 RAM |
+| S3 immutable provider | **BLOCKED—integrity/security** | deterministic JSON/key、SHA-256、`If-None-Match:*`、Object Lock、SSE；disposable MinIO narrative | 412 後 write-only GET 403 被當作 replay success，只證明 key存在、不證明 bytes/checksum相同，可能把錯物件標 exported |
+| S3 encryption/config | **BLOCKED for production** | AES256／aws:kms／none config、sandbox相容性 | `none` 未限 sandbox；KMS key ownership隱含；無 bucket versioning/Object Lock/encryption/prefix readiness check；endpoint無 TLS/host allowlist |
+| Manifest exporter operation | **BLOCKED** | Exporter service存在；untracked `scripts/export-once.ts` 可呼叫 | Tracked CLI 明確拒絕 export；scheduler未呼叫 exporter；無 committed/gated worker、pause/health/ownership |
+| Reconciliation/watermark | PARTIAL | manifest identity/category validation、locked idempotent apply、guarded no-resurrection | Watermark是 local JSON rewrite，無 atomic rename/fsync/file lock/CAS/multi-process exclusion；DB apply與watermark非同 transaction |
+| Restore/no-resurrection | PARTIAL／PROVISIONAL | guarded test simulation；dirty narrative稱 S3 fetch/apply/replay + MinIO/Postgres restart | Filtered run有 8 name-filter skips；完整 spec/runtime未 clean commit；非真實 production backup/restore流程 |
+| Retention/manifest metrics | **BLOCKED／PARTIAL** | purge selected/deleted/failed、backlog/age、lag/dead/reconciliation metric definitions | Gauges只在 enabled purge後 refresh；lag help「became due」但 implementation用 `createdAt`；critical series無 absent/stale alert |
+| Reconciliation-failure metric | **BLOCKED—wrong lifecycle** | CLI exception會 increment counter | CLI使用短生命週期 registry後退出，長駐 backend `/metrics`／Prometheus通常看不到該 counter |
+| Prometheus alert rules | STATIC HANDOFF ONLY | repeated failure、age、backlog、lag、dead、reconciliation rules存在 | 無 current promtool/deployed Prometheus evidence；threshold未由容量資料校準 |
+| Alert-firing rehearsal | **BLOCKED—overstated** | Dirty task narrative以數值人工比較部分門檻 | Script只 seed SQL／print metrics，未執行 Prometheus rule pending→firing、`for:`、receiver delivery、recovery/resolved；部分 alerts未觸發 |
+| Dashboard/routing/on-call | **BLOCKED** | dashboard inventory列 PromQL；runbook有一般 stop boundary | 無 deployable dashboard/UID、Alertmanager route/receiver、owning team/rotation/escalation/notification proof |
+| Capacity/W1–W8 | **BLOCKED** | 只有目標與 assumptions | 無 batch duration/drain rate、DB/I/O/object-store impact、interactive isolation、multi-worker 或 W1–W8量測 |
+| Production defaults/readiness | **BLOCKED** | purge default disabled | `.env.production.example` 選 volatile local provider；無 staging dry-run/purge、production immutable bucket、canary/ramp/pause/approvers |
+| Provenance／cleanup | **BLOCKED** | committed exporter base + reported dirty MinIO evidence | 24 tracked modified + untracked scripts/spec/generated；broken `.gitignore` rule使 `generated/`暴露；MinIO container/volume/credential與test rows尚未有 owner/expiry/cleanup closeout |
+
+**CP2 critical security finding：** Current dirty `S3ManifestProvider` 對 conditional put 412 後的 verification GET，若 write-only credential 回 403，會直接視為 idempotent success。412 只證明同 key 已存在，不能證明既有 object 與預期 canonical manifest 相同；若 key 被錯誤或惡意內容占用，outbox 可能被標為 `exported`。Production enablement 前必須改為「可驗證既有 checksum/metadata」或 fail closed，不能將 403 視為 equality proof。
+
+**CP2 evidence levels：**
+
+- **Committed/guarded evidence：** transactional outbox、exporter retry/lease/fencing、controlled local-provider integration、guarded `smartlearning_test` retention/concurrency/no-resurrection。
+- **Dirty/untracked disposable evidence：** MinIO upload、encryption option、metrics wiring、alert threshold comparison、restart narrative與 rehearsal scripts/spec。
+- **未證明：** production exporter/scheduler、true dry-run、Prometheus/Alertmanager firing、dashboard/routing/on-call、capacity、production migration/purge/object-store/restore。
+- Backend 仍為 `main`／HEAD `e880b0ef69b1116ced44fcbac639458ed5eaba9e`，ahead of origin 9 commits；current CP2 tree含大量 dirty/untracked work，不能由單一 immutable revision重現。Historical counters不得跨 revisions彙總。
+
+**CP2 結論：PARTIALLY COMPLETE／OPEN—NOT PRODUCTION READY；APPROVAL WITHHELD。** Deadline、due selection、transactional outbox與guarded concurrent claims有強證據；但 dry-run、scheduler/spec、S3 replay integrity、export wiring、metrics lifecycle、genuine alert delivery、capacity、production defaults、provenance及cleanup均有 blockers。所有 BE-5 checkbox 保持未勾；不得進入 BE-5 final reconciliation或FE-6。
+
+**CP2 最小 remediation groups：**
+
+1. **Provenance/safety：**凍結 clean reviewable revision；修正 generated ignore；區隔/commit或明確捨棄 rehearsal tools；記錄版本、migration checksums、commands、zero-skip artifacts；完成 MinIO credential/container/volume/test-row owner/expiry/cleanup plan。
+2. **Worker/dry-run：**建立與 destructive claim/validation等價但no-write的 dry-run artifact；補 purge poison-row DB rollback/retry/backoff；修 scheduler fixture、process restart/multi-replica ownership。
+3. **Exporter/S3：**只保留一個 gated operator interface；接上 committed exporter worker/scheduler；412後無法驗證 object時 fail closed；production禁止未證明 encryption；加 bucket/TLS/endpoint/prefix readiness。
+4. **Reconciliation：**使watermark durable/atomic/single-writer；把 reconciliation failure變成長駐可 scrape signal；凍結 lag semantics與missing/stale series handling。
+5. **Observability/ops：**以 disposable Prometheus + receiver 真正驗證 syntax、ingestion、pending→firing、notification、recovery/resolved及全alerts；提供deployable dashboard、Alertmanager routing、owner/escalation與alert-specific runbook。
+6. **Capacity/rollout：**完成batch/drain/DB/I/O/object-store/multi-worker與W1–W8 evidence；staging dry-run/bounded purge、production immutable provider、canary/ramp/pause與approvers。
+
+**STOP／人工確認：** CP2 review 已完成，但目前**不具備授權 final reconciliation 或 production operation 的條件**。下一步只能在使用者明確回覆後規劃／執行 CP2 remediation：
+
+`BE-5 Checkpoint 2 review acknowledged; authorize CP2 remediation planning only.`
+
+此回覆不授權任何 code edit、migration、purge、restore、reconcile、external upload、container/credential cleanup、production/staging operation、commit或FE-6。完成 remediation plan 後仍須逐個高風險操作另行確認 exact target／scope。
+
 ---
 
 ## BE-6 Auto-close Scheduler
@@ -717,7 +901,9 @@
 
 **依賴：** BE-5 完成後才開始，不做 mock。
 
-> **FE-6 backend readiness update（2026-09-09，final verification）：** backend 已完成 Archive／retention deletion manifest 的 guarded evidence：transactional outbox、controlled local-provider retry／backoff、partial-batch continuation、expired-lease recovery、malformed-manifest dead-letter、attempt exhaustion、provider-success-before-DB-ack recovery，以及 restore no-resurrection。另已加入 S3-compatible provider adapter contract（deterministic JSON/key、SHA-256、conditional immutable write、SSE-S3、COMPLIANCE Object Lock）與 `local|s3` config validation。Final verification：Prisma validate、typecheck、lint、format、build、diff check 全部 PASS；focused governance/config/provider tests **7 suites / 56 tests passed**；deletion exporter integration **1 suite / 4 tests passed**；`smartlearning_test` **18 migrations up to date**。**FE-6 僅完成 adapter/config implementation，未執行真實 S3 sandbox upload；最後一次 sandbox preflight 因 `.env.s3-sandbox` 不存在而 fail-closed，未讀取 credentials、未連線、未 upload。** External endpoint／credentials、production-like alert firing 與 full restore/restart rehearsal 依使用者決定標示為 **DEFERRED**，因此不變更 FE-6.1～FE-6.8 或 QA-2.7 checkbox，也不宣稱 Archive/history UI 或 external delivery 已完成。參考 commits：`4d044a9`、`6c2ce0e`、`aff0c3a`、`e880b0e`。
+> **BE-5 CP2 historical evidence handoff（2026-09-09，尚待 CP0/CP2 reconciliation）：** 初次 S3 sandbox preflight 因 fixture env 不存在而 fail-closed，未連線或 upload；後續另有 disposable MinIO + guarded `smartlearning_test` rehearsal，記錄 S3-compatible manifest upload、selected alert threshold firing，以及 manifest-driven restore/restart no-resurrection。演練同時回報 UUID validation、production category fixture 與 S3 encryption/idempotency 修正，並記錄 focused **10 suites / 41 tests**、S3 integration 1/1。這些屬 **BE-5 archive governance／retention evidence**，不是 BE-8.2 account-management CP2，也不是 FE-6 implementation。
+>
+> **證據邊界（2026-09-10 CP0 稽核）：** 上述 rehearsal 僅涵蓋 disposable sandbox，沒有 production endpoint、production DB migration/purge、deployed alert routing/on-call 或 production backup restore 證據；相關最新程式、spec 與 task record 位於 dirty/uncommitted working tree，尚未形成可由單一 commit 重現的 baseline。故此段只保留為 reported historical evidence；不得據此勾選 BE-5、FE-6.1～FE-6.8 或 QA-2.7，也不得授權新的 destructive operation。正式 disposition 以 BE-5 CP0 evidence matrix 與後續人工 checkpoint 為準。
 
 ---
 
