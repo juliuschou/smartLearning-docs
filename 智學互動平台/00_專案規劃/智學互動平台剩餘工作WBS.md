@@ -565,14 +565,24 @@
 
 ## BE-6 Auto-close Scheduler
 
-- [ ] BE-6.1 定義 8 小時 hard limit
-- [ ] BE-6.2 Manual／auto close 共用 application service
-- [ ] BE-6.3 建立 bounded scheduler claim
+- [x] BE-6.1 定義 8 小時 hard limit
+- [x] BE-6.2 Manual／auto close 共用 application service
+- [x] BE-6.3 建立 bounded scheduler claim
 - [ ] BE-6.4 建立 idempotent retry
 - [ ] BE-6.5 建立 clock-controlled deterministic tests
 - [ ] BE-6.6 建立 process restart recovery test
-- [ ] BE-6.7 建立 submit／auto-close race matrix
-- [ ] BE-6.8 建立 job lag、failure、retry metrics
+- [x] BE-6.7 建立 submit／auto-close race matrix
+- [x] BE-6.8 建立 job lag、failure、retry metrics
+
+> **BE-6 status（2026-09-11 WBS sync；implementation commit `144da34` 2026-08-28）：**
+>
+> - **BE-6.1／6.2／6.3 已關閉：** `LIVE_SESSION_AUTO_CLOSE_MS`（預設 8h）與 `LIVE_SESSION_AUTO_CLOSE_TICK_MS` 經 `env.validation.ts` 驗證；`LiveSessionService.autoCloseExpiredSessions()` 與 manual close 共用 `closeSessionInTransaction()`（同 close service、lock protocol、question cascade、post-commit governance/event boundary、`autoClosed=true`＋archive follow-up）；scheduler 以 row-lock serialized、`take: 50` bounded claim、per-candidate failure isolation（單一 candidate 失敗不阻斷其餘）、overlap guard、shutdown cleanup、startup sweep，註冊於 `LiveSessionsModule`。scheduler unit spec 3 tests（成功記數、failure 保留 swallow 行為、destroyed/overlap early-return）。
+> - **BE-6.7 已關閉（與 BE-3.3 共享證據）：** `test/poll-submission.integration-spec.ts`（guarded `smartlearning_test`，2026-08-28 授權 run 8 tests PASS）涵蓋 submit-first／close-first commit ordering（以 authority row lock 序列化兩個真實 transaction，斷言 commit 而非 client 順序為 authority）、concurrent submissions 只接受一筆、close 先於 cancel 取得 lock、DB authority row 查證。此 race matrix 同時對應 BE-3.3.1–BE-3.3.4 與 BE-3.1 CP5 的 submit/close race 項目；WBS BE-3.3 與 BE-3.1 CP5 的勾選仍以各自的人工 checkpoint 為準，不因本項自動勾選。
+> - **BE-6.8 已關閉（經 BE-8.7 CP7）：** auto-close scheduler/service 已納入 metrics instrumentation（`recordJobItem('live_session_auto_close', ...)`；instrumentation-boundary specs 5 suites / 35 tests PASS，含 readiness 與 alert inventory 的 auto-close 項目），CP7 manual verifier 2026-09-01 由使用者確認 `Checkpoint 7 verified`。job lag 語意與 retention lag 同樣採 `createdAt` 口徑，alert 門檻容量校準仍屬 OPS-2／BE-5 CP2 remediation 範圍。
+> - **BE-6.4 未關閉：** per-candidate 失敗後下一 tick 自然重試、close 為 stable conflict（重複 close 不改寫 `closedAt`）已有間接證據，但缺 dedicated idempotent-retry/restart 測試（含 retry 期間 duplicate close side effect 查證）。
+> - **BE-6.5 未關閉（主要缺口）：** service 已支援 injected `Clock`，但缺 controlled-clock deterministic test 證明「滿 8 小時 → closed、active question 同步 closed、`autoClosed=true`」完整 chain；現有 E2E 只斷言 manual close `autoClosed=false`。此缺口同時讓 BE-3.1 CP7（8 小時 auto-close handoff）維持 `DEFERRED/BLOCKED`——不得以 manual close 證據代替 auto-close 證明。
+> - **BE-6.6 未關閉：** 缺 process restart recovery（crash／rolling restart 後 scheduler 重掃描、lease/claim 不產生 duplicate close side effect）的專屬測試。
+> - **歷史邊界更正：** BE-6 slice 當時 BLOCKED 的 `live-session-close-cancel.e2e-spec.ts`（`Missing __Host-csrf cookie` fixture）已在後續 BE-3.1/BE-7 checkpoint run 中修復並通過（12 tests、lifecycle matrix 65 tests 等）；但這些 run 只覆蓋 manual close，未覆蓋 scheduler 觸發的 auto-close E2E。**BE-6 整體 disposition：PARTIAL — 不得宣稱完成；CP7 handoff 與 BE-6.4/6.5/6.6 專屬證據仍待人工 checkpoint。**
 
 ---
 
