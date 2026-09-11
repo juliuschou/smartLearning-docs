@@ -302,10 +302,18 @@
 
 ### BE-3.3 Submit／close race
 
-- [ ] BE-3.3.1 Submit 先取得 lock 時可成功
-- [ ] BE-3.3.2 Close 先取得 lock 時 submit 被拒絕
-- [ ] BE-3.3.3 Commit 作為 session/question close 線性化點
-- [ ] BE-3.3.4 Race test 查詢 DB authority 驗證結果
+- [x] BE-3.3.1 Submit 先取得 lock 時可成功
+- [x] BE-3.3.2 Close 先取得 lock 時 submit 被拒絕
+- [x] BE-3.3.3 Commit 作為 session/question close 線性化點
+- [x] BE-3.3.4 Race test 查詢 DB authority 驗證結果
+
+> **BE-3.3 closeout（2026-09-11 WBS sync；證據 2026-08-27，`smartlearning_test` 授權 run）：** `test/poll-submission.integration-spec.ts` 以 PostgreSQL `live_session` row lock 讓兩個真實 transaction 並發排隊（`holdSessionRowLock` 先取得 authority row，release 後 submit 與 close 同時進入 lock queue），結果 **1 suite / 8 tests，0 failed / 0 skipped**：
+>
+> - **BE-3.3.1／3.3.2：** `proves submit-first commit ordering before close` 與 `proves close-first commit ordering before a blocked submission` 各別驅動兩種 lock 勝者——submit 勝時恰好 1 筆 persisted submission、close 勝時 submit 以 `CONFLICT` 拒絕且 0 筆。測試刻意接受任一 PostgreSQL lock winner，不以 JavaScript promise 建立順序宣稱 DB queue ordering 為 deterministic。
+> - **BE-3.3.3：** authority 以 commit 後的 persisted rows 判定，而非 client/socket 或 promise 順序；配套 runtime 修正：`SubmissionService.submit()` 改為先鎖 `live_session` 再鎖 `session_question`，與 `closeSession()` 相同 lock protocol（消解原本相反的 lock order），submit/close 無 deadlock 或 timeout 收斂。此 lock-order 同時是 BE-6 auto-close／BE-7 durable lifecycle 共用 `closeSessionInTransaction()` 的基準。
+> - **BE-3.3.4：** 測試以 authority query 收斂——`submission.count({ where: { liveSessionId } })` 限 0 或 1、`sessionQuestion.status = 'closed'`、重複 close 的 `closedAt` 不被改寫（stable conflict）。
+> - **人工 sign-off：** 使用者已於 2026-08-27 確認 **`Checkpoint 5 verified`**（BE-3.1 CP5 concurrent submit/close race evidence + authority-consistency review）；該簽核僅涵蓋 CP5 race 部分，不構成 BE-3.1 最終 release sign-off。同一 suite 亦涵蓋 concurrent same-participant submission serialization（只接受 1 筆）與 close-before-cancel lock ordering。
+> - **靜態 gates：** typecheck、lint:check（移除未用 helper 後 recheck）、format:check、build、`git diff --check` 全數 PASS；無 schema/migration/env 變更。**邊界：** 本項不含 auto-close 參與的 race（BE-6.5 controlled-clock chain 仍缺，見 BE-6 狀態）；BE-3.1 CP5 其餘未勾項與 BE-3.1.8 final sign-off 不因本項自動勾選。
 
 ---
 
