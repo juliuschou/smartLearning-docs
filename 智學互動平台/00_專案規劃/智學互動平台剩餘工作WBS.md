@@ -359,12 +359,21 @@
 
 ### BE-5.2 Retention
 
-- [ ] BE-5.2.1 新增 `purgeAt`
-- [ ] BE-5.2.2 建立 90-day retention selection
-- [ ] BE-5.2.3 建立 bounded、idempotent worker
+- [x] BE-5.2.1 新增 `purgeAt`
+- [x] BE-5.2.2 建立 90-day retention selection
+- [x] BE-5.2.3 建立 bounded、idempotent worker
 - [ ] BE-5.2.4 建立 dry-run mode
 - [ ] BE-5.2.5 建立 retry/restart tests
-- [ ] BE-5.2.6 建立 retention metrics/alerts
+- [x] BE-5.2.6 建立 retention metrics/alerts
+
+> **BE-5.2 partial closeout（2026-09-12；guarded build＋tests 證據，非 production-ready）：** 勾選依 BE-5 CP1/CP2 evidence matrix 與 Checkpoint G steps 3–4（見下方 BE-5.2 CP2 進度與 Checkpoint G 紀錄）。此勾選只表示「建立該能力並有 guarded 證據」，**不自動宣稱 production 營運就緒、不勾 BE-5／BE-5.3、不解除 FE-6／QA-2.7 gate**。
+>
+> - **BE-5.2.1** — `purgeAt TIMESTAMPTZ`、close + 90 days、due index、guarded `smartlearning_test` migration evidence、exact-ms deadline E2E（CP2「90-day deadline／`purgeAt`」）。
+> - **BE-5.2.2** — `status=active`、`purgeAt<=now`、oldest-first、deterministic tie、bounded、guarded DB E2E（CP2「Due selection」）。
+> - **BE-5.2.3** — `take: 1–100` bounded、`FOR UPDATE … SKIP LOCKED` single-row claim、transactional tombstone/outbox、repeat idempotency、concurrency canonical-count E2E（CP2「Bounded/idempotent purge worker」「Concurrent claim」）。
+> - **BE-5.2.6** — `smartlearning_job_*` run/duration/items metrics、retention purge selected/deleted/failed、manifests lag/dead、reconciliation counter；label 已修正為 `bg_job`（`job`→`bg_job`，`849e6b4`）；Checkpoint G step 4 以 disposable Prometheus v2.53 + Alertmanager v0.27 端到端證明 `OldestDueAgeHigh`／`ManifestDeadRecords` fired、`PurgeNoRecentSuccess` pending→resolved（負向）。
+>
+> **未勾項與未解除 blockers（維持 BE-5 APPROVAL WITHHELD）：** BE-5.2.4（dry-run 仍缺 execution-equivalent no-delete artifact；`inspectDue()` 非等價、`run-once` 回 `executed:false`）、BE-5.2.5（缺 process restart recovery 專屬測試；CP2「Scheduler overlap/shutdown/restart」仍 PARTIAL）。**production 端亦未證**：migration apply、scheduler multi-replica/restart、dry-run artifact、可部署 dashboard＋Alertmanager routing/on-call、capacity/W1–W8、production purge/object-store/restore——仍待 BE-5 final reconciliation 與 OPS-1。
 
 ### BE-5.3 Early deletion／tombstone
 
