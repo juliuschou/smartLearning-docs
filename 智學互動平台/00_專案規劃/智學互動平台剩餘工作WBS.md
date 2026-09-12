@@ -362,7 +362,7 @@
 - [x] BE-5.2.1 新增 `purgeAt`
 - [x] BE-5.2.2 建立 90-day retention selection
 - [x] BE-5.2.3 建立 bounded、idempotent worker
-- [ ] BE-5.2.4 建立 dry-run mode
+- [x] BE-5.2.4 建立 dry-run mode
 - [ ] BE-5.2.5 建立 retry/restart tests
 - [x] BE-5.2.6 建立 retention metrics/alerts
 
@@ -372,8 +372,9 @@
 > - **BE-5.2.2** — `status=active`、`purgeAt<=now`、oldest-first、deterministic tie、bounded、guarded DB E2E（CP2「Due selection」）。
 > - **BE-5.2.3** — `take: 1–100` bounded、`FOR UPDATE … SKIP LOCKED` single-row claim、transactional tombstone/outbox、repeat idempotency、concurrency canonical-count E2E（CP2「Bounded/idempotent purge worker」「Concurrent claim」）。
 > - **BE-5.2.6** — `smartlearning_job_*` run/duration/items metrics、retention purge selected/deleted/failed、manifests lag/dead、reconciliation counter；label 已修正為 `bg_job`（`job`→`bg_job`，`849e6b4`）；Checkpoint G step 4 以 disposable Prometheus v2.53 + Alertmanager v0.27 端到端證明 `OldestDueAgeHigh`／`ManifestDeadRecords` fired、`PurgeNoRecentSuccess` pending→resolved（負向）。
+> - **BE-5.2.4** — `GovernanceService.purgeDue(..., dryRun=true)` 為 execution-equivalent write-free dry-run：與 live claim 共用同一 predicates（`scanDueInTransaction`）與 `planDeletionInTransaction` 計畫、不 persist lease／tombstone、回傳 `planned[]`；operator `retention dry-run` command（`src/bootstrap/retention.ts`）輸出可簽署 JSON artifact。guarded `smartlearning_test` E2E（`test/archive-governance.e2e-spec.ts`「runs a write-free dry-run whose per-table counts match a real purge」）已證明 zero-write＋count-match；另新增 operator-CLI E2E（`test/retention-cli-dry-run.e2e-spec.ts`，backend `1026771`）以真實 `node dist/.../retention.js dry-run` 子程序驗證 artifact `{selected:1, deleted:0, failed:0, planned:[1 distinct archive]}` 且零寫入。**修正：** dry-run 首版 loop 會因未 persist lease 而重複計畫同一 archive 使 `selected`/`planned` 被 batch size 膨脹，已以 `plannedArchiveIds` 去重（backend `1026771` fix）。此項在 guarded build＋tests 層已完成；production dry-run artifact 與 staging 仍屬 production 營運，未證。
 >
-> **未勾項與未解除 blockers（維持 BE-5 APPROVAL WITHHELD）：** BE-5.2.4（dry-run 仍缺 execution-equivalent no-delete artifact；`inspectDue()` 非等價、`run-once` 回 `executed:false`）、BE-5.2.5（缺 process restart recovery 專屬測試；CP2「Scheduler overlap/shutdown/restart」仍 PARTIAL）。**production 端亦未證**：migration apply、scheduler multi-replica/restart、dry-run artifact、可部署 dashboard＋Alertmanager routing/on-call、capacity/W1–W8、production purge/object-store/restore——仍待 BE-5 final reconciliation 與 OPS-1。
+> **未勾項與未解除 blockers（維持 BE-5 APPROVAL WITHHELD）：** BE-5.2.5（缺 process restart recovery 專屬測試；CP2「Scheduler overlap/shutdown/restart」仍 PARTIAL）。**production 端亦未證**：migration apply、scheduler multi-replica／restart、staging dry-run、可部署 dashboard＋Alertmanager routing/on-call、capacity/W1–W8、production purge/object-store/restore——仍待 BE-5 final reconciliation 與 OPS-1。
 
 ### BE-5.3 Early deletion／tombstone
 
