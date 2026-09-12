@@ -379,14 +379,27 @@
 
 ### BE-5.3 Early deletion／tombstone
 
-- [ ] BE-5.3.1 建立 early deletion request
-- [ ] BE-5.3.2 建立 admin step-up confirmation
-- [ ] BE-5.3.3 建立 DeletionEvent／tombstone
-- [ ] BE-5.3.4 確認 confirm idempotency
-- [ ] BE-5.3.5 建立 restore filtering
-- [ ] BE-5.3.6 驗證 backup restore 不 resurrect 已刪資料
+- [x] BE-5.3.1 建立 early deletion request
+- [x] BE-5.3.2 建立 admin step-up confirmation
+- [x] BE-5.3.3 建立 DeletionEvent／tombstone
+- [x] BE-5.3.4 確認 confirm idempotency
+- [x] BE-5.3.5 建立 restore filtering
+- [x] BE-5.3.6 驗證 backup restore 不 resurrect 已刪資料
 
 **風險：** 不可逆資料操作；只能停止 worker 或 forward-fix，不能以 application rollback 恢復已刪資料。
+
+> **BE-5.3 partial closeout（2026-09-13；guarded build＋tests 證據，非 production-ready）：** 勾選依 CP0 表與 BE-5.3 Checkpoint A–D 證據關卡（backend `tasks/todo.md` 2026-09-13 段）。此勾選只表示「建立該能力並有 guarded 證據」，**不自動宣稱 production 營運就緒、不勾 BE-5 parent、不解除 FE-6／QA-2.7 gate**。
+>
+> - **BE-5.3.1** — `POST /api/v1/results/:liveSessionId/deletion-requests`（Session+Csrf+TeacherOrAdmin；service 首行 teacher-only + owner 404 existence-hiding + serialized outstanding-request idempotency）。分層契約（route guard 較廣、service teacher-only 為權威）已補 controller 註解與 `frontend-api-reference.md` 說明（文件層，非行為變更）。
+> - **BE-5.3.2** — `POST /api/v1/admin/results/:liveSessionId/deletion`（Session+Csrf+Admin+StepUp；exact request/session binding；strict reason replay 409）。negative/positive 分支已於 `test/archive-governance.e2e-spec.ts` 重跑 green（missing CSRF 403、missing step-up 403、student 403、409 conflict）。
+> - **BE-5.3.3** — `DeletionEvent`/`DeletionManifestOutbox` schema（`prisma/schema.prisma:393/:419`，unique 綁定）＋ 4 個 additive migrations；`prisma migrate status` 於 guarded `smartlearning_test` up to date（19 migrations）。**migration 證據限 guarded test DB，不宣稱 production deployment。**
+> - **BE-5.3.4** — final baseline 凍結：`archive-governance` E2E **19 passed / 0 failed / 0 skipped**；governance unit **9 suites / 76 tests PASS**；evidence 綁 backend commit（見 closeout commit hash）＋ base `aaa115b`。
+> - **BE-5.3.5** — `retention-reconciliation.ts` watermark + applyManifest、manifest exporter、CLI `reconcile-inspect`/`reconcile-apply`。CP0 的 8 個 name-filter skips 已查明為環境 guard（`DELETION_MANIFEST_PROVIDER!=s3` → BLOCKED by design）並以真實 disposable MinIO（`ops/minio-rehearsal/`）補跑 **1 passed / 0 skipped**；container/volume/creds 已 teardown。非透明 DB restore hook；production runbook integration 未證。
+> - **BE-5.3.6** — 解 BLOCKED：新增 `test/governance-restore-rehearsal.integration-spec.ts`（可重現 committed spec：pre-delete backup capture → restore 重灌 answer-bearing rows → 真實 CLI 子程序 `retention.js reconcile-apply` → answer-bearing 歸零、canonical event/outbox 恰一、watermark 推進、repeat idempotent）。**restore 完成邊界已定義**：manifest reconciliation apply 結束 + 驗證查詢通過；不宣稱透明 DB hook。
+>
+> **維持未證（production 端）：** production/staging migration apply、真實 backup/restore runbook integration、production object-store 交付、staging rehearsal；這些屬 BE-5 final reconciliation 與 OPS-1 gate。
+>
+> **附註：** 本輪驗證發現一個 **pre-existing**（與 BE-5.3 無關）unit 失敗：`src/modules/realtime/live-gateway.spec.ts`「includes the terminal status in replayed session.closed envelopes」在乾淨 base `aaa115b` 亦失敗；已記錄待另案處理，不影響 BE-5.3 證據。
 
 ### BE-5 CP0 — Evidence audit／contract reconciliation（2026-09-10）
 
