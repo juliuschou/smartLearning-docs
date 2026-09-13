@@ -139,6 +139,8 @@
 
 > **Phase B closeout verification（2026-09-13）：** authorized sequential run against `localhost:5432/smartlearning_test`（19 migrations up to date）完成 targeted evidence：identity 1 suite/7 tests、student-account+enrollments+OpenAPI 3 suites/12 tests、participant-account 1/10、participant-revocation 1/9、realtime 1/25、privacy/result units 2/14、open-text 1/1；unit 61 suites/406 tests、typecheck/lint/format/build/diff check 全 PASS。Full regression 尚未封板：integration 8/10 suites、38/45 tests（Redis gated suite requires `RUN_LOGIN_RATE_LIMIT_REDIS_TESTS=1`；S3 rehearsal requires `DELETION_MANIFEST_PROVIDER=s3` and external sandbox），E2E 33/34 suites、257/258 tests，`archive-governance.e2e-spec.ts` 出現 `40P01`。因此本次結論為 **runtime targeted verified；full Phase B closeout BLOCKED/CONDITIONAL**，未自動翻轉 BE-1.1～BE-1.4 DoD 或宣稱 Phase B 封板；B5 canonical documentation sync 與 manual Phase B sign-off 仍須另行確認。
 
+> **Archive deadlock follow-up（2026-09-13）：** `archive-governance.e2e-spec.ts` isolated rerun **19/19 PASS**，CP8 serialized runner static 3/3、e2e 59/59、integration 25/25 PASS；archive `40P01` 未重現，判定為既有 test cleanup/publisher 編排問題，未修改 production lock order。Full E2E 仍有獨立 `cli-credential.e2e-spec.ts` concurrency failure（rotate/disable 預期 `[201,201]`、實際 `[201,403]`），故 Phase B full closeout 仍 BLOCKED；Redis/S3 external gates 亦仍需受控環境證據。
+
 ---
 
 ## BE-2 Student 與 Enrollment API 穩定化
