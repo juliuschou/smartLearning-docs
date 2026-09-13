@@ -239,10 +239,12 @@
 
 #### BE-3.1.2 CP2 — Question cascade 與不可 reopen
 
-- [ ] 驗證 `not_open → open → closed`，同一 session 同時最多一題 open。
-- [ ] 直接驗證 question close endpoint；重複 close、closed question reopen、非 active session open/close 均拒絕。
-- [ ] Session close 時在同一 transaction 關閉所有 active/open questions，`closedAt` 可追溯且無遺留 `open` row。
+- [x] 驗證 `not_open → open → closed`，同一 session 同時最多一題 open。
+- [x] 直接驗證 question close endpoint；重複 close、closed question reopen、非 active session open/close 均拒絕。
+- [x] Session close 時在同一 transaction 關閉所有 active/open questions，`closedAt` 可追溯且無遺留 `open` row。
 - [ ] **人工 Checkpoint 2：** 使用者核對 session 與 SessionQuestion rows、response DTO 及 `question.closed` event；確認 cascade、順序與不可 reopen。CP2 首次 targeted run BLOCKED：2 suites failed，4 failed／21 passed／25 total；其中 realtime cancellation case 仍預期 active cancel 201，與 CP0 P0 policy 衝突，另有 waiting-session fixture 409 導致兩個 results cases 無法建立 fixture，及 account-disable realtime wait timeout。需先診斷／修正測試與 fixture，未通過前不得進入 CP3。
+
+> **CP2 evidence（2026-09-13；backend `d07eb9c`）：** `test/question-cascade.integration-spec.ts`（guarded `smartlearning_test`，5 tests PASS）補齊上述三項的 DB-backed 證據——(1) 同一 session 開第二題以 partial unique index `uq_session_question_one_open` 的 P2002 翻成 `CONFLICT`（message 精確斷言，證明指數層翻譯而非通用 state guard），第一題維持 `open`、第二題維持 `not_open`；(2) 重複 `closeQuestion`、closed question reopen（session 仍 active）、非 active session 的 `openQuestion`／`closeQuestion` 皆為 stable `CONFLICT`；(3) session close 在同一 transaction 將 open question 級聯為 `closed`，`question.closedAt` 等於 `session.closedAt`（可追溯）、NOT_OPEN 兄弟題不受影響、`count(status=open)=0`、恰好 1 筆 `question.closed` 與 1 筆 `session.closed` event。未越權標勾選：**人工 Checkpoint 2 仍待使用者逐項確認**。
 
 #### BE-3.1.3 CP3 — Terminal-state negative paths
 
