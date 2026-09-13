@@ -302,7 +302,14 @@
 - [ ] 建立 `waiting/active/closed/cancelled × start/open/close/cancel/join/reconnect/submit` transition/negative matrix，8 個原始 BE-3.1 行為項目各自對應 passing test 或人工步驟。
 - [ ] targeted DB-backed suites 0 failure、0 skipped；記錄 branch、HEAD、working tree、Node/npm/Prisma、DB target/migration status、command、test/skip count、最小失敗證據與 authority queries。
 - [ ] 明確分開 `runtime verified`、`contract decision confirmed`、`DEFERRED/BLOCKED`；未完成 cancellation decision、BE-6 auto-close、BE-3.3 race 或 durable realtime 不得宣稱 BE-3.1 完成。
-- [ ] **人工 Final sign-off：** 使用者逐項回覆「Checkpoint X verified」並確認 release evidence；自動測試全綠不能取代人工確認。
+- [x] **人工 Final sign-off review（2026-09-13）：** 使用者授權進行 CP8 manual final review，並要求標註問題；本次僅完成 **conditional review，不代表 release approved**。使用者尚未確認「Checkpoint 8 verified」，因此不得將 BE-3.1 標為完成。
+
+> **CP8 review issues（2026-09-13）：**
+> - **BLOCKER：** `smartlearning_test` targeted clean run 未達 0 failure / 0 skipped；isolated report 為 7 commands PASS、4 FAIL、53 tests PASS、14 FAIL。
+> - **BLOCKER：** `poll-submission.integration-spec.ts`、`live-session-auto-close.integration-spec.ts`、`question-cascade.integration-spec.ts` 出現 PostgreSQL `40P01` deadlock，涉及 `question.service.ts:62,67`、`transaction.service.ts:47`、`live-session.service.ts:1394`。
+> - **TEST-HARNESS ISSUE：** 初次合併命令將 e2e 與 integration specs 混用 e2e Jest config，故 aggregate result 不可作完整 release evidence；應以正確 script/config 逐 suite sequential rerun。
+> - **PASSING ISOLATED EVIDENCE：** `live-session-route-matrix.e2e-spec.ts` 另行重跑為 17/17 PASS；migration status 顯示 19 migrations、schema up to date；`git diff --check` PASS。
+> - **REQUIRED BEFORE APPROVAL：** 診斷並修正或明確分類 `40P01` deadlock，正確分離 e2e/integration 執行，重跑完整 targeted bundle 並取得 0 failure / 0 skipped，之後再由使用者明確回覆 `Checkpoint 8 verified`。
 
 **BE-3.1 全域 Stop conditions：** DB-backed test skipped、target/migration 不符；非法 transition 成功或 terminal 可 reopen；close commit 後仍可 join/reconnect/submit；active cancel 未經 policy decision；CSRF/Origin/auth/ownership 可繞過；envelope/code 漂移；event 在 commit 前發布或 publish failure 使已 commit mutation 失敗；authority rows 出現 duplicate；把 manual close 當 auto-close、把 lite event bus 當 durable replay。
 
