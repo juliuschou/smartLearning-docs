@@ -231,9 +231,11 @@
 
 - [ ] 驗證 `waiting → active`：`startedAt`、狀態、選定題目順序及 immutable `SessionQuestion` snapshot 正確；重複 start 不新增 snapshot。
 - [ ] 驗證 `waiting → cancelled`：`closedAt=null`、不形成互動結果；依 CP0 policy 驗證 active cancel 被拒絕。
-- [ ] 驗證 `active → closed`：`closedAt` 正確；`closed/cancelled → *` 所有 reopen/重終止嘗試均為 stable conflict。
+- [x] 驗證 `active → closed`：`closedAt` 正確；`closed/cancelled → *` 所有 reopen/重終止嘗試均為 stable conflict。
 - [ ] 驗證同一 Course 不同時存在第二個 `waiting`／`active` session；session code 不重用且 terminal 後失效。
 - [x] **人工 Checkpoint 1：** 使用者確認 CP1 verified；targeted close/cancel E2E 1 suite/8 tests、domain state unit 1 suite/4 tests 均通過，DB target 為 `smartlearning_test`，無 failure；start snapshot、`startedAt`、重複 start conflict 與單一 snapshot row 已驗證。
+
+> **Matrix evidence（2026-09-13）：** `test/terminal-matrix.integration-spec.ts`（guarded `smartlearning_test`，8 tests PASS）與 `live-session-status.spec.ts` 補齊 28-cell transition matrix 中原本未斷言的 `closed/cancelled × start`、`waiting/closed/cancelled × open`、`waiting/cancelled × submit`、`waiting × join`（positive）等 cell。所有非法轉換皆為 stable conflict（或對應 NOT_FOUND）且無 row side effect。此項與 CP1 既有 evidence 共同構成 28-cell matrix 全覆蓋。
 
 #### BE-3.1.2 CP2 — Question cascade 與不可 reopen
 
