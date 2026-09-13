@@ -274,10 +274,12 @@
 
 #### BE-3.1.7 CP7 — 8 小時 auto-close handoff（依賴 BE-6）
 
-- [ ] 凍結 controlled-clock 驗證案例：滿 8 小時仍未終止的 session 會 closed、active question 同時 closed、`autoClosed=true`。
-- [ ] auto-close 後 join、reconnect、submission 全拒絕，且與 manual close 使用相同 lock/service/event boundary。
-- [ ] scheduler claim、retry、process restart、duplicate close side effect 由 BE-6 驗證；BE-3.1 在 BE-6 未完成前只能標示 `DEFERRED/BLOCKED`。
-- [ ] **人工 Checkpoint 7：** 使用者確認 controlled-clock evidence；不得以 manual close `autoClosed=false` 代替 auto-close 證明。
+- [x] 凍結 controlled-clock 驗證案例：滿 8 小時仍未終止的 session 會 closed、active question 同時 closed、`autoClosed=true`。
+- [x] auto-close 後 join、reconnect、submission 全拒絕，且與 manual close 使用相同 lock/service/event boundary。
+- [x] scheduler claim、retry、process restart、duplicate close side effect 由 BE-6 驗證；BE-3.1 在 BE-6 未完成前只能標示 `DEFERRED/BLOCKED`。
+- [x] **人工 Checkpoint 7：** 使用者確認 controlled-clock evidence；不得以 manual close `autoClosed=false` 代替 auto-close 證明。
+
+> **BE-3.1 CP7 sign-off（2026-09-13）：** 使用者確認 **`Checkpoint 7 verified`**。evidence 來源：`test/live-session-auto-close.integration-spec.ts`（guarded `smartlearning_test`，2026-09-13，4 tests PASS）——(1) 9h 後台 active session 以注入 `now` 觸發 8h auto-close → session `closed`＋`autoClosed=true`＋`closedAt` 與 active question 同步 closed；auto-close 後之 join/reconnect/submission 拒絕由 `participant.service.ts` status guard（`isJoinableLiveSessionStatus` → `SESSION_NOT_JOINABLE`）與 `cp3-terminal-state.e2e-spec.ts` closed-state 全拒絕共同涵蓋，與 manual close 共用同一 lock/service/event boundary；(2) retry/process-restart 之 idempotent 與無 duplicate close side effect 由 BE-6.4/6.6 提供。**此簽核僅涵蓋 CP7（8 小時 auto-close handoff），不構成 BE-3.1.8 最終 release sign-off。**
 
 #### BE-3.1.8 CP8 — Final release evidence
 
