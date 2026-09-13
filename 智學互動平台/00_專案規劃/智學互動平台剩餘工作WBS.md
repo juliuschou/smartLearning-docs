@@ -137,6 +137,8 @@
 
 **DoD：** B1–B5 targeted suites、OpenAPI、full unit/integration/e2e 與 quality gates 全部 0 failure、0 skipped；驗證紀錄包含 branch/commit、實際 DB target、migration status、每個 suite/test/skip count、授權與隱式 migrate 邊界、失敗證據（若有）及最終 `git diff --check`。B3 full HTTP/concurrency、B5 文件同步或任何 DB-backed suite 未完成時，不得宣稱 Phase B 封板。
 
+> **Phase B closeout verification（2026-09-13）：** authorized sequential run against `localhost:5432/smartlearning_test`（19 migrations up to date）完成 targeted evidence：identity 1 suite/7 tests、student-account+enrollments+OpenAPI 3 suites/12 tests、participant-account 1/10、participant-revocation 1/9、realtime 1/25、privacy/result units 2/14、open-text 1/1；unit 61 suites/406 tests、typecheck/lint/format/build/diff check 全 PASS。Full regression 尚未封板：integration 8/10 suites、38/45 tests（Redis gated suite requires `RUN_LOGIN_RATE_LIMIT_REDIS_TESTS=1`；S3 rehearsal requires `DELETION_MANIFEST_PROVIDER=s3` and external sandbox），E2E 33/34 suites、257/258 tests，`archive-governance.e2e-spec.ts` 出現 `40P01`。因此本次結論為 **runtime targeted verified；full Phase B closeout BLOCKED/CONDITIONAL**，未自動翻轉 BE-1.1～BE-1.4 DoD 或宣稱 Phase B 封板；B5 canonical documentation sync 與 manual Phase B sign-off 仍須另行確認。
+
 ---
 
 ## BE-2 Student 與 Enrollment API 穩定化
