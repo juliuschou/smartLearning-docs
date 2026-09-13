@@ -270,11 +270,17 @@
 
 #### BE-3.1.6 CP6 — Post-commit realtime proof
 
-- [ ] `session.state_changed`、`question.closed`、`session.closed` 僅在 PostgreSQL commit 後發布；listener 必須在 mutation 前註冊。
-- [ ] 模擬 event bus/Socket publish failure：REST mutation 仍成功，已提交 DB state 不 rollback；錯誤隔離且不回報假失敗。
-- [ ] 驗證 actor-specific projection，不把 teacher-only counts、raw token 或 quiz correctness 提前廣播給 participant。
+- [x] `session.state_changed`、`question.closed`、`session.closed` 僅在 PostgreSQL commit 後發布；listener 必須在 mutation 前註冊。
+- [x] 模擬 event bus/Socket publish failure：REST mutation 仍成功，已提交 DB state 不 rollback；錯誤隔離且不回報假失敗。
+- [x] 驗證 actor-specific projection，不把 teacher-only counts、raw token 或 quiz correctness 提前廣播給 participant。
 - [ ] 本階段只驗證 current lite event bus/snapshot；durable `eventSeq`、outbox、replay、Redis 不得列為 BE-3.1 完成證據，留 BE-7。
 - [ ] **人工 Checkpoint 6：** 使用者審閱 transaction/event/Socket evidence 的先後順序與 REST/snapshot parity。
+
+> **CP6 evidence（2026-09-13；backend `5814fd8`）：** `test/live-session-realtime.e2e-spec.ts`（authorized `smartlearning_test` run，24 tests PASS）關閉上述 bullet：
+> - **Post-commit ordering（bullet 1）：** `LiveSessionEventBus.publish` spy 在 publish callback 內以 PostgreSQL 讀取證明已 commit——既有 open/join/submit 參數化測試 + 2026-09-13 新增 question-close/session-close/cancel（`session_question` 為 `closed`、`live_session` 為 `closed`/`cancelled`）；socket listener 皆在 mutation 前註冊。
+> - **Publish-failure isolation（bullet 2）：** `bus.publish` reject 模擬下，join/open/submit（既有）+ question-close/session-close/cancel（新增）REST 仍 201 且 DB row committed、不 rollback、不回報假失敗。
+> - **Actor-specific projection（bullet 3）：** participant snapshot 不含 `isCorrect`/token、vote-to-reveal participant-safe result、close-result 逐欄 redaction（既有）；quiz correctness 之即時（realtime）reveal gating 僅以 REST 證明（`quiz-live-flow.e2e-spec.ts`），realtime 端為後續 deferral（`live-gateway.ts:1264` 已有 reveal gate）。
+> - **Scope boundary（bullet 4）：** 上述 CP6 證據僅證明 lite in-process event bus/snapshot + post-commit order，不含 `eventSeq`/durable outbox/replay/Redis（BE-7）。**人工 Checkpoint 6 仍待使用者審閱 transaction/event/Socket 先後與 REST/snapshot parity。**
 
 #### BE-3.1.7 CP7 — 8 小時 auto-close handoff（依賴 BE-6）
 
