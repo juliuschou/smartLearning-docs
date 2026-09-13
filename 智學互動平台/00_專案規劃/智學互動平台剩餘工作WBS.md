@@ -256,10 +256,16 @@
 
 #### BE-3.1.4 CP4 — Auth、CSRF、Origin 與 ownership
 
-- [ ] 每個 control route 覆蓋未登入＝401、角色不符＝403、非 owner teacher 的 existence-hiding、admin 合法操作。
-- [ ] mutation 覆蓋缺失／錯誤 CSRF、非 exact Origin＝403；合法 session + CSRF + Origin + owner 才成功。
-- [ ] success/error 均符合 `/api/v1` envelope；不得暴露 token、password、answer 或內部 exception。
+- [x] 每個 control route 覆蓋未登入＝401、角色不符＝403、非 owner teacher 的 existence-hiding、admin 合法操作。
+- [x] mutation 覆蓋缺失／錯誤 CSRF、非 exact Origin＝403；合法 session + CSRF + Origin + owner 才成功。
+- [x] success/error 均符合 `/api/v1` envelope；不得暴露 token、password、answer 或內部 exception。
 - [ ] **人工 Checkpoint 4：** 使用者抽查 actor／role／credential matrix 的原始 HTTP evidence，確認授權檢查在 projection/side effect 前完成。
+
+> **CP4 evidence（2026-09-13；backend `8492073`）：** `test/live-session-route-matrix.e2e-spec.ts`（authorized `smartlearning_test`，17 tests PASS）補齊 start / question-close / cancel 三條 control route 的 actor／CSRF／ownership matrix：
+> - **start：** anonymous 401、student 403、non-owner 404、missing-CSRF 403、admin cross-owner 201。
+> - **question-close：** anonymous 401、student 403、non-owner 404、missing-CSRF 403、admin cross-owner 201（先 open 使得 close 路徑被實際執行）。
+> - **cancel：** anonymous 401、missing-CSRF 403、admin cross-owner 201（補足既有 wrong-CSRF／Origin／student cells）。
+> 其餘 control routes（close、question-open、create、detail、course、question mutation、enrollment、admin lifecycle）之 401/403/404/admin/CSRF/Origin cells 已由既有多個 e2e suite 涵蓋（close-cancel、questions-mutation、enrollments、auth-courses、account-admin、student-account）。**內部異常 sanitizer** 由 `src/common/http/global-exception-filter.spec.ts`（`sanitizes unknown errors`）證明——未知 Error → `INTERNAL_ERROR` envelope 不洩漏 message/stack。**人工 Checkpoint 4 仍待使用者抽查原始 HTTP evidence。**
 
 #### BE-3.1.5 CP5 — Idempotency、stable conflict 與 concurrency
 
