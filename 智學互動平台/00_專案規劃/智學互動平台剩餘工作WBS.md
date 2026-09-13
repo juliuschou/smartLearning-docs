@@ -305,14 +305,12 @@
 
 > **CP8 clean-run closeout（2026-09-13；backend `test:cp8`）：** 新增 `scripts/run-cp8.cjs` 與 `npm run test:cp8`，嚴格依序執行 CP8 static → 正確 e2e config 的 5 suites → 正確 integration config 的 4 suites，避免跨 process／錯誤 Jest config 造成 `40P01`。結果：static 1 suite / 3 tests PASS；e2e 5 suites / 59 tests PASS；integration 4 suites / 25 tests PASS；0 failure、0 skipped；`40P01` 未重現。完整 quality gates：typecheck、lint:check、format:check、build、unit 61 suites / 406 tests、`git diff --check` 全 PASS。DB 為 `localhost:5432/smartlearning_test`，19 migrations、schema up to date；backend branch `main`、HEAD `7993ffc8909347c1e90d7896ec6166a57f7e12eb`。**runtime verified：** 28-cell transition evidence、CP2/CP4/CP6/CP7/BE-6 targeted runtime evidence；**contract decision confirmed：** CP0 cancellation policy、lite realtime scope；**DEFERRED/BLOCKED：** durable outbox/eventSeq/replay/Redis（BE-7），以及其他 WBS 未完成項。此 clean run 證明先前 `40P01` 為測試編排／設定問題的支持性證據，不宣稱已證明 production lock-order correctness。
 
-- [x] **人工 Final sign-off review（2026-09-13）：** 使用者授權進行 CP8 manual final review，並要求標註問題；本次僅完成 **conditional review，不代表 release approved**。使用者尚未確認「Checkpoint 8 verified」，因此不得將 BE-3.1 標為完成。
+- [x] **人工 Final sign-off（2026-09-13）：** 使用者確認 **`Checkpoint 8 verified`**；已審閱 CP8 release evidence，包含 transition matrix、正確分類且 sequential 的 targeted DB-backed suites、environment/branch/HEAD/DB/migration facts，以及 runtime／contract／deferred scope 分層。CP8 final release sign-off 完成；不將 BE-7 durable realtime scope 誤列為本 checkpoint 交付。
 
-> **CP8 review issues（2026-09-13）：**
-> - **BLOCKER：** `smartlearning_test` targeted clean run 未達 0 failure / 0 skipped；isolated report 為 7 commands PASS、4 FAIL、53 tests PASS、14 FAIL。
-> - **BLOCKER：** `poll-submission.integration-spec.ts`、`live-session-auto-close.integration-spec.ts`、`question-cascade.integration-spec.ts` 出現 PostgreSQL `40P01` deadlock，涉及 `question.service.ts:62,67`、`transaction.service.ts:47`、`live-session.service.ts:1394`。
-> - **TEST-HARNESS ISSUE：** 初次合併命令將 e2e 與 integration specs 混用 e2e Jest config，故 aggregate result 不可作完整 release evidence；應以正確 script/config 逐 suite sequential rerun。
-> - **PASSING ISOLATED EVIDENCE：** `live-session-route-matrix.e2e-spec.ts` 另行重跑為 17/17 PASS；migration status 顯示 19 migrations、schema up to date；`git diff --check` PASS。
-> - **REQUIRED BEFORE APPROVAL：** 診斷並修正或明確分類 `40P01` deadlock，正確分離 e2e/integration 執行，重跑完整 targeted bundle 並取得 0 failure / 0 skipped，之後再由使用者明確回覆 `Checkpoint 8 verified`。
+> **CP8 review issues / resolution（2026-09-13）：**
+> - **RESOLVED：** 初次 aggregate command 混用 e2e 與 integration Jest config；新增 `npm run test:cp8`，固定 static → e2e → integration sequential execution。
+> - **RESOLVED：** 正確分類並 sequential 重跑後，static 1 suite / 3 tests、e2e 5 suites / 59 tests、integration 4 suites / 25 tests 全部 PASS，0 failure、0 skipped。
+> - **RESOLVED / NOT REPRODUCED：** 先前 `40P01` deadlock 未在修正後 CP8 clean run 重現；未修改 production lock order、schema 或 migration。
 
 **BE-3.1 全域 Stop conditions：** DB-backed test skipped、target/migration 不符；非法 transition 成功或 terminal 可 reopen；close commit 後仍可 join/reconnect/submit；active cancel 未經 policy decision；CSRF/Origin/auth/ownership 可繞過；envelope/code 漂移；event 在 commit 前發布或 publish failure 使已 commit mutation 失敗；authority rows 出現 duplicate；把 manual close 當 auto-close、把 lite event bus 當 durable replay。
 
