@@ -299,9 +299,12 @@
 
 #### BE-3.1.8 CP8 — Final release evidence
 
-- [ ] 建立 `waiting/active/closed/cancelled × start/open/close/cancel/join/reconnect/submit` transition/negative matrix，8 個原始 BE-3.1 行為項目各自對應 passing test 或人工步驟。
-- [ ] targeted DB-backed suites 0 failure、0 skipped；記錄 branch、HEAD、working tree、Node/npm/Prisma、DB target/migration status、command、test/skip count、最小失敗證據與 authority queries。
-- [ ] 明確分開 `runtime verified`、`contract decision confirmed`、`DEFERRED/BLOCKED`；未完成 cancellation decision、BE-6 auto-close、BE-3.3 race 或 durable realtime 不得宣稱 BE-3.1 完成。
+- [x] 建立 `waiting/active/closed/cancelled × start/open/close/cancel/join/reconnect/submit` transition/negative matrix，8 個原始 BE-3.1 行為項目各自對應 passing test 或人工步驟。
+- [x] targeted DB-backed suites 0 failure、0 skipped；記錄 branch、HEAD、working tree、Node/npm/Prisma、DB target/migration status、command、test/skip count、最小失敗證據與 authority queries。
+- [x] 明確分開 `runtime verified`、`contract decision confirmed`、`DEFERRED/BLOCKED`；未完成 cancellation decision、BE-6 auto-close、BE-3.3 race 或 durable realtime 不得宣稱 BE-3.1 完成。
+
+> **CP8 clean-run closeout（2026-09-13；backend `test:cp8`）：** 新增 `scripts/run-cp8.cjs` 與 `npm run test:cp8`，嚴格依序執行 CP8 static → 正確 e2e config 的 5 suites → 正確 integration config 的 4 suites，避免跨 process／錯誤 Jest config 造成 `40P01`。結果：static 1 suite / 3 tests PASS；e2e 5 suites / 59 tests PASS；integration 4 suites / 25 tests PASS；0 failure、0 skipped；`40P01` 未重現。完整 quality gates：typecheck、lint:check、format:check、build、unit 61 suites / 406 tests、`git diff --check` 全 PASS。DB 為 `localhost:5432/smartlearning_test`，19 migrations、schema up to date；backend branch `main`、HEAD `7993ffc8909347c1e90d7896ec6166a57f7e12eb`。**runtime verified：** 28-cell transition evidence、CP2/CP4/CP6/CP7/BE-6 targeted runtime evidence；**contract decision confirmed：** CP0 cancellation policy、lite realtime scope；**DEFERRED/BLOCKED：** durable outbox/eventSeq/replay/Redis（BE-7），以及其他 WBS 未完成項。此 clean run 證明先前 `40P01` 為測試編排／設定問題的支持性證據，不宣稱已證明 production lock-order correctness。
+
 - [x] **人工 Final sign-off review（2026-09-13）：** 使用者授權進行 CP8 manual final review，並要求標註問題；本次僅完成 **conditional review，不代表 release approved**。使用者尚未確認「Checkpoint 8 verified」，因此不得將 BE-3.1 標為完成。
 
 > **CP8 review issues（2026-09-13）：**
