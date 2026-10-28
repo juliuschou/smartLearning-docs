@@ -15,6 +15,9 @@ project: 智學互動平台
 
 # 智學互動平台 - M2 跨文件 Contract Review
 
+> [!warning] Superseded historical review
+> The persistence, database-schema, ORM and technology-stack source documents reviewed here have been removed for redesign. The PASS result below applies only to the former document set and must not be used as current architecture or implementation approval.
+
 > [!important] Review result
 > **PASS_WITH_FINDINGS — 無設計阻擋項；本次 BE-2 contract freeze 文件同步已完成，待 release approval 才可 final sign-off。** 本 review 以 source-of-truth hierarchy 判定衝突，不把目前 backend 尚未實作誤判為 contract 不一致；所有 deferred runtime capability 仍標示為 pending verification。
 
@@ -30,9 +33,8 @@ project: 智學互動平台
 - `30_系統設計/API 與共用 Schema 設計.md`
 - `30_系統設計/即時同步與結果治理設計.md`
 - `30_系統設計/架構、容量與可觀測性設計.md`
-- 既有 `系統領域與需求分析.md`、`非功能、風險與驗收分析.md`、`資料模型與 ER 設計.md`、`Web Auth 與安全設計.md`
-- 上游 `P0 核心需求基線.md`、`題目領域契約.md`、`結果資料治理.md`、`MVP 效能目標.md`
-- `M2 關鍵技術決策.md`、`技術棧.md`、`M2 系統分析與設計交付計畫.md`
+- Historical source documents: domain requirements, risk/acceptance, data model/ER, Web Auth, M2 decisions, tech stack, and delivery plan (removed or superseded)
+- Upstream requirements reviewed at that time: `P0 核心需求基線.md`、`題目領域契約.md`、`結果資料治理.md`、`MVP 效能目標.md`
 
 ### 1.2 Source-of-truth hierarchy
 
@@ -40,7 +42,7 @@ project: 智學互動平台
 2. 題目語意與 Web/CLI validation parity：[[題目領域契約]]。
 3. 結果保存、匿名化、90 天 retention、提前刪除：[[結果資料治理]]。
 4. 效能 workload 與 pass/fail 門檻：[[MVP 效能目標]]。
-5. 由上述來源推導的 M2 technical decisions：[[M2 關鍵技術決策]]。
+5. M2 technical decisions in this historical review were based on documents that have since been removed; persistence decisions require a new baseline.
 6. 交付計畫與索引只描述工作，不得覆寫以上 contract。
 
 ### 1.3 判定語意
@@ -115,7 +117,7 @@ The review adopts `field` and `nextStep` because these are the existing backend 
 
 ### F-01 — CLI `can_create_course` wording conflict (resolved)
 
-- **Evidence:** [[M2 關鍵技術決策#8. can_create_course scope + CLI credential revocation — 已定案]] and [[Web Auth 與安全設計#Account、role 與 authorization matrix]] keep CLI credential revocation separate from removing `can_create_course`; the older CLI BDD scenario says removing the flag immediately rejects all CLI requests.
+- **Historical evidence:** the former M2 decision and Web Auth documents (now removed) kept CLI credential revocation separate from removing `can_create_course`; this decision must be revalidated before reuse.
 - **Decision:** `canCreateCourse=false` blocks creation of a new Course only. It does not revoke a CLI credential and does not remove management rights for an existing scoped Course. Existing CLI requests still require active account, active key, key scope, permission, ownership and Course state. Account disable or explicit key revoke blocks CLI immediately.
 - **Disposition:** `RESOLVED / non-blocking documentation follow-up`. Update the older CLI BDD wording before its implementation tests are written; do not change the M2 technical decision or API contract.
 
@@ -133,7 +135,7 @@ The review adopts `field` and `nextStep` because these are the existing backend 
 
 ### F-04 — Open-text list versus word cloud (accepted non-blocker)
 
-- **Evidence:** [[M2 關鍵技術決策#9. Open text 安全投影 — 已定案（非阻擋部分延後）]] and [[結果資料治理]] fix plain-text input, safe projection, anonymization and retention but leave visual rendering to product.
+- **Historical evidence:** prior M2 and governance documents set plain-text input, safe projection, anonymization and retention behavior; those assumptions require revalidation before implementation.
 - **Decision:** Server contract remains safe plain-text list projection; list/cloud/toggle is frontend product work and cannot change domain schema, visibility or retention.
 - **Disposition:** `OPEN_NON_BLOCKING`; owner Product/Frontend, after M2.
 
@@ -162,7 +164,7 @@ The review adopts `field` and `nextStep` because these are the existing backend 
 
 ### Required follow-ups (not design blockers)
 
-1. Normalize snake_case examples in `M2 系統分析與設計交付計畫.md` to the v1 camelCase names.
+1. Historical follow-up: normalize snake_case examples to v1 camelCase if that delivery plan is restored or replaced.
 2. Update the older CLI Agent BDD scenario so `can_create_course` removal is not described as credential revocation; preserve explicit key/account revocation behavior.
 3. Implement the additive success `data/meta/error` response wrapper and expanded error codes in the common HTTP layer during M3.
 4. Run true PostgreSQL race, outbox/reconnect, retention/restore and W1～W8 capacity verification; historical Phase 1 green results are not reused as evidence.
@@ -180,6 +182,5 @@ The review adopts `field` and `nextStep` because these are the existing backend 
 ## 相關連結
 
 - 需求 source of truth：[[P0 核心需求基線]]、[[題目領域契約]]、[[結果資料治理]]、[[MVP 效能目標]]
-- 上游設計：[[系統領域與需求分析]]、[[非功能、風險與驗收分析]]、[[資料模型與 ER 設計]]、[[Web Auth 與安全設計]]
-- 本次設計：[[API 與共用 Schema 設計]]、[[即時同步與結果治理設計]]、[[架構、容量與可觀測性設計]]
-- 技術與交付：[[M2 關鍵技術決策]]、[[技術棧]]、[[M2 系統分析與設計交付計畫]]
+- 本次 review 的 runtime-independent design records：[[API 與共用 Schema 設計]]、[[即時同步與結果治理設計]]、[[架構、容量與可觀測性設計]]
+- Persistence/schema/technology decisions: removed pending redesign.

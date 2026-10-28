@@ -21,8 +21,7 @@ project: 智學互動平台
 ## 交付檔案
 
 - [[prototype/智學互動平台-prototype.html|智學互動平台 standalone prototype]]
-- 需求依據：[[功能需求規格 SPEC]]
-- 資料模型依據：[[PostgreSQL 資料庫綱要設計]]
+- Historical requirement/schema sources were removed or superseded; the prototype remains a visual demo only.
 
 唯一 HTML source 位於 `50_實作與測試/prototype/`，CSS、JavaScript、fixture、圖表與 favicon 均 inline，沒有另外維護第二份 HTML、外部 CSS、外部 JavaScript 或圖片資產。
 
@@ -160,4 +159,4 @@ Prototype 沒有新增獨立的 question bank 或 activity entity；題庫語意
 
 ## 結果
 
-Prototype 已可作為 M2/M3 討論用的視覺基線：產品可直接從學員加入、老師建題、建立場次、逐題控制、答案提交與結果公布等流程檢查需求理解；工程實作時仍應以 [[功能需求規格 SPEC]] 與 [[PostgreSQL 資料庫綱要設計]] 為權威來源，不能以本 HTML 取代正式 API、transaction 或負載測試。
+Prototype remains a historical visual reference only. Its former requirement and database-schema authorities have been removed; do not treat this HTML as a current API, persistence, transaction, or load-test specification.

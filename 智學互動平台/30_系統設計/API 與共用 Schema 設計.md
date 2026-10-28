@@ -21,10 +21,10 @@ project: 智學互動平台
 > 本 addendum 同步 wire actor/scope 語意，不把 API contract 文字當作 full runtime verification；B3/full regression 與 archive/retention target 仍依 backend status evidence 分層。
 
 > [!important] 文件定位
-> 本檔把 [[題目領域契約]]、[[P0 核心需求基線]]、[[結果資料治理]] 與 [[M2 關鍵技術決策]] 轉成 Web、匿名 Participant、CLI/Agent 與 Socket.IO 共用的 wire contract。本檔定義介面與資料交換語意，不取代需求規則、ERD 或即時同步設計。
+> 本檔是先前 API/wire-contract 設計紀錄。原 persistence design 已撤除，且 backend application source 已移除；所有 schema/mapping 相關假設須在重新設計後重審，本文不可視為目前 runtime 或資料模型規格。
 
 > [!warning] Current / target boundary
-> Backend runtime 已支援 `/api/v1`、Identity/Course/Enrollment、LiveSession、Question、Participant、Submission、Result、CLI credential 與 Socket.IO lite wire paths；本檔仍保留 archive/retention 與 durable realtime/replay 為 deferred target。Runtime evidence 與 target contract 分開記錄。
+> Backend application runtime 已移除；本文保留的 endpoints 與 actor flows 皆屬歷史 contract，不能視為現行可用能力。API 與 persistence 邊界需在重新開發時重新核定。
 
 ## 1. Source of truth 與共用規約
 
@@ -34,8 +34,7 @@ project: 智學互動平台
 | 2 | [[題目領域契約]] | QuestionDefinition、Option、SessionQuestion、validation、error semantics |
 | 3 | [[結果資料治理]] | ArchivedResult、匿名化、90 天 retention、提前刪除與 tombstone |
 | 4 | [[MVP 效能目標]] | W1～W8 workload 與 p95/p99/正確性門檻 |
-| 5 | [[M2 關鍵技術決策]] | UUID v7、PostgreSQL authority、opaque validation token、Redis boundary、wire baseline |
-| 6 | ER/Auth/Realtime/Architecture design | 資料映射、授權、事件、部署與觀測的具體落地 |
+| 5 | Related design records | Remaining API, realtime, and architecture contracts require review against the new persistence design |
 
 ### 1.1 Global wire invariants
 
@@ -290,15 +289,14 @@ The successful state change is authoritative only after PostgreSQL commit. Socke
 - [ ] Batch errors are complete and all-or-nothing; preview/confirm requires explicit confirmation.
 - [ ] Same idempotency key is replay-safe; hash mismatch is a stable conflict.
 - [ ] Every endpoint has actor, scope, status guard, transaction boundary and stable failure code.
-- [ ] API schemas match ER entities, Socket events and Archive projections in [[M2 跨文件 Contract Review]]。
+- [ ] API schemas and actor flows are revalidated against the replacement persistence and archive designs before implementation.
 - [ ] Runtime implementation and contract tests remain deferred to M3/M4; this document is not implementation evidence.
 
 ## 相關連結
 
 - 需求：[[P0 核心需求基線]]、[[題目領域契約]]、[[結果資料治理]]
 - 效能：[[MVP 效能目標]]、[[MVP 效能需求 BDD 場景]]
-- 上游設計：[[系統領域與需求分析]]、[[非功能、風險與驗收分析]]、[[資料模型與 ER 設計]]、[[Web Auth 與安全設計]]
 - 同步與治理：[[即時同步與結果治理設計]]
 - 架構：[[架構、容量與可觀測性設計]]
-- 技術決策：[[M2 關鍵技術決策]]、[[技術棧]]
 - Review：[[M2 跨文件 Contract Review]]
+- Persistence schema/mapping design: removed pending redesign.
