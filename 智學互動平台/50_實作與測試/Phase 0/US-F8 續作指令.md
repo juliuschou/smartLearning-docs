@@ -12,7 +12,7 @@
   - 驗證：`live-session-realtime.e2e-spec.ts` **14/14**（含 3 個新 US-F8 測試）。
 - **Full regression bundle（commit 前）PASS**：unit 21 suites/121 tests、integration 7/7、e2e 6 suites/40 tests、`typecheck`/`lint:check`/`format:check`/`build`/`git diff --check` 全綠。
 
-backend repo `smartLearning-backend` 分支 `phase-b-student-enrollment`，working tree 乾淨（僅剩未追蹤 `scripts/verify-change-password.mjs`，刻意不碰）。
+backend repo `smartLearning-backend` 分支 `phase-b-student-enrollment`；此為 2026-08-21 當時的工作樹狀態記錄。
 
 ---
 
@@ -53,6 +53,6 @@ backend 若有更動，回歸受影響 suites（`test/account-admin.e2e-spec.ts`
 
 - `2>&1 | tail` 緩衝 jest 全部輸出 → 看不到進度；用 `npx jest --verbose > log 2>&1`。
 - `.env.test` 含 credentials，勿 `cat`（classifier 擋）；用 `/dev/tcp/localhost/5432` 探 DB。
-- `scripts/verify-change-password.mjs` 與 UI `tasks/todo.md` 是既有未 commit 內容，別碰。
+- UI `tasks/todo.md` 曾是既有未 commit 內容；此歷史指令不涵蓋後續另行授權的 backend scripts/ 刪除。
 - 後端 e2e 用 `smartlearning_test`，`setupTestDb()` 只接受該 DB。
 - 新檔先 `prettier --write` 再跑 lint gate。
