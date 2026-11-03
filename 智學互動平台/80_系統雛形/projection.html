@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>投影 — 智學互動平台</title>
+<link rel="stylesheet" href="assets/style.css">
+</head>
+<body>
+<div id="root"></div>
+<script>
+"use strict";
+/* 投影畫面：呈現當前題目、已公布結果或加入 QR Code／Game PIN。
+   學員識別資訊一律遮蔽；切換畫面不會自動公布任何結果；
+   與即時服務失聯時顯示安全待機畫面。 */
+const params = new URLSearchParams(location.search);
+const pin = params.get("pin") || "007432";
+const mode = params.get("mode") || "join";
+const root = document.getElementById("root");
+
+let lostConn = false; // 示意：可切換看安全待機畫面
+
+const DEMO_Q = {
+  stem: "CPR 按壓深度成人建議為？",
+  options: ["2 公分", "5 公分", "10 公分", "不限制"],
+  dist: [16, 62, 15, 7], // 已公布答案分布（%）
+  correctIdx: 1,
+  publishedAnswer: false,
+};
+
+function render() {
+  root.innerHTML = "";
+  if (lostConn) {
+    const s = document.createElement("div");
+    s.className = "standby";
+    s.innerHTML = "安全待機畫面<br><span style='font-size:15px;opacity:.7'>與即時服務暫時失聯，本畫面不呈現可能過期或未授權的資料。</span>";
+    root.appendChild(s);
+    return;
+  }
+  const d = document.createElement("div");
+  d.className = "proj";
+  if (mode === "join") {
+    d.innerHTML = `<div class="pin">加入這場活動<b>${pin}</b>或掃描 QR Code（示意 ▦）</div>
+      <p style="text-align:center;opacity:.7">加入資訊僅在活動允許加入期間有效。</p>`;
+  } else if (mode === "question") {
+    d.innerHTML = `<div class="q">${DEMO_Q.stem}</div>
+      <div class="dist">${DEMO_Q.options.map((o, i) =>
+        `<div class="bar"><span>${["Ａ","Ｂ","Ｃ","Ｄ"][i]}</span><span class="track"><span class="fill" style="width:${DEMO_Q.dist[i]}%"></span></span><span>${DEMO_Q.dist[i]}%</span></div>`).join("")}</div>
+      ${DEMO_Q.publishedAnswer ? `<div class="revealed reveal-anim">正確答案：${DEMO_Q.options[DEMO_Q.correctIdx]}</div>` : ""}`;
+  } else {
+    d.innerHTML = `<h1 style="color:#fff;text-align:center;font-family:var(--serif)">已公布結果</h1>
+      <div class="dist">${[
+        ["Ａ", "2 公分", 16], ["Ｂ", "5 公分", 62], ["Ｃ", "10 公分", 15], ["Ｄ", "不限制", 7]
+      ].map(([L_, o, p]) => `<div class="bar"><span>${L_}</span><span class="track"><span class="fill" style="width:${p}%"></span></span><span>${p}%</span></div>`).join("")}</div>
+      <p style="text-align:center;opacity:.7;margin-top:26px">學員端公布統計僅顯示答案分布；此畫面遮蔽所有學員識別資訊。<br>切換投影畫面不會自動公布統計、正確答案或排行榜。</p>`;
+  }
+  root.appendChild(d);
+}
+
+window.addEventListener("keydown", e => {
+  if (e.key.toLowerCase() === "l") { lostConn = !lostConn; render(); } // 示意：模擬失聯
+});
+render();
+</script>
+</body>
+</html>
