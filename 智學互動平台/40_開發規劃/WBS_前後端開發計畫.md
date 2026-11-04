@@ -32,11 +32,11 @@
 ## 2. 後端 WBS
 
 ### MS0 共同基礎（1.0）
-- 1.1 執行 `er_model_postgresql.sql` 建置 schema、驗證 `\d+` 欄位註解；migration 機制（expand-only 起步）
-- 1.2 API 骨架：錯誤格式、一般化訊息（防帳號枚舉）、冪等鍵慣例、分頁/樂觀鎖（version）慣例
-- 1.3 共用契約（NestJS `@nestjs/swagger` 產生 OpenAPI）：以 GLOSSARY 命名；前端由 OpenAPI 產生 `packages/api-client`
-- 1.4 CI：lint + 單元測試 + psql 煙霧測試（全新 DB 一次通過）
-- **5.X 驗證慣例**：每步驗證——目標測試 → 整合測試（ disposable container 建置，見測試規範）
+- 1.1 先把 `er_model_postgresql.sql` 在空的資料庫上跑一遍，確認所有表格建得起來，而且每個欄位都有說明文字（用 `\d+` 檢查）；同時建立資料庫變更的管理方式（migration），之後改表格只能「加」不能「刪」。
+- 1.2 把後端的骨架立好，先講好大家共用的規矩：出錯時回覆的格式固定、錯誤訊息一律模糊化（例如不能讓人試出「這個帳號存在」）、同一件事重複送不會重複做（冪等）、查清單要分頁、避免兩人同時改同一筆資料互相覆蓋（版本鎖）。
+- 1.3 後端用 NestJS 的 `@nestjs/swagger` 自動產生 API 說明文件（OpenAPI），名稱一律照 GLOSSARY 的用詞；前端拿這份文件自動產生呼叫 API 的程式碼（`packages/api-client`），兩邊講同一種話。
+- 1.4 設定 CI 自動檢查：程式碼風格檢查（lint）＋單元測試＋拿一個全新的資料庫把 SQL 從頭到尾跑一次（必須一次成功）。
+- **5.X 驗證慣例**：每一小步做到一段落就先跑相關測試，需要連資料庫的整合測試用拋棄式容器臨時開一個乾淨環境來測（做法見測試規範）。
 
 ### MS1 帳號與授權（2.0）
 - 2.1 `one_time_link`：INVITATION / PASSWORD_RESET / EMAIL_VERIFICATION，30 分鐘／7 天有效、重發失效、60 秒寄送限制
