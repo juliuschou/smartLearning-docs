@@ -5,14 +5,14 @@
 
 ## 0. 技術基調（定案）
 
-- **技術棧**：Next.js（前端）＋ NestJS（後端）＋ PostgreSQL（資料庫），TypeScript 全棧。
-- **後端**：NestJS（REST + Socket.IO/WS 即時通道）；PostgreSQL（`er_model_postgresql.sql`）；Redis 可選（心跳 / Game PIN 世代 / 控制租約），先以 PG partial unique index 起步即可。NestJS 同時服務 OpenAPI（`@nestjs/swagger`）供前端產生 client。
-- **前端**：Next.js（App Router），分離兩個 App，共用 API client 套件（由 NestJS OpenAPI 產生，openapi-typescript + SWR/TanStack Query）：
-  - 管理端（`index.html` 對應）：系統管理者 + 老師（M01–M07、M09、M10）
-  - 學員端（`learner.html` 對應）：無帳號匿名參與者（M08）＋ 投影畫面（projection，唯讀訂閱）
-- **即時通道**：NestJS Gateway（Socket.IO）＋ Next.js 前端 socket-client 封裝。學員端心跳/作答開放/公布 → WS 推送；老師控制台 → WS 訂閱人數三指標與反應；「按 L 失聯→安全待機」為前端斷線行為，非後端功能。
-- **安全邊界**：所有授權在後端 NestJS Guard 驗 `login_session.permission_snapshot` 與有效權限；前端（含 Next.js server components）選單過濾僅為 UX（雛形已註明）。Next.js 學員端匿名憑證以 httpOnly cookie 管理，不落 localStorage。
-- **部署形態**：管理端/學員端各一個 Next.js App（monorepo：pnpm workspace，`apps/admin`、`apps/learner`、`apps/api`、`packages/api-client`、`packages/db`）。
+- **技術棧**：前端用 Next.js、後端用 NestJS、資料庫用 PostgreSQL，全部用 TypeScript 一種語言寫到底。
+- **後端**：用 NestJS 提供 API（一般查改用 REST）、即時推播走 Socket.IO 通道；資料庫是 PostgreSQL，表格結構就用已定稿的 `er_model_postgresql.sql`。心跳、Game PIN 流水、控制權這種高速存取的東西，未來想加速可以加 Redis，但一開始先用 PostgreSQL 的條件式唯一索引就夠了。NestJS 順便用 `@nestjs/swagger` 自動產生 API 說明文件，前端直接拿來用。
+- **前端**：Next.js（App Router）做兩個各自的網站，共用一組「呼叫 API 的程式碼」（由後端 OpenAPI 自動產生，搭配 openapi-typescript ＋ SWR/TanStack Query）：
+  - 管理端（對應雛形的 `index.html`）：給系統管理者和老師用（M01–M07、M09、M10）。
+  - 學員端（對應雛形的 `learner.html`）：給不用申請帳號的學員（M08），另含投影畫面（projection，只收訊息不送）。
+- **即時推播**：後端用 NestJS 的 WebSocket Gateway（Socket.IO），前端包一層連線用戶端。學員端的心跳、「可以作答了」「公布結果了」都靠它即時推；老師控制台即時收到三個人數數字與回應。雛形裡「按 L 模擬失聯跳安全待機畫面」是前端自己斷線時的畫面行為，不是後端功能。
+- **安全界線**：所有「你有沒有權限做這件事」的判斷都在後端做——NestJS Guard 檢查登入 Session 裡存的權限快照；前端（包含 Next.js 後端渲染的部分）把選單藏起來只是讓畫面好用，不算防線（雛形已註明）。學員的匿名憑證存在 httpOnly cookie（JavaScript 讀不到），不放 localStorage。
+- **專案結構**：一個倉庫管全部（monorepo，用 pnpm workspace）：`apps/admin` 管理端、`apps/learner` 學員端、`apps/api` 後端、`packages/api-client` 共用 API 呼叫端、`packages/db` 共用資料庫存取套件。
 
 ## 1. 里程碑總覽（先後順序）
 
